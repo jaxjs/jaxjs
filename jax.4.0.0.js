@@ -9,25 +9,6 @@
  */
 
 (function(window){
-    /** Compensate for older browsers lack of Array.indexOf (<= IE 8) */
-    if (!Array.indexOf) {
-        Array.prototype.indexOf = function(obj) {
-            for (var i = 0; i < this.length; i++) {
-                if (this[i] == obj){
-                    return i;
-                }
-            }
-            return -1;
-        };
-    }
-
-    /** Compensate for older browsers lack of String.trim (<= IE 8) */
-    if (!String.trim) {
-        String.prototype.trim = function() {
-            return this.replace(/^\s+/, '').replace(/\s+$/, '');
-        };
-    }
-
     /**
      * Base jax constructor class
      * @constructor
@@ -63,7 +44,6 @@
         version    : jax.version,
         selector   : null,
         length     : 0,
-        lang       : null,
         childIndex : 0,
         view       : {
             width  : 0,
@@ -82,7 +62,8 @@
             // Start the selection process
             if (this.selector != undefined) {
                 // If selector is the window object, document object or pre-selected object
-                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) && (this.selector.constructor != String))) {
+                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) &&
+                    (this.selector.constructor != String))) {
                     this.push(this.selector);
                 // Else, make selection
                 } else {
@@ -131,13 +112,8 @@
             }
 
             // Get the viewport dimensions
-            if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                this.view.width = document.documentElement.clientWidth;
-                this.view.height = document.documentElement.clientHeight;
-            } else {
-                this.view.width = window.innerWidth;
-                this.view.height = window.innerHeight;
-            }
+            this.view.width  = window.innerWidth;
+            this.view.height = window.innerHeight;
 
             return this;
         },
@@ -224,7 +200,7 @@
          * @returns {Array}
          */
         toArray : function() {
-            var ary = []
+            var ary = [];
             for (var i = 0; i < this.length; i++) {
                 ary.push(this[i]);
             }
@@ -633,25 +609,21 @@
          * @param {Function} func
          */
         ready : function(func) {
-            if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                // Get old onreadystatechange functions, if they exists
-                if (document.onreadystatechange == null) {
+            // Get old onreadystatechange functions, if they exists
+            if (document.onreadystatechange == null) {
+                document.onreadystatechange = func;
+            } else {
+                var oldReady = document.onreadystatechange;
+                if (typeof oldReady != 'function') {
                     document.onreadystatechange = func;
                 } else {
-                    var oldReady = document.onreadystatechange;
-                    if (typeof oldReady != 'function') {
-                        document.onreadystatechange = func;
-                    } else {
-                        document.onreadystatechange = function() {
-                            if (oldReady) {
-                                oldReady();
-                            }
-                            func();
-                        };
-                    }
+                    document.onreadystatechange = function() {
+                        if (oldReady) {
+                            oldReady();
+                        }
+                        func();
+                    };
                 }
-            } else {
-                document.addEventListener('DOMContentLoaded', func, false);
             }
         },
         /**
@@ -718,7 +690,7 @@
                 throw 'An object must be selected to clone.';
             }
 
-            var d = (deep != undefined)   ? deep : true;
+            var d = (deep != undefined)   ? deep   : true;
             var e = (events != undefined) ? events : false;
             var c = this[0].cloneNode(d);
 
@@ -750,17 +722,7 @@
             // Set any element override attributes.
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
-                    // Account for IE7 style attribute property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (var j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(c, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        c.setAttribute(attrib, attribs[attrib]);
-                    }
+                    c.setAttribute(attrib, attribs[attrib]);
                 }
             }
 
@@ -837,17 +799,7 @@
             // Set any element attributes.
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
-                    // Account for IE7 style attribute property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (var j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(objChild, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        objChild.setAttribute(attrib, attribs[attrib]);
-                    }
+                    objChild.setAttribute(attrib, attribs[attrib]);
                 }
             }
 
@@ -945,29 +897,14 @@
                 if ((attribs != undefined) && (attribs != null)) {
                     for (var attrib in attribs) {
                         var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                        // Account for IE7 style property issue.
-                        if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                            var styles = (att.lastIndexOf(';') == (att.length - 1)) ? att.substring(0, (att.length - 1)) : att;
-                            var sty = styles.replace('; ', ';').split(';');
-                            for (var j = 0; j < sty.length; j++) {
-                                var styleVal = sty[j].replace(': ', ':').split(':');
-                                this.setCss(newElem, styleVal[0].trim(), styleVal[1].trim());
-                            }
-                        } else {
-                            newElem.setAttribute(attrib, att);
-                        }
+                        newElem.setAttribute(attrib, att);
                     }
                 }
 
                 // Set elements' values and append them to the parent element.
                 var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
                 newElem.setAttribute('value', valuesAry[0]);
-
-                if ((window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    newElem.defaultChecked = (objMarked.indexOf(valuesAry[1]) != -1);
-                } else {
-                    newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
-                }
+                newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
 
                 objChild.appendChild(newElem);
 
@@ -1026,17 +963,7 @@
                 if ((attribs != undefined) && (attribs != null)) {
                     for (var attrib in attribs) {
                         var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                        // Account for IE7 style property issue.
-                        if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                            var styles = (att.lastIndexOf(';') == (att.length - 1)) ? att.substring(0, (att.length - 1)) : att;
-                            var sty = styles.replace('; ', ';').split(';');
-                            for (var j = 0; j < sty.length; j++) {
-                                var styleVal = sty[j].replace(': ', ':').split(':');
-                                this.setCss(newElem, styleVal[0].trim(), styleVal[1].trim());
-                            }
-                        } else {
-                            newElem.setAttribute(attrib, att);
-                        }
+                        newElem.setAttribute(attrib, att);
                     }
                 }
 
@@ -1045,11 +972,7 @@
                 newElem.setAttribute('value', valuesAry[0]);
 
                 if (objMarked != null) {
-                    if ((window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        newElem.defaultChecked = (objMarked.indexOf(valuesAry[1]) != -1);
-                    } else {
-                        newElem.checked = (objMarked == valuesAry[1]);
-                    }
+                    newElem.checked = (objMarked == valuesAry[1]);
                 }
                 objChild.appendChild(newElem);
 
@@ -1084,24 +1007,11 @@
             var objChild = document.createElement('select');
             var objValues = [];
             var objMarked = (marked != undefined) ? marked : null;
-            if (this.lang == null) {
-                this.lang = jax.i18n.init();
-            }
 
             // Set any element attributes.
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
-                    // Account for IE7 style property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(objChild, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        objChild.setAttribute(attrib, attribs[attrib]);
-                    }
+                    objChild.setAttribute(attrib, attribs[attrib]);
                 }
             }
 
@@ -1146,67 +1056,95 @@
                 switch (values) {
                     // Months, numeric short values.
                     case 'MONTHS_SHORT':
-                        vl = [['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'], ['12', '12']];
+                        vl = [
+                            ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
+                            ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
+                            ['12', '12']
+                        ];
                         break;
                     // Months, long name values.
                     case 'MONTHS_LONG':
-                        vl = [['--', '------'], ['01', this.lang.translate('January')], ['02', this.lang.translate('February')], ['03', this.lang.translate('March')], ['04', this.lang.translate('April')], ['05', this.lang.translate('May')], ['06', this.lang.translate('June')], ['07', this.lang.translate('July')], ['08', this.lang.translate('August')], ['09', this.lang.translate('September')], ['10', this.lang.translate('October')], ['11', this.lang.translate('November')], ['12', this.lang.translate('December')]];
+                        vl = [
+                            ['--', '------'], ['01', 'January'], ['02', 'February'], ['03', 'March'], ['04', 'April'],
+                            ['05', 'May'], ['06', 'June'], ['07', 'July'], ['08', 'August'], ['09', 'September'],
+                            ['10', 'October'], ['11', 'November'], ['12', 'December']
+                        ];
                         break;
                     // Days of Month, numeric short values.
                     case 'DAYS_OF_MONTH':
-                        vl = [['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'], ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'], ['23', '23'], ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'], ['29', '29'], ['30', '30'], ['31', '31']];
+                        vl = [
+                            ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
+                            ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
+                            ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'], ['17', '17'],
+                            ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'], ['23', '23'],
+                            ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'], ['29', '29'],
+                            ['30', '30'], ['31', '31']
+                        ];
                         break;
                     // Days of Week, long name values.
                     case 'DAYS_OF_WEEK':
-                        var sun = this.lang.translate('Sunday');
-                        var mon = this.lang.translate('Monday');
-                        var tue = this.lang.translate('Tuesday');
-                        var wed = this.lang.translate('Wednesday');
-                        var thu = this.lang.translate('Thursday');
-                        var fri = this.lang.translate('Friday');
-                        var sat = this.lang.translate('Saturday');
-                        vl = [['--', '------'], [sun, sun], [mon, mon], [tue, tue], [wed, wed], [thu, thu], [fri, fri], [sat, sat]];
+                        vl = [
+                            ['--', '------'], ['Sunday', 'Sunday'], ['Monday', 'Monday'], ['Tuesday', 'Tuesday'],
+                            ['Wednesday', 'Wednesday'], ['Thursday', 'Thursday'], ['Friday', 'Friday'],
+                            ['Saturday', 'Saturday']
+                        ];
                         break;
                     // Hours, 12-hour values.
-                    case '12_HOURS':
-                        vl = [['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'], ['12', '12']];
+                    case 'HOURS_12':
+                        vl = [
+                            ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
+                            ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
+                            ['12', '12']];
                         break;
                     // Hours, 24-hour values.
-                    case '24_HOURS':
-                        vl = [['--', '--'], ['00', '00'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'], ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'], ['23', '23']];
+                    case 'HOURS_24':
+                        vl = [
+                            ['--', '--'], ['00', '00'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'],
+                            ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'],
+                            ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'],
+                            ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'],
+                            ['23', '23']
+                        ];
                         break;
                     // Minutes, incremental by 1 minute.
                     case 'MINUTES':
-                        vl = [['--', '--'], ['00', '00'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'], ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'], ['23', '23'], ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'], ['29', '29'], ['30', '30'], ['31', '31'], ['32', '32'], ['33', '33'], ['34', '34'], ['35', '35'], ['36', '36'], ['37', '37'], ['38', '38'], ['39', '39'], ['40', '40'], ['41', '41'], ['42', '42'], ['43', '43'], ['44', '44'], ['45', '45'], ['46', '46'], ['47', '47'], ['48', '48'], ['49', '49'], ['50', '50'], ['51', '51'], ['52', '52'], ['53', '53'], ['54', '54'], ['55', '55'], ['56', '56'], ['57', '57'], ['58', '58'], ['59', '59']];
+                        vl = [
+                            ['--', '--'], ['00', '00'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'],
+                            ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'],
+                            ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'],
+                            ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'],
+                            ['23', '23'], ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'],
+                            ['29', '29'], ['30', '30'], ['31', '31'], ['32', '32'], ['33', '33'], ['34', '34'],
+                            ['35', '35'], ['36', '36'], ['37', '37'], ['38', '38'], ['39', '39'], ['40', '40'],
+                            ['41', '41'], ['42', '42'], ['43', '43'], ['44', '44'], ['45', '45'], ['46', '46'],
+                            ['47', '47'], ['48', '48'], ['49', '49'], ['50', '50'], ['51', '51'], ['52', '52'],
+                            ['53', '53'], ['54', '54'], ['55', '55'], ['56', '56'], ['57', '57'], ['58', '58'],
+                            ['59', '59']
+                        ];
                         break;
                     // Minutes, incremental by 5 minutes.
-                    case '5_MINUTES':
-                        vl = [['--', '--'], ['00', '00'], ['05', '05'], ['10', '10'], ['15', '15'], ['20', '20'], ['25', '25'], ['30', '30'], ['35', '35'], ['40', '40'], ['45', '45'], ['50', '50'], ['55', '55']];
+                    case 'MINUTES_5':
+                        vl = [
+                            ['--', '--'], ['00', '00'], ['05', '05'], ['10', '10'], ['15', '15'], ['20', '20'],
+                            ['25', '25'], ['30', '30'], ['35', '35'], ['40', '40'], ['45', '45'], ['50', '50'],
+                            ['55', '55']
+                        ];
                         break;
                     // Minutes, incremental by 10 minutes.
-                    case '10_MINUTES':
+                    case 'MINUTES_10':
                         vl = [['--', '--'], ['00', '00'], ['10', '10'], ['20', '20'], ['30', '30'], ['40', '40'], ['50', '50']];
                         break;
                     // Minutes, incremental by 15 minutes.
-                    case '15_MINUTES':
+                    case 'MINUTES_15':
                         vl = [['--', '--'], ['00', '00'], ['15', '15'], ['30', '30'], ['45', '45']];
-                        break;
-                    // US States, short name values.
-                    case 'US_STATES_SHORT':
-                        vl = [['--', '--'], ['AK', 'AK'], ['AL', 'AL'], ['AR', 'AR'], ['AZ', 'AZ'], ['CA', 'CA'], ['CO', 'CO'], ['CT', 'CT'], ['DC', 'DC'], ['DE', 'DE'], ['FL', 'FL'], ['GA', 'GA'], ['HI', 'HI'], ['IA', 'IA'], ['ID', 'ID'], ['IL', 'IL'], ['IN', 'IN'], ['KS', 'KS'], ['KY', 'KY'], ['LA', 'LA'], ['MA', 'MA'], ['MD', 'MD'], ['ME', 'ME'], ['MI', 'MI'], ['MN', 'MN'], ['MO', 'MO'], ['MS', 'MS'], ['MT', 'MT'], ['NC', 'NC'], ['ND', 'ND'], ['NE', 'NE'], ['NH', 'NH'], ['NJ', 'NJ'], ['NM', 'NM'], ['NV', 'NV'], ['NY', 'NY'], ['OH', 'OH'], ['OK', 'OK'], ['OR', 'OR'], ['PA', 'PA'], ['RI', 'RI'], ['SC', 'SC'], ['SD', 'SD'], ['TN', 'TN'], ['TX', 'TX'], ['UT', 'UT'], ['VA', 'VA'], ['VT', 'VT'], ['WA', 'WA'], ['WI', 'WI'], ['WV', 'WV'], ['WY', 'WY']];
-                        break;
-                    // US States, long name values.
-                    case 'US_STATES_LONG':
-                        vl = [['--', '------'], ['AL', 'Alabama'], ['AK', 'Alaska'], ['AZ', 'Arizona'], ['AR', 'Arkansas'], ['CA', 'California'], ['CO', 'Colorado'], ['CT', 'Connecticut'], ['DC', 'District of Columbia'], ['DE', 'Delaware'], ['FL', 'Florida'], ['GA', 'Georgia'], ['HI', 'Hawaii'], ['ID', 'Idaho'], ['IL', 'Illinois'], ['IN', 'Indiana'], ['IA', 'Iowa'], ['KS', 'Kansas'], ['KY', 'Kentucky'], ['LA', 'Louisiana'], ['ME', 'Maine'], ['MD', 'Maryland'], ['MA', 'Massachusetts'], ['MI', 'Michigan'], ['MN', 'Minnesota'], ['MS', 'Mississippi'], ['MO', 'Missouri'], ['MT', 'Montana'], ['NE', 'Nebraska'], ['NV', 'Nevada'], ['NH', 'New Hampshire'], ['NJ', 'New Jersey'], ['NM', 'New Mexico'], ['NY', 'New York'], ['NC', 'North Carolina'], ['ND', 'North Dakota'], ['OH', 'Ohio'], ['OK', 'Oklahoma'], ['OR', 'Oregon'], ['PA', 'Pennsylvania'], ['RI', 'Rhode Island'], ['SC', 'South Carolina'], ['SD', 'South Dakota'], ['TN', 'Tennessee'], ['TX', 'Texas'], ['UT', 'Utah'], ['VT', 'Vermont'], ['VA', 'Virginia'], ['WA', 'Washington'], ['WV', 'West Virginia'], ['WI', 'Wisconsin'], ['WY', 'Wyoming']];
                         break;
                     default:
                         // If an array is passed, set the values to the array.
                         if (values.constructor == Array) {
                             vl = values;
                         // Else, if a string is passed, check for any option sets in the options XML file in the data folder, based on the string passed.
-                        } else {
-                            var xmlFile = (optionsFile != null) ? optionsFile : window.jax.root + 'data/options.xml';
-                            vl = window.jax.parseOptions(xmlFile, values);
+                        } else if (optionsFile != null) {
+                            vl = window.jax.parseOptions(optionsFile, values);
                         }
                 }
             }
@@ -1353,7 +1291,7 @@
         child : function(i) {
             if ((this[0] != undefined) && (this[0].hasChildNodes())) {
                 this.childIndex = i;
-                return this[0].childNodes[this.childIndex];
+                return (this[0].childNodes[this.childIndex] != undefined) ? this[0].childNodes[this.childIndex] : undefined;
             } else {
                 return undefined;
             }
@@ -1374,7 +1312,7 @@
         first : function() {
             if ((this[0] != undefined) && (this[0].hasChildNodes())) {
                 this.childIndex = 0;
-                return this[0].childNodes[this.childIndex];
+                return (this[0].childNodes[this.childIndex] != undefined) ? this[0].childNodes[this.childIndex] : undefined;
             } else {
                 return undefined;
             }
@@ -1387,7 +1325,7 @@
         last : function() {
             if ((this[0] != undefined) && (this[0].hasChildNodes())) {
                 this.childIndex = this[0].childNodes.length - 1;
-                return this[0].childNodes[this.childIndex];
+                return (this[0].childNodes[this.childIndex] != undefined) ? this[0].childNodes[this.childIndex] : undefined;
             } else {
                 return undefined;
             }
@@ -1404,7 +1342,7 @@
                 } else {
                     this.childIndex++;
                 }
-                return this[0].childNodes[this.childIndex];
+                return (this[0].childNodes[this.childIndex] != undefined) ? this[0].childNodes[this.childIndex] : undefined;
             } else {
                 return undefined;
             }
@@ -1421,7 +1359,7 @@
                 } else {
                     this.childIndex--;
                 }
-                return this[0].childNodes[this.childIndex];
+                return (this[0].childNodes[this.childIndex] != undefined) ? this[0].childNodes[this.childIndex] : undefined;
             } else {
                 return undefined;
             }
@@ -2455,22 +2393,11 @@
             // If nothing has been selected, attach event to either the window or document object
             if (this.length == 0) {
                 var obj = ((evt == 'scroll') || (evt == 'resize')) ? window : document;
-
-                // Detect browser and add the correct event listener.
-                if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                    obj.attachEvent('on' + evt, func);
-                } else {
-                    obj.addEventListener(evt, func, cp);
-                }
+                obj.addEventListener(evt, func, cp);
             // Else, attach event to the selected object(s)
             } else {
                 for (var i = 0; i < this.length; i++) {
-                    // Detect browser and add the correct event listener.
-                    if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                        this[i].attachEvent('on' + evt, func);
-                    } else {
-                        this[i].addEventListener(evt, func, cp);
-                    }
+                    this[i].addEventListener(evt, func, cp);
                 }
             }
             return this;
@@ -2488,21 +2415,11 @@
             // If nothing has been selected, detach event to either the window or document object
             if (this.length == 0) {
                 var obj = ((evt == 'scroll') || (evt == 'resize')) ? window : document;
-                // Detect browser and add the correct event listener.
-                if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                    obj.detachEvent('on' + evt, func);
-                } else {
-                    obj.removeEventListener(evt, func, cp);
-                }
+                obj.removeEventListener(evt, func, cp);
             // Else, detach event to the selected object(s)
             } else {
                 for (var i = 0; i < this.length; i++) {
-                    // Detect browser and add the correct event listener.
-                    if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                        this[i].detachEvent('on' + evt, func);
-                    } else {
-                        this[i].removeEventListener(evt, func, cp);
-                    }
+                    this[i].removeEventListener(evt, func, cp);
                 }
             }
             return this;
@@ -3289,117 +3206,6 @@
         }
     };
 
-    /** Object for i18n translation */
-    jax.i18n = {
-        lang    : null,
-        locale  : null,
-        content : [],
-        /**
-         * Init/constructor function for the i18n object
-         *
-         * @param   {String}  lang
-         * @returns {Object}
-         */
-        init    : function(lang) {
-            // Get the language and locale
-            if (lang == null) {
-                var lng = ((window.jax.lang != undefined) && (window.jax.lang != null)) ? window.jax.lang : 'en_US';
-            } else {
-                var lng = lang;
-            }
-
-            if (lng.indexOf('_') != -1) {
-                var ary = lng.split('_');
-                this.lang = ary[0];
-                this.locale = ary[1];
-            }  else {
-                this.lang = lng;
-                this.locale = lng.toUpperCase();
-            }
-
-            this.loadFile(window.jax.root + 'data/i18n/' + this.lang +'.xml');
-            return this;
-        },
-        /**
-         * Function to load an external translation XML file
-         *
-         * @param {String} file
-         */
-        loadFile : function(file) {
-            var xmlLang = window.jax.ajax(file);
-            if ((xmlLang.language.nodes != undefined) &&
-                (xmlLang.language.nodes[0] != undefined) &&
-                (xmlLang.language.nodes[0].locale != undefined) &&
-                (xmlLang.language.nodes[0].locale.nodes != undefined)) {
-                var key = 0;
-                for (var i = 0; i < xmlLang.language.nodes.length; i++) {
-                    if ((xmlLang.language.nodes[i] != undefined) && (xmlLang.language.nodes[i].locale != undefined) && (this.locale == xmlLang.language.nodes[i].locale.region)) {
-                        key = i;
-                    }
-                }
-
-                if (this.locale == xmlLang.language.nodes[key].locale.region) {
-                    for (var i = 0; i < xmlLang.language.nodes[key].locale.nodes.length; i++) {
-                        if (xmlLang.language.nodes[key].locale.nodes[i] != undefined) {
-                            if ((xmlLang.language.nodes[key].locale.nodes[i].text.nodes[0] != undefined) && (xmlLang.language.nodes[key].locale.nodes[i].text.nodes[1] != undefined)) {
-                                this.content[xmlLang.language.nodes[key].locale.nodes[i].text.nodes[0].source.nodeValue] = xmlLang.language.nodes[key].locale.nodes[i].text.nodes[1].output.nodeValue;
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        /**
-         * Function to get the current language
-         *
-         * @returns {String}
-         */
-        getLanguage : function() {
-            return this.lang;
-        },
-        /**
-         * Function to get the current locale
-         *
-         * @returns {String}
-         */
-        getLocale : function() {
-            return this.locale;
-        },
-        /**
-         * Function to translate text
-         *
-         * @param   {String} str
-         * @param   {Mixed} params
-         * @returns {String}
-         */
-        translate : function(str, params) {
-            var trans = (this.content[str] != undefined) ? this.content[str] : str;
-
-            if (params != undefined) {
-                if (params.constructor == Array) {
-                    var parlen = params.length;
-                    for (var j = 0; j < parlen; j++) {
-                        trans = trans.replace('%' + (j + 1), params[j]);
-                    }
-                } else {
-                    trans = trans.replace('%1', params);
-                }
-            }
-
-            return trans;
-        },
-        /**
-         * An alias function to translate text
-         *
-         * @param   {String} str
-         * @param   {Mixed}  params
-         * @returns {String}
-         */
-        t : function(str, params) {
-            return this.translate(str, params);
-        }
-    };
-
     /** Initial browser object and detection */
     var browser = {
         ua      : navigator.userAgent,
@@ -3581,22 +3387,11 @@
         return jax.color.init(color);
     };
 
-    /**
-     * I18n object factory
-     *
-     * @param   {String} lang
-     * @returns {Object}
-     */
-    window.jax.i18n = function(lang) {
-        return jax.i18n.init(lang);
-    };
-
     /** Assign default properties to the jax constructor object */
     window.jax.prototype = jax.prototype;
     window.jax.version   = jax.version;
     window.jax.browser   = browser;
     window.jax.root      = null;
-    window.jax.lang      = 'en_US';
     window.jax.rand      = null;
     window.jax.requests  = [];
     window.jax.instances = [];
@@ -3704,61 +3499,6 @@
         }
     };
 
-    /** Create the flash object under the main jax object */
-    window.jax.flash = {
-        /**
-         * Function to render a flash movie
-         *
-         * @param {Object} options
-         */
-        render : function(options) {
-            if ((options.movie == undefined) || (options.width == undefined) || (options.height == undefined)) {
-                throw "The movie, width and height properties must been defined."
-            }
-
-            if (options.name == undefined) {
-                var name = options.movie.substring(0, options.movie.lastIndexOf('.'));
-                if (name.indexOf('/') != -1) {
-                    name = name.substring(name.lastIndexOf('/') + 1);
-                }
-                options.name = name;
-            }
-
-            options.allowScriptAccess = (options.allowScriptAccess != undefined) ? options.allowScriptAccess : 'sameDomain';
-            options.bgcolor           = (options.bgcolor != undefined) ? options.bgcolor : '#ffffff';
-            options.wmode             = (options.wmode != undefined) ? options.wmode : 'window';
-            options.quality           = (options.quality != undefined) ? options.quality : 'high';
-
-            var embed = '    <embed type="application/x-shockwave-flash" pluginspage="http://get.adobe.com/flashplayer/"';
-            document.write('<object width="' + options.width + '" height="' + options.height + '" id="' + options.name + '" align="middle">');
-
-            for (var prop in options) {
-                document.write('    <param name="' + prop + '" value="' + options[prop] + '" />');
-                embed += ' ' + ((prop == 'movie') ? 'src' : prop) + '="' + options[prop] + '"';
-            }
-
-            embed += '></embed>';
-            document.write(embed);
-            document.write('</object>');
-        },
-        /**
-         * Function to load a variable into a flash movie
-         *
-         * @param {String} nm
-         * @param {String} tar
-         * @param {String} val
-         */
-        load : function(nm, tar, val) {
-            if (eval('window.' + nm)) {
-                var windowName = eval("window.document['" + nm + "']");
-                windowName.SetVariable(tar, val);
-            } else if (eval('document.' + nm)) {
-                var docName = eval('document.' + nm);
-                docName.SetVariable(tar, val);
-            }
-        }
-    };
-
     /** Create the JSON object under the main jax object */
     window.jax.json = {
         /**
@@ -3778,34 +3518,6 @@
          */
         toString : function(obj) {
             return JSON.stringify(obj);
-        }
-    };
-
-    /** Create the preload object under the main jax object */
-    window.jax.preload = {
-        /**
-         * Function to preload images
-         *
-         * @param {Array}    imgs
-         * @param {Function} func
-         */
-        images : function(imgs, func) {
-            if (imgs.constructor != Array) {
-                imgs = [imgs];
-            }
-            var count = imgs.length;
-            for (var i = 0; i < imgs.length; i++) {
-                var img = new Image();
-                img.onload = function() {
-                    --count;
-                    if (count <= 0) {
-                        if ((func != null) && (func != undefined)) {
-                            func();
-                        }
-                    }
-                };
-                img.src = imgs[i];
-            }
         }
     };
 
@@ -4353,7 +4065,7 @@
         var scripts = document.getElementsByTagName('script');
         for (var i = 0; i < scripts.length; i++) {
             if (scripts[i].src != undefined) {
-                var match = scripts[i].src.match(/jax\.3[^/]+\.js/);
+                var match = scripts[i].src.match(/jax\.4[^/]+\.js/);
                 if ((match != null) && (match[0] != undefined)) {
                     window.jax.root = scripts[i].src.substring(0, (scripts[i].src.lastIndexOf('/') + 1));
                 }
@@ -4363,11 +4075,7 @@
                     var varsAry = vars.split('&');
                     for (var j = 0; j < varsAry.length; j++) {
                         if (varsAry[j].indexOf('=') != -1) {
-                            if (varsAry[j].indexOf('lang=') != -1) {
-                                eval('window.jax.' + varsAry[j].replace('=', ' = "') + '"');
-                            } else {
-                                eval('window.' + varsAry[j].replace('=', ' = "') + '"');
-                            }
+                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
                         }
                     }
                 }
