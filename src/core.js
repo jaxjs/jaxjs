@@ -1,7 +1,6 @@
 /**
- * jax core.js
+ * core.js
  */
-
 (function(window){
     /**
      * Base jax constructor class
@@ -38,6 +37,7 @@
         version    : jax.version,
         selector   : null,
         length     : 0,
+        childIndex : 0,
         view       : {
             width  : 0,
             height : 0
@@ -54,10 +54,9 @@
             // Start the selection process
             if (this.selector != undefined) {
                 // If selector is the window object, document object or pre-selected object
-                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) &&
-                    (this.selector.constructor != String))) {
+                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) && (this.selector.constructor != String))) {
                     this.push(this.selector);
-                    // Else, make selection
+                // Else, make selection
                 } else {
                     try {
                         // Special case for the :button selector
@@ -104,7 +103,7 @@
             }
 
             // Get the viewport dimensions
-            this.view.width  = window.innerWidth;
+            this.view.width = window.innerWidth;
             this.view.height = window.innerHeight;
 
             return this;
@@ -192,7 +191,7 @@
          * @returns {Array}
          */
         toArray : function() {
-            var ary = [];
+            var ary = []
             for (var i = 0; i < this.length; i++) {
                 ary.push(this[i]);
             }

@@ -1,4 +1,6 @@
-/** Extend jax with load method */
+/**
+ * load.js
+ */
 jax.extend({
     /**
      * Function to add a function to the onload stack.

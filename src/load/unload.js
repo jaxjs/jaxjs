@@ -1,4 +1,6 @@
-/** Extend jax with unload method */
+/**
+ * unload.js
+ */
 jax.extend({
     /**
      * Function to add a function to the unload stack.

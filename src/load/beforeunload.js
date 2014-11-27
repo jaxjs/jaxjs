@@ -1,7 +1,5 @@
 /**
- * Function to add a before unload method to the window object
- *
- * @param {Function} func
+ * beforeunload.js
  */
 window.jax.beforeunload = function(func) {
     // Get old beforeunload function(s), if they exist.
