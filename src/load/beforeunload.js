@@ -1,5 +1,5 @@
 /**
- * beforeunload.js
+ * load/beforeunload.js
  */
 window.jax.beforeunload = function(func) {
     // Get old beforeunload function(s), if they exist.

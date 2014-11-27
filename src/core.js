@@ -37,7 +37,6 @@
         version    : jax.version,
         selector   : null,
         length     : 0,
-        childIndex : 0,
         view       : {
             width  : 0,
             height : 0
