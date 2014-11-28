@@ -112,11 +112,7 @@ jax.extend({
                         var blend = window.jax.color(params[e][1][m][1].c1).blend(params[e][1][m][1].c2, tween, easingX);
                         steps = [];
                         for (var w = 0; w < blend.length; w++) {
-                            if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                                steps.push(blend[w].rgb);
-                            } else {
-                                steps.push(blend[w].rgba);
-                            }
+                            steps.push(blend[w].rgba);
                         }
                         break;
                 }

@@ -53,29 +53,14 @@ jax.extend({
                 for (var attrib in attribs) {
                     var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
                     // Account for IE7 style property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (att.lastIndexOf(';') == (att.length - 1)) ? att.substring(0, (att.length - 1)) : att;
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (var j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(newElem, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        newElem.setAttribute(attrib, att);
-                    }
+                    newElem.setAttribute(attrib, att);
                 }
             }
 
             // Set elements' values and append them to the parent element.
             var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
             newElem.setAttribute('value', valuesAry[0]);
-
-            if ((window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                newElem.defaultChecked = (objMarked.indexOf(valuesAry[1]) != -1);
-            } else {
-                newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
-            }
-
+            newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
             objChild.appendChild(newElem);
 
             var spanElem = document.createElement('span');

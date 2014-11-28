@@ -48,17 +48,7 @@ jax.extend({
         // Set any element override attributes.
         if ((attribs != undefined) && (attribs != null)) {
             for (var attrib in attribs) {
-                // Account for IE7 style attribute property issue.
-                if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                    var sty = styles.replace('; ', ';').split(';');
-                    for (var j = 0; j < sty.length; j++) {
-                        var styleVal = sty[j].replace(': ', ':').split(':');
-                        this.setCss(c, styleVal[0].trim(), styleVal[1].trim());
-                    }
-                } else {
-                    c.setAttribute(attrib, attribs[attrib]);
-                }
+                c.setAttribute(attrib, attribs[attrib]);
             }
         }
 

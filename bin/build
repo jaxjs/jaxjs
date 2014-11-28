@@ -1,20 +1,32 @@
 #!/bin/bash
 
+if [ ! -f "$1" ]; then
+    echo -e "\nBuild file does not exist.\n"
+    exit
+fi
+
 # Build file
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
-SCRIPT_PATH="$SCRIPT_DIR/build.php $@"
+SCRIPT_PATH="$SCRIPT_DIR/build.php $1"
 php $SCRIPT_PATH
 
 # Compress build file
 if [ "$(which uglifyjs)" != "" ]; then
-    VERSION=`sed -n '/version\"/p' build.json`
+    VERSION=`sed -n '/version\"/p' "$1"`
     VERSION="${VERSION//[[:space:]]/}"
     VERSION=${VERSION/"\"version\":\""/""}
     VERSION=${VERSION/"\","/""}
-    FILE="../build/jax.$VERSION.js"
+    NAME=`sed -n '/name\"/p' "$1"`
+    if [ "$NAME" != "" ]; then
+        NAME="${NAME//[[:space:]]/}"
+        NAME=${NAME/"\"name\":\""/""}
+        NAME=${NAME/"\","/""}
+        NAME=".$NAME"
+    fi
+    FILE="../build/jax.$VERSION$NAME.js"
     if [ -f "$FILE" ]; then
         echo -e "\nCompressing the build file...\n"
-        MINFILE="../build/jax.$VERSION.min.js"
+        MINFILE="../build/jax.$VERSION$NAME.min.js"
         uglifyjs -v "$FILE" > "$MINFILE"
         echo -e "\nBuild file compressed.\n"
     fi

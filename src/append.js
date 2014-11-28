@@ -22,17 +22,7 @@ jax.extend({
         // Set any element attributes.
         if ((attribs != undefined) && (attribs != null)) {
             for (var attrib in attribs) {
-                // Account for IE7 style attribute property issue.
-                if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                    var sty = styles.replace('; ', ';').split(';');
-                    for (var j = 0; j < sty.length; j++) {
-                        var styleVal = sty[j].replace(': ', ':').split(':');
-                        this.setCss(objChild, styleVal[0].trim(), styleVal[1].trim());
-                    }
-                } else {
-                    objChild.setAttribute(attrib, attribs[attrib]);
-                }
+                objChild.setAttribute(attrib, attribs[attrib]);
             }
         }
 

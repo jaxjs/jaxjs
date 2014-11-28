@@ -1,8 +1,16 @@
 #!/usr/bin/php
 <?php
+if (!isset($argv[1])) {
+    echo PHP_EOL . 'The build file was not passed.' . PHP_EOL . PHP_EOL;
+    exit();
+} else if (!file_exists($argv[1])) {
+    echo PHP_EOL . 'The build file does not exist.' . PHP_EOL . PHP_EOL;
+    exit();
+}
 
-$build     = json_decode(file_get_contents(__DIR__ . '/build.json'));
+$build     = json_decode(file_get_contents($argv[1]));
 $buildDate = date('M j, Y H:i:s');
+$buildFile = __DIR__ . '/../build/jax.' . $build->version . (isset($build->name) ? '.' . $build->name : null) . '.js';
 
 // Check the build.json file
 if (!isset($build->version)) {
@@ -42,9 +50,9 @@ foreach ($build->include as $i => $include) {
         $contents = str_replace(['[{version}]', '[{build}]'], [$build->version, $buildDate], $contents);
 
         if ($i == 0) {
-            file_put_contents(__DIR__ . '/../build/jax.' . $build->version . '.js', $contents);
+            file_put_contents($buildFile, $contents);
         } else {
-            file_put_contents(__DIR__ . '/../build/jax.' . $build->version . '.js', $contents, FILE_APPEND);
+            file_put_contents($buildFile, $contents, FILE_APPEND);
         }
     }
 }

@@ -41,17 +41,7 @@ jax.extend({
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
                     var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    // Account for IE7 style property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (att.lastIndexOf(';') == (att.length - 1)) ? att.substring(0, (att.length - 1)) : att;
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (var j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(newElem, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        newElem.setAttribute(attrib, att);
-                    }
+                    newElem.setAttribute(attrib, att);
                 }
             }
 
@@ -60,11 +50,7 @@ jax.extend({
             newElem.setAttribute('value', valuesAry[0]);
 
             if (objMarked != null) {
-                if ((window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    newElem.defaultChecked = (objMarked.indexOf(valuesAry[1]) != -1);
-                } else {
-                    newElem.checked = (objMarked == valuesAry[1]);
-                }
+                newElem.checked = (objMarked == valuesAry[1]);
             }
             objChild.appendChild(newElem);
 

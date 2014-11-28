@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 27, 2014 21:49:12
+ * @build      Nov 28, 2014 01:08:54
  */
 (function(window){
     /**
@@ -254,6 +254,160 @@
 })(window);
 
 /**
+ * core/ready.js
+ */
+jax.extend({
+    /**
+     * Function to trigger a function when the document object (implied) is loaded & ready.
+     *
+     * @param {Function} func
+     */
+    ready : function(func) {
+        document.addEventListener('DOMContentLoaded', func, false);
+    }
+});
+/**
+ * core/query.js
+ */
+(function(window){
+    /**
+     * Function to get a variable or variables from the query string
+     *
+     * @param   {String} key
+     * @param   {String} u
+     * @returns {Mixed}
+     */
+    window.jax.query = function(key, u) {
+        var vars = [];
+        var url = (u != null) ? u : location.href;
+
+        if (url.indexOf('?') != -1) {
+            var varString = url.substring(url.indexOf('?') + 1);
+            if (varString.indexOf('#') != -1) {
+                varString = varString.substring(0, varString.indexOf('#'));
+            }
+            var varsAry = varString.split('&');
+            for (var i = 0; i < varsAry.length; i++) {
+                var gV = varsAry[i].split('=');
+                vars[gV[0]] = decodeURIComponent(gV[1]);
+            }
+        }
+
+        // If key was passed
+        if ((key != undefined) && (key != null)) {
+            return (vars[key] != undefined) ? vars[key] : undefined;
+            // Else, return entire array
+        } else {
+            return vars;
+        }
+    };
+
+    /**
+     * Function to build a query
+     *
+     * @param   {Mixed} data
+     * @returns {String}
+     */
+    window.jax.buildQuery = function(data) {
+        var query    = '';
+        var chkCount = [];
+
+        // Loop through the elements to assemble the qery string.
+        // If it's a form element object
+        if (data.elements != undefined) {
+            for (var i = 0; i < data.elements.length; i++) {
+                if (data.elements[i].value != undefined) {
+                    var name = (data.elements[i].name.indexOf('[') != -1) ?
+                        data.elements[i].name.substring(0, data.elements[i].name.indexOf('[')) : data.elements[i].name;
+
+                    // If the element is a checkbox or radio element that's checked
+                    if ((data.elements[i].type == 'checkbox') || (data.elements[i].type == 'radio')) {
+                        if (data.elements[i].checked) {
+                            if (chkCount[name] != undefined) {
+                                chkCount[name]++;
+                            } else {
+                                chkCount[name] = 0;
+                            }
+                            if (i != 0) {
+                                query += '&';
+                            }
+                            if (data.elements[i].type == 'checkbox') {
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].value);
+                            } else {
+                                query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
+                            }
+                        }
+                    // Else, if the element is a multiple select element
+                    } else if ((data.elements[i].type.indexOf('select') != -1) && (data.elements[i].multiple)) {
+                        for (var j = 0; j < data.elements[i].options.length; j++) {
+                            if (data.elements[i].options[j].selected) {
+                                if (chkCount[name] != undefined) {
+                                    chkCount[name]++;
+                                } else {
+                                    chkCount[name] = 0;
+                                }
+                                if (i != 0) {
+                                    query += '&';
+                                }
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].options[j].value);
+                            }
+                        }
+                    // Else a normal element
+                    } else {
+                        if (i != 0) {
+                            query += '&';
+                        }
+                        query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
+                    }
+                }
+            }
+        // If it's an object
+        } else if (data.constructor == Object) {
+            var i = 0;
+            for (var name in data) {
+                if (i != 0) {
+                    query += '&';
+                }
+                if (data[name].constructor == Array) {
+                    var aryVals = '';
+                    for (var j = 0; j < data[name].length; j++) {
+                        if (j != 0) {
+                            aryVals += '&';
+                        }
+                        aryVals += encodeURIComponent(name + '[' + j + ']') + '=' + encodeURIComponent(data[name][j]);
+                    }
+                    query += aryVals;
+                } else {
+                    query += encodeURIComponent(name) + '=' + encodeURIComponent(data[name]);
+                }
+                i++;
+            }
+        // If it's a basic array with a set of arrays with name/value pairs
+        } else if (data.constructor == Array) {
+            for (var i = 0; i < data.length; i++) {
+                if (i != 0) {
+                    query += '&';
+                }
+                if (data[i][1].constructor == Array) {
+                    var aryVals = '';
+                    for (var j = 0; j < data[i][1].length; j++) {
+                        if (j != 0) {
+                            aryVals += '&';
+                        }
+                        aryVals += encodeURIComponent(data[i][0] + '[' + j + ']') + '=' + encodeURIComponent(data[i][1][j]);
+                    }
+                    query += aryVals;
+                } else {
+                    query += encodeURIComponent(data[i][0]) + '=' + encodeURIComponent(data[i][1]);
+                }
+            }
+        }
+
+        return query;
+    };
+})(window);
+
+/**
  * core/target.js
  */
 (function(window){
@@ -274,27 +428,39 @@
 })(window);
 
 /**
- * core/import.js
+ * core/remove.js
  */
-(function(window){
-    /** Function to import variables passed into JS files via a query-string */
-    window.jax.importVars = function() {
-        var scripts = document.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].src != undefined) {
-                if (scripts[i].src.indexOf('.js?') != -1) {
-                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
-                    var varsAry = vars.split('&');
-                    for (var j = 0; j < varsAry.length; j++) {
-                        if (varsAry[j].indexOf('=') != -1) {
-                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
-                        }
-                    }
+jax.extend({
+    /**
+     * Function to remove the selected element(s)
+     *
+     * @returns {jax}
+     */
+    remove : function() {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                var child = this[i] && this[i].parentNode;
+                if ((child) && (this[i].parentNode != undefined)) {
+                    this[i].parentNode.removeChild(this[i]);
                 }
             }
         }
-    };
-})(window);
+        return this;
+    },
+    /**
+     * Function to remove the child contents of the selected elements
+     *
+     * @returns {jax}
+     */
+    empty : function() {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].innerHTML = '';
+            }
+        }
+        return this;
+    }
+});
 /**
  * core/timing.js
  */
@@ -442,193 +608,27 @@
 })(window);
 
 /**
- * core/query.js
+ * core/import.js
  */
 (function(window){
-    /**
-     * Function to get a variable or variables from the query string
-     *
-     * @param   {String} key
-     * @param   {String} u
-     * @returns {Mixed}
-     */
-    window.jax.query = function(key, u) {
-        var vars = [];
-        var url = (u != null) ? u : location.href;
-
-        if (url.indexOf('?') != -1) {
-            var varString = url.substring(url.indexOf('?') + 1);
-            if (varString.indexOf('#') != -1) {
-                varString = varString.substring(0, varString.indexOf('#'));
-            }
-            var varsAry = varString.split('&');
-            for (var i = 0; i < varsAry.length; i++) {
-                var gV = varsAry[i].split('=');
-                vars[gV[0]] = decodeURIComponent(gV[1]);
-            }
-        }
-
-        // If key was passed
-        if ((key != undefined) && (key != null)) {
-            return (vars[key] != undefined) ? vars[key] : undefined;
-            // Else, return entire array
-        } else {
-            return vars;
-        }
-    };
-
-    /**
-     * Function to build a query
-     *
-     * @param   {Mixed} data
-     * @returns {String}
-     */
-    window.jax.buildQuery = function(data) {
-        var query    = '';
-        var chkCount = [];
-
-        // Loop through the elements to assemble the qery string.
-        // If it's a form element object
-        if (data.elements != undefined) {
-            for (var i = 0; i < data.elements.length; i++) {
-                if (data.elements[i].value != undefined) {
-                    var name = (data.elements[i].name.indexOf('[') != -1) ?
-                        data.elements[i].name.substring(0, data.elements[i].name.indexOf('[')) : data.elements[i].name;
-
-                    // If the element is a checkbox or radio element that's checked
-                    if ((data.elements[i].type == 'checkbox') || (data.elements[i].type == 'radio')) {
-                        if (data.elements[i].checked) {
-                            if (chkCount[name] != undefined) {
-                                chkCount[name]++;
-                            } else {
-                                chkCount[name] = 0;
-                            }
-                            if (i != 0) {
-                                query += '&';
-                            }
-                            if (data.elements[i].type == 'checkbox') {
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].value);
-                            } else {
-                                query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
-                            }
+    /** Function to import variables passed into JS files via a query-string */
+    window.jax.importVars = function() {
+        var scripts = document.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src != undefined) {
+                if (scripts[i].src.indexOf('.js?') != -1) {
+                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
+                    var varsAry = vars.split('&');
+                    for (var j = 0; j < varsAry.length; j++) {
+                        if (varsAry[j].indexOf('=') != -1) {
+                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
                         }
-                    // Else, if the element is a multiple select element
-                    } else if ((data.elements[i].type.indexOf('select') != -1) && (data.elements[i].multiple)) {
-                        for (var j = 0; j < data.elements[i].options.length; j++) {
-                            if (data.elements[i].options[j].selected) {
-                                if (chkCount[name] != undefined) {
-                                    chkCount[name]++;
-                                } else {
-                                    chkCount[name] = 0;
-                                }
-                                if (i != 0) {
-                                    query += '&';
-                                }
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].options[j].value);
-                            }
-                        }
-                    // Else a normal element
-                    } else {
-                        if (i != 0) {
-                            query += '&';
-                        }
-                        query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
                     }
                 }
             }
-        // If it's an object
-        } else if (data.constructor == Object) {
-            var i = 0;
-            for (var name in data) {
-                if (i != 0) {
-                    query += '&';
-                }
-                if (data[name].constructor == Array) {
-                    var aryVals = '';
-                    for (var j = 0; j < data[name].length; j++) {
-                        if (j != 0) {
-                            aryVals += '&';
-                        }
-                        aryVals += encodeURIComponent(name + '[' + j + ']') + '=' + encodeURIComponent(data[name][j]);
-                    }
-                    query += aryVals;
-                } else {
-                    query += encodeURIComponent(name) + '=' + encodeURIComponent(data[name]);
-                }
-                i++;
-            }
-        // If it's a basic array with a set of arrays with name/value pairs
-        } else if (data.constructor == Array) {
-            for (var i = 0; i < data.length; i++) {
-                if (i != 0) {
-                    query += '&';
-                }
-                if (data[i][1].constructor == Array) {
-                    var aryVals = '';
-                    for (var j = 0; j < data[i][1].length; j++) {
-                        if (j != 0) {
-                            aryVals += '&';
-                        }
-                        aryVals += encodeURIComponent(data[i][0] + '[' + j + ']') + '=' + encodeURIComponent(data[i][1][j]);
-                    }
-                    query += aryVals;
-                } else {
-                    query += encodeURIComponent(data[i][0]) + '=' + encodeURIComponent(data[i][1]);
-                }
-            }
         }
-
-        return query;
     };
 })(window);
-
-/**
- * core/ready.js
- */
-jax.extend({
-    /**
-     * Function to trigger a function when the document object (implied) is loaded & ready.
-     *
-     * @param {Function} func
-     */
-    ready : function(func) {
-        document.addEventListener('DOMContentLoaded', func, false);
-    }
-});
-/**
- * core/remove.js
- */
-jax.extend({
-    /**
-     * Function to remove the selected element(s)
-     *
-     * @returns {jax}
-     */
-    remove : function() {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                var child = this[i] && this[i].parentNode;
-                if ((child) && (this[i].parentNode != undefined)) {
-                    this[i].parentNode.removeChild(this[i]);
-                }
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to remove the child contents of the selected elements
-     *
-     * @returns {jax}
-     */
-    empty : function() {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].innerHTML = '';
-            }
-        }
-        return this;
-    }
-});
 /**
  * ajax.js
  */
@@ -725,6 +725,26 @@ jax.extend({
     };
 })(window);
 
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
 /**
  * ajax/get.js
  */
@@ -990,26 +1010,6 @@ jax.extend({
 })(window);
 
 /**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
  * append.js
  */
 jax.extend({
@@ -1033,17 +1033,7 @@ jax.extend({
         // Set any element attributes.
         if ((attribs != undefined) && (attribs != null)) {
             for (var attrib in attribs) {
-                // Account for IE7 style attribute property issue.
-                if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                    var sty = styles.replace('; ', ';').split(';');
-                    for (var j = 0; j < sty.length; j++) {
-                        var styleVal = sty[j].replace(': ', ':').split(':');
-                        this.setCss(objChild, styleVal[0].trim(), styleVal[1].trim());
-                    }
-                } else {
-                    objChild.setAttribute(attrib, attribs[attrib]);
-                }
+                objChild.setAttribute(attrib, attribs[attrib]);
             }
         }
 
@@ -1083,6 +1073,116 @@ jax.extend({
     }
 });
 /**
+ * append/radio.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of radio elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {String}  marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendRadio : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objValues = [];
+        var objMarked = (marked != undefined) ? marked : null;
+        var objChild = document.createElement('fieldset');
+        objChild.setAttribute('class', 'radio-btn-fieldset');
+
+        // Set the elements' values.
+        if (values.constructor == Array) {
+            for (var i = 0; i < values.length; i++) {
+                objValues.push(values[i]);
+            }
+        } else {
+            objValues.push(values);
+        }
+
+        // Create the child elements.
+        for (var i = 0; i < objValues.length; i++) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'radio');
+            newElem.setAttribute('class', 'radio-btn');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
+            newElem.setAttribute('value', valuesAry[0]);
+
+            if (objMarked != null) {
+                newElem.checked = (objMarked == valuesAry[1]);
+            }
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'radio-span');
+            spanElem.innerHTML = valuesAry[1];
+
+            objChild.appendChild(spanElem);
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of radio elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependRadio : function(values, attribs, marked) {
+        return this.appendRadio(values, attribs, marked, true);
+    }
+});
+/**
+ * append/textarea.js
+ */
+jax.extend({
+    /**
+     * Alias function to append a new textarea element to the current element
+     *
+     * @param   {Object}  attribs
+     * @param   {String}  value
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendTextarea : function(attribs, value, pre) {
+        return this.append('textarea', attribs, value, pre);
+    },
+    /**
+     * Alias function to prepend a new textarea element to the current element
+     *
+     * @param   {Object} attribs
+     * @param   {String} value
+     * @returns {jax}
+     */
+    prependTextarea : function(attribs, value) {
+        return this.append('textarea', attribs, value, true);
+    }
+});
+/**
  * append/select.js
  */
 jax.extend({
@@ -1105,17 +1205,7 @@ jax.extend({
         // Set any element attributes.
         if ((attribs != undefined) && (attribs != null)) {
             for (var attrib in attribs) {
-                // Account for IE7 style property issue.
-                if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                    var sty = styles.replace('; ', ';').split(';');
-                    for (j = 0; j < sty.length; j++) {
-                        var styleVal = sty[j].replace(': ', ':').split(':');
-                        this.setCss(objChild, styleVal[0].trim(), styleVal[1].trim());
-                    }
-                } else {
-                    objChild.setAttribute(attrib, attribs[attrib]);
-                }
+                objChild.setAttribute(attrib, attribs[attrib]);
             }
         }
 
@@ -1339,56 +1429,6 @@ jax.extend({
     };
 })(window);
 /**
- * append/textarea.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new textarea element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {String}  value
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendTextarea : function(attribs, value, pre) {
-        return this.append('textarea', attribs, value, pre);
-    },
-    /**
-     * Alias function to prepend a new textarea element to the current element
-     *
-     * @param   {Object} attribs
-     * @param   {String} value
-     * @returns {jax}
-     */
-    prependTextarea : function(attribs, value) {
-        return this.append('textarea', attribs, value, true);
-    }
-});
-/**
- * append/input.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new input element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendInput : function(attribs, pre) {
-        return this.append('input', attribs, null, pre);
-    },
-    /**
-     * Alias function to prepend a new input element to the current element
-     *
-     * @param   {Object} attribs
-     * @returns {jax}
-     */
-    prependInput : function(attribs) {
-        return this.append('input', attribs, null, true);
-    }
-});
-/**
  * append/checkbox.js
  */
 jax.extend({
@@ -1443,29 +1483,14 @@ jax.extend({
                 for (var attrib in attribs) {
                     var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
                     // Account for IE7 style property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (att.lastIndexOf(';') == (att.length - 1)) ? att.substring(0, (att.length - 1)) : att;
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (var j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(newElem, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        newElem.setAttribute(attrib, att);
-                    }
+                    newElem.setAttribute(attrib, att);
                 }
             }
 
             // Set elements' values and append them to the parent element.
             var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
             newElem.setAttribute('value', valuesAry[0]);
-
-            if ((window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                newElem.defaultChecked = (objMarked.indexOf(valuesAry[1]) != -1);
-            } else {
-                newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
-            }
-
+            newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
             objChild.appendChild(newElem);
 
             var spanElem = document.createElement('span');
@@ -1497,101 +1522,27 @@ jax.extend({
     }
 });
 /**
- * append/radio.js
+ * append/input.js
  */
 jax.extend({
     /**
-     * Function to append a new set of radio elements to the current element
+     * Alias function to append a new input element to the current element
      *
-     * @param   {Array}   values
      * @param   {Object}  attribs
-     * @param   {String}  marked
      * @param   {Boolean} pre
      * @returns {jax}
      */
-    appendRadio : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objValues = [];
-        var objMarked = (marked != undefined) ? marked : null;
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-btn-fieldset');
-
-        // Set the elements' values.
-        if (values.constructor == Array) {
-            for (var i = 0; i < values.length; i++) {
-                objValues.push(values[i]);
-            }
-        } else {
-            objValues.push(values);
-        }
-
-        // Create the child elements.
-        for (var i = 0; i < objValues.length; i++) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio-btn');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    // Account for IE7 style property issue.
-                    if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                        var styles = (att.lastIndexOf(';') == (att.length - 1)) ? att.substring(0, (att.length - 1)) : att;
-                        var sty = styles.replace('; ', ';').split(';');
-                        for (var j = 0; j < sty.length; j++) {
-                            var styleVal = sty[j].replace(': ', ':').split(':');
-                            this.setCss(newElem, styleVal[0].trim(), styleVal[1].trim());
-                        }
-                    } else {
-                        newElem.setAttribute(attrib, att);
-                    }
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newElem.setAttribute('value', valuesAry[0]);
-
-            if (objMarked != null) {
-                if ((window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    newElem.defaultChecked = (objMarked.indexOf(valuesAry[1]) != -1);
-                } else {
-                    newElem.checked = (objMarked == valuesAry[1]);
-                }
-            }
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = valuesAry[1];
-
-            objChild.appendChild(spanElem);
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
+    appendInput : function(attribs, pre) {
+        return this.append('input', attribs, null, pre);
     },
     /**
-     * Alias function to prepend a new set of radio elements to the current element
+     * Alias function to prepend a new input element to the current element
      *
-     * @param   {Array}  values
      * @param   {Object} attribs
-     * @param   {Mixed}  marked
      * @returns {jax}
      */
-    prependRadio : function(values, attribs, marked) {
-        return this.appendRadio(values, attribs, marked, true);
+    prependInput : function(attribs) {
+        return this.append('input', attribs, null, true);
     }
 });
 /**
@@ -1836,6 +1787,27 @@ jax.extend({
 })(window);
 
 /**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
+/**
  * children/child.js
  */
 jax.extend({
@@ -1961,27 +1933,6 @@ jax.extend({
     };
 })(window);
 /**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
-    }
-});
-/**
  * clone.js
  */
 jax.extend({
@@ -2031,17 +1982,7 @@ jax.extend({
         // Set any element override attributes.
         if ((attribs != undefined) && (attribs != null)) {
             for (var attrib in attribs) {
-                // Account for IE7 style attribute property issue.
-                if ((attrib == 'style') && (window.jax.browser.msie) && (window.jax.browser.version < 8)) {
-                    var styles = (attribs[attrib].lastIndexOf(';') == (attribs[attrib].length - 1)) ? attribs[attrib].substring(0, (attribs[attrib].length - 1)) : attribs[attrib];
-                    var sty = styles.replace('; ', ';').split(';');
-                    for (var j = 0; j < sty.length; j++) {
-                        var styleVal = sty[j].replace(': ', ':').split(':');
-                        this.setCss(c, styleVal[0].trim(), styleVal[1].trim());
-                    }
-                } else {
-                    c.setAttribute(attrib, attribs[attrib]);
-                }
+                c.setAttribute(attrib, attribs[attrib]);
             }
         }
 
@@ -2370,16 +2311,54 @@ jax.extend({
     }
 });
 /**
- * css/position.js
+ * css/set.js
  */
 jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle the opacity/filter issue.
+                case 'opacity':
+                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
+                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
+                    } else {
+                        obj.style.opacity = properties[prop] / 100;
+                    }
+                    break;
+                // Handle the styleFloat/cssFloat issue.
+                case 'float':
+                    if (window.jax.browser.msie) {
+                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
+                    } else {
+                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
+                    }
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
     }
 });
 /**
@@ -2492,54 +2471,16 @@ jax.extend({
     }
 });
 /**
- * css/set.js
+ * css/position.js
  */
 jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle the opacity/filter issue.
-                case 'opacity':
-                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
-                    } else {
-                        obj.style.opacity = properties[prop] / 100;
-                    }
-                    break;
-                // Handle the styleFloat/cssFloat issue.
-                case 'float':
-                    if (window.jax.browser.msie) {
-                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
-                    } else {
-                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
-                    }
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2600,17 +2541,6 @@ jax.extend({
  * effects.js
  */
 jax.extend({
-    delayTime : 0,
-    /**
-     * Function to set the delay time for the next animation to fire
-     *
-     * @param   {Number} ms
-     * @returns {jax}
-     */
-    delay : function(ms) {
-        this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
-        return this;
-    },
     /**
      * Function to show all current elements
      *
@@ -2650,24 +2580,24 @@ jax.extend({
     }
 });
 /**
- * effects/resize.js
+ * effects/move.js
  */
 jax.extend({
     /**
-     * Alias function to animate selected elements via 'resize'
+     * Alias function to animate selected elements via 'move'
      *
-     * @param   {Mixed}  w
-     * @param   {Mixed}  h
+     * @param   {Mixed}  x
+     * @param   {Mixed}  y
      * @param   {Object} opts
      * @returns {jax}
      */
-    resize : function(w, h, opts) {
+    move : function(x, y, opts) {
         if (this.length > 0) {
             if (this.delayTime > 0) {
                 var self = this;
-                var tO = setTimeout(function() {self.animate(['resize', {"w" : w, "h" : h}], opts);}, this.delayTime);
+                var tO = setTimeout(function() {self.animate(['move', {"x" : x, "y" : y}], opts);}, this.delayTime);
             } else {
-                this.animate(['resize', {"w" : w, "h" : h}], opts);
+                this.animate(['move', {"x" : x, "y" : y}], opts);
             }
         }
         return this;
@@ -2714,619 +2644,6 @@ jax.extend({
         return this;
     }
 });
-/**
- * effects/animate.js
- */
-(function(window){
-    window.jax.instances = [];
-})(window);
-
-jax.extend({
-    /**
-     * Function to calculate and perform the animation or animations
-     *
-     * @param   {Array}  params
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    animate : function(params, opts) {
-        var tween    = ((opts != undefined) && (opts.tween != undefined))    ? opts.tween : 25;
-        var speed    = ((opts != undefined) && (opts.speed != undefined))    ? Math.round(opts.speed / tween) : 20;
-        var trace    = ((opts != undefined) && (opts.trace != undefined))    ? opts.trace : null;
-        var complete = ((opts != undefined) && (opts.complete != undefined)) ? opts.complete : null;
-        var easingX  = null;
-        var easingY  = null;
-
-        if ((opts != undefined) && (opts.easing != undefined)) {
-            easingX = opts.easing;
-        }
-        if ((opts != undefined) && (opts.easingX != undefined)) {
-            easingX = opts.easingX;
-        }
-        if ((opts != undefined) && (opts.easingY != undefined)) {
-            easingY = opts.easingY;
-        }
-
-        // If elements have already been selected, use them as the overriding elements
-        if (this.length > 0) {
-            var realParams = [];
-            for (var i = 0; i < this.length; i++) {
-                realParams.push([this[i], params]);
-            }
-            params = realParams;
-        }
-
-        var elems = [];
-        // Iterate through the params passed.
-        for (var e = 0; e < params.length; e++) {
-            var fadeChange   = null;
-            var widthChange  = null;
-            var heightChange = null;
-            var steps        = null;
-            var elemSteps    = [];
-            var elem         = params[e][0];
-
-            // Convert into an array if not one already
-            if ((params[e][1].constructor == Array) && (params[e][1][0].constructor != Array)) {
-                params[e][1] = [params[e][1]];
-            }
-
-            // Iterate through the animation parameters of the elements passed.
-            for (var m = 0; m < params[e][1].length; m++) {
-                var type = params[e][1][m][0];
-                switch (type) {
-                    case 'move':
-                        steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, parseInt(window.jax(elem).css('left')), parseInt(window.jax(elem).css('top')), tween, easingX,  easingY);
-                        break;
-                    case 'slide':
-                        var backPos = window.jax(elem).css('background-position');
-                        if ((backPos != null) && (backPos.toString().indexOf('px') != -1)) {
-                            backPos = backPos.split(' ');
-                            var orgX = parseInt(backPos[0]);
-                            var orgY = parseInt(backPos[1]);
-                        } else {
-                            var orgX = 0;
-                            var orgY = 0;
-                        }
-                        steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, orgX, orgY, tween, easingX,  easingY);
-                        break;
-                    case 'resize':
-                        steps = this.calcSteps(params[e][1][m][1].w, params[e][1][m][1].h, parseInt(window.jax(elem).innerWidth()), parseInt(window.jax(elem).innerHeight()), tween, easingX,  easingY);
-                        break;
-                    case 'fade':
-                        var curOpacity = window.jax(elem).css('opacity');
-                        fadeChange = params[e][1][m][1].o;
-                        if (fadeChange != 0) {
-                            window.jax(elem).show();
-                        }
-                        steps = this.calcSteps(curOpacity, null, params[e][1][m][1].o, null, tween, easingX);
-                        break;
-                    case 'wipeOff':
-                        widthChange = params[e][1][m][1].w;
-                        if (widthChange != 0) {
-                            window.jax(elem).show();
-                        }
-                        steps = this.calcSteps(parseInt(window.jax(elem).innerWidth()), null, params[e][1][m][1].w, null, tween, easingX);
-                        break;
-                    case 'wipeUp':
-                        heightChange = params[e][1][m][1].h;
-                        if (heightChange != 0) {
-                            window.jax(elem).show();
-                        }
-                        steps = this.calcSteps(parseInt(window.jax(elem).innerHeight()), null, params[e][1][m][1].h, null, tween, easingX);
-                        break;
-                    case 'scrollX':
-                        var curX = (window.jax.isWindow(elem)) ? window.jax().getScrollX() : window.jax(elem).getScrollX();
-                        steps = this.calcSteps(curX, null, params[e][1][m][1].x, null, tween, easingX);
-                        break;
-                    case 'scrollY':
-                        var curY = (window.jax.isWindow(elem)) ? window.jax().getScrollY() : window.jax(elem).getScrollY();
-                        steps = this.calcSteps(curY, null, params[e][1][m][1].y, null, tween, easingX);
-                        break;
-                    case 'blendColor':
-                    case 'blendBgColor':
-                        var blend = window.jax.color(params[e][1][m][1].c1).blend(params[e][1][m][1].c2, tween, easingX);
-                        steps = [];
-                        for (var w = 0; w < blend.length; w++) {
-                            if ((window.jax.browser.msie) && (window.jax.browser.version < 9)) {
-                                steps.push(blend[w].rgb);
-                            } else {
-                                steps.push(blend[w].rgba);
-                            }
-                        }
-                        break;
-                }
-                elemSteps.push([type, steps]);
-            }
-            elems.push([elem, elemSteps, [fadeChange, widthChange, heightChange]]);
-        }
-
-        var animateObj = function(elms, spd, c, i, trace) {
-            if (i == null) {
-                i = window.jax.random(100000, 999999);
-            }
-            if ((elms[0] != undefined) && (c < elms[0][1][0][1].length)) {
-                for (var q = 0; q < elms.length; q++) {
-                    for (var n = 0; n < elms[q][1].length; n++) {
-                        var e = elms[q][0];
-                        switch(elms[q][1][n][0]) {
-                            case 'move':
-                                var x = elms[q][1][n][1][c][0];
-                                var y = elms[q][1][n][1][c][1];
-                                window.jax(e).css('left', x + 'px');
-                                window.jax(e).css('top', y + 'px');
-                                break;
-                            case 'resize':
-                                var x = elms[q][1][n][1][c][0];
-                                var y = elms[q][1][n][1][c][1];
-                                window.jax(e).css('width', x + 'px');
-                                window.jax(e).css('height', y + 'px');
-                                break;
-                            case 'fade':
-                                var x = elms[q][1][n][1][c];
-                                var y = null;
-                                window.jax(e).css('opacity', x);
-                                break;
-                            case 'wipeOff':
-                                var x = elms[q][1][n][1][c];
-                                var y = null;
-                                window.jax(e).css('width', x + 'px');
-                                break;
-                            case 'wipeUp':
-                                var x = elms[q][1][n][1][c];
-                                var y = null;
-                                window.jax(e).css('height', x + 'px');
-                                break;
-                            case 'scrollX':
-                                var x = elms[q][1][n][1][c];
-                                var y = null;
-                                if (window.jax.isWindow(elem)) {
-                                    elem.scrollTo(x, 0);
-                                } else {
-                                    window.jax(e)[0].scrollLeft = x;
-                                }
-                                break;
-                            case 'scrollY':
-                                var x = null;
-                                var y = elms[q][1][n][1][c];
-                                if (window.jax.isWindow(elem)) {
-                                    elem.scrollTo(0, y);
-                                } else {
-                                    window.jax(e)[0].scrollTop = y;
-                                }
-                                break;
-                            case 'slide':
-                                var x = elms[q][1][n][1][c][0];
-                                var y = elms[q][1][n][1][c][1];
-                                window.jax(e).css('background-position', x + 'px ' + y + 'px');
-                                break;
-                            case 'blendColor':
-                                var x = elms[q][1][n][1][c];
-                                var y = null;
-                                window.jax(e).css('color', x);
-                                break;
-                            case 'blendBgColor':
-                                var x = elms[q][1][n][1][c];
-                                var y = null;
-                                window.jax(e).css('background-color', x);
-                                break;
-                        }
-                        if (trace != null) {
-                            trace.apply(undefined, [{"obj" : e, "x" : x, "y" : y, "i" : c}]);
-                        }
-                    }
-                }
-                c++;
-                window.jax.instances[i] = setTimeout(function() { animateObj(elms, spd, c, i, trace); }, spd);
-            } else {
-                for (var q = 0; q < elms.length; q++) {
-                    var e = elms[q][0];
-                    if (elms[q][2][0] != null) {
-                        if (elms[q][2][0] == 0) {
-                            window.jax(e).hide();
-                        }
-                        window.jax(e).css('opacity', elms[q][2][0]);
-                    } else if (elms[q][2][1] != null) {
-                        if (elms[q][2][1] == 0) {
-                            window.jax(e).hide();
-                        }
-                        window.jax(e).css('width', elms[q][2][1] + 'px');
-                    } else if (elms[q][2][2] != null) {
-                        if (elms[q][2][2] == 0) {
-                            window.jax(e).hide();
-                        }
-                        window.jax(e).css('height', elms[q][2][2] + 'px');
-                    }
-                }
-
-                if (complete != null) {
-                    complete();
-                }
-
-                window.jax.instances[i] = clearTimeout(window.jax.instances[i]);
-                window.jax.instances[i] = undefined;
-                delete window.jax.instances[i];
-            }
-        };
-
-        animateObj(elems, speed, 0, null, trace);
-        return this;
-    },
-    /**
-     * Function to calculate the in between steps of the animations
-     *
-     * @param   {Mixed}    a
-     * @param   {Mixed}    b
-     * @param   {Mixed}    c
-     * @param   {Mixed}    d
-     * @param   {Number}   tween
-     * @param   {Function} easingX
-     * @param   {Function} easingY
-     * @returns {Array}
-     */
-    calcSteps : function(a, b, c, d, tween, easingX,  easingY) {
-        // Reset the array.
-        var steps = [];
-
-        // Make sure the values are numbers, calculate any increment notation
-        if ((typeof c == 'string') && ((c.indexOf('+=') != -1) || (c.indexOf('-=') != -1))) {
-            a = parseFloat(a);
-            var inc = c;
-            c = a;
-            eval('c ' + inc);
-        } else {
-            c = parseFloat(c);
-            if ((typeof a == 'string') && ((a.indexOf('+=') != -1) || (a.indexOf('-=') != -1))) {
-                var inc = a;
-                a = c;
-                eval('a ' + inc);
-            } else {
-                a = parseFloat(a);
-            }
-        }
-
-        tween = parseFloat(tween);
-
-        // Calculate the total "distance" from point a to point b
-        var aTotal = c - a;
-        var bTotal = null;
-
-        if ((b != null) && (d != null)) {
-            // Make sure the values are numbers, calculate any increment notation
-            d = parseFloat(d);
-            if ((typeof b == 'string') && ((b.indexOf('+=') != -1) || (b.indexOf('-=') != -1))) {
-                var inc = b;
-                b = d;
-                eval('b ' + inc);
-            } else {
-                b = parseFloat(b);
-            }
-            bTotal = d - b;
-        }
-
-        if ((easingX == undefined) || (easingX == null) || (typeof easingX != 'function')) {
-            easingX = window.jax.tween.linear;
-        }
-        if ((easingY == undefined) || (easingY == null) || (typeof easingY != 'function')) {
-            easingY = easingX;
-        }
-
-        // Calculate the steps
-        for (var i = 0; i <= tween; i++) {
-            var curA = Math.round(easingX(i, a, aTotal, tween));
-            if (bTotal != null) {
-                var curB = Math.round(easingY(i, b, bTotal, tween));
-            }
-
-            if (bTotal != null) {
-                steps.unshift([curA, curB]);
-            } else {
-                steps.push(curA);
-            }
-        }
-
-        return steps;
-    }
-});
-/**
- * effects/move.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'move'
-     *
-     * @param   {Mixed}  x
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    move : function(x, y, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['move', {"x" : x, "y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['move', {"x" : x, "y" : y}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/fade.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'fade'
-     *
-     * @param   {Mixed}  o
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    fade : function(o, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
-            } else {
-                this.animate(['fade', {"o" : o}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/scroll.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'scrollX'
-     *
-     * @param   {Mixed}  x
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    scrollX : function(x, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
-            } else {
-                this.animate(['scrollX', {"x" : x}], opts);
-            }
-        }
-        return this;
-    },
-    /**
-     * Alias function to animate selected elements via 'scrollY'
-     *
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    scrollY : function(y, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['scrollY', {"y" : y}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/tween.js
- */
-(function(window){
-    /**
-     * Create the tween object and functions under the main jax object.
-     *
-     * Tween object and functions, based on Robert Penner's base easing functions (http://www.robertpenner.com/easing/)
-     * and George McGinley's extended easing functions (https://github.com/danro/jquery-easing/blob/master/jquery.easing.js)
-     */
-    window.jax.tween = {
-        /** Function to calculate a linear tween step */
-        linear : function(curStep, start, end, totalSteps) {
-            return (end * (curStep / totalSteps)) + start;
-        },
-        /** Tween ease-in object */
-        easein : {
-            /** Function to calculate a quadratic easing-in tween step */
-            quad  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep) + start;
-            },
-            /** Function to calculate a cubic easing-in tween step */
-            cubic : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep * curStep) + start;
-            },
-            /** Function to calculate a quartic easing-in tween step */
-            quart : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep * curStep * curStep) + start;
-            },
-            /** Function to calculate a quintic easing-in tween step */
-            quint : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep * curStep * curStep * curStep) + start;
-            },
-            /** Function to calculate a sinusoidal easing-in tween step */
-            sine  : function(curStep, start, end, totalSteps) {
-                return (-end * Math.cos(curStep / totalSteps * (Math.PI / 2))) + end + start;
-            },
-            /** Function to calculate an exponential easing-in tween step */
-            expo  : function(curStep, start, end, totalSteps) {
-                return (end * Math.pow(2, 10 * (curStep / totalSteps - 1))) + start;
-            },
-            /** Function to calculate a circular easing-in tween step */
-            circ  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (-end * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
-            },
-            /** Function to calculate an elastic easing-in tween step */
-            elastic : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                var p = 0;
-                var a = end;
-                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
-                if (a < Math.abs(end)) { a = end; var s = p / 4; }
-                else var s = p / (2 * Math.PI) * Math.asin(end / a);
-                return -(a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
-            },
-            /** Function to calculate a back easing-in tween step */
-            back : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                return end * (curStep /= totalSteps) * curStep *((s + 1) * curStep - s) + start;
-            },
-            /** Function to calculate a bounce easing-in tween step */
-            bounce : function(curStep, start, end, totalSteps) {
-                return end - window.jax.tween.easeout.bounce((totalSteps - curStep), 0, end, totalSteps) + start;
-            }
-        },
-        /** Tween ease-out object */
-        easeout : {
-            /** Function to calculate a quadratic easing-out tween step */
-            quad  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (-end * curStep * (curStep - 2)) + start;
-            },
-            /** Function to calculate a cubic easing-out tween step */
-            cubic : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (end *(curStep * curStep * curStep + 1)) + start;
-            },
-            /** Function to calculate a quartic easing-out tween step */
-            quart : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (-end * (curStep * curStep * curStep * curStep - 1)) + start;
-            },
-            /** Function to calculate a quintic easing-out tween step */
-            quint : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (end * ((curStep * curStep * curStep * curStep * curStep) + 1)) + start;
-            },
-            /** Function to calculate a sinusoidal easing-out tween step */
-            sine  : function(curStep, start, end, totalSteps) {
-                return (end * Math.sin(curStep / totalSteps * (Math.PI / 2))) + start;
-            },
-            /** Function to calculate an exponential easing-out tween step */
-            expo  : function(curStep, start, end, totalSteps) {
-                return (end * (-Math.pow(2, -10 * curStep / totalSteps) + 1)) + start;
-            },
-            /** Function to calculate a circular easing-out tween step */
-            circ  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (end * Math.sqrt(1 - (curStep * curStep))) + start;
-            },
-            /** Function to calculate an elastic easing-out tween step */
-            elastic : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                var p = 0;
-                var a = end;
-                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
-                if (a < Math.abs(end)) { a = end; var s = p / 4; }
-                else var s = p / (2 * Math.PI) * Math.asin(end / a);
-                return a * Math.pow(2, -10 * curStep) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) + end + start;
-            },
-            /** Function to calculate a back easing-out tween step */
-            back : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                return end * ((curStep = curStep / totalSteps - 1) * curStep * ((s + 1) * curStep + s) + 1) + start;
-            },
-            /** Function to calculate a bounce easing-out tween step */
-            bounce : function(curStep, start, end, totalSteps) {
-                if ((curStep /= totalSteps) < (1/2.75)) {
-                    return end * (7.5625 * curStep * curStep) + start;
-                } else if (curStep < (2 / 2.75)) {
-                    return end * (7.5625 * (curStep -= (1.5/2.75)) * curStep + .75) + start;
-                } else if (curStep < (2.5/2.75)) {
-                    return end * (7.5625 * (curStep -= (2.25/2.75)) * curStep + .9375) + start;
-                } else {
-                    return end * (7.5625 * (curStep -= (2.625/2.75)) * curStep + .984375) + start;
-                }
-            }
-        },
-        /** Tween ease-in-out object */
-        easeinout : {
-            /** Function to calculate a quadratic easing-in-out tween step */
-            quad  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep) + start;
-                curStep--;
-                return (-end / 2 * (curStep * (curStep - 2) - 1)) + start;
-            },
-            /** Function to calculate a cubic easing-in-out tween step */
-            cubic : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep) + start;
-                curStep -= 2;
-                return ((end / 2) * (curStep * curStep * curStep + 2)) + start;
-            },
-            /** Function to calculate a quartic easing-in-out tween step */
-            quart : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep) + start;
-                curStep -= 2;
-                return ((-end / 2) * (curStep * curStep * curStep * curStep - 2)) + start;
-            },
-            /** Function to calculate a quintic easing-in-out tween step */
-            quint : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep * curStep) + start;
-                curStep -= 2;
-                return ((end / 2) * ((curStep * curStep * curStep * curStep * curStep) + 2)) + start;
-            },
-            /** Function to calculate a sinusoidal easing-in-out tween step */
-            sine  : function(curStep, start, end, totalSteps) {
-                return ((-end / 2) * (Math.cos(Math.PI * curStep / totalSteps) - 1)) + start;
-            },
-            /** Function to calculate an exponential easing-in-out tween step */
-            expo  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * Math.pow(2, 10 * (curStep - 1))) + start;
-                curStep--;
-                return ((end / 2) * (-Math.pow(2, -10 * curStep) + 2)) + start;
-            },
-            /** Function to calculate a circular easing-in-out tween step */
-            circ  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((-end / 2) * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
-                curStep -= 2;
-                return ((end / 2) * (Math.sqrt(1 - (curStep * curStep)) + 1)) + start;
-            },
-            /** Function to calculate an elastic easing-in-out tween step */
-            elastic  : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                var p = 0;
-                var a = end;
-                if (curStep == 0) return start;  if ((curStep /= totalSteps / 2) == 2) return start + end;  if (!p) p = totalSteps * (.3 * 1.5);
-                if (a < Math.abs(end)) { a = end; var s = p/4; }
-                else var s = p / (2 * Math.PI) * Math.asin(end / a);
-                if (curStep < 1) return -.5 * (a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
-                return a * Math.pow(2, -10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) * .5 + end + start;
-            },
-            /** Function to calculate a back easing-in-out tween step */
-            back : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                if ((curStep /= totalSteps / 2) < 1) return end / 2 * (curStep * curStep * (((s *= (1.525)) + 1) * curStep - s)) + start;
-                return end / 2 * ((curStep -= 2) * curStep * (((s *= (1.525)) + 1) * curStep + s) + 2) + start;
-            },
-            /** Function to calculate a bounce easing-in-out tween step */
-            bounce : function(curStep, start, end, totalSteps) {
-                if (curStep < totalSteps / 2) return window.jax.tween.easeout.bounce((curStep * 2), 0, end, totalSteps) * .5 + start;
-                return window.jax.tween.easeout.bounce(((curStep * 2) - totalSteps), 0, end, totalSteps) * .5 + end * .5 + start;
-            }
-        }
-    };
-})(window);
-
 /**
  * effects/color.js
  */
@@ -3583,6 +2900,420 @@ jax.extend({
     };
 })(window);
 /**
+ * effects/delay.js
+ */
+jax.extend({
+    delayTime : 0,
+    /**
+     * Function to set the delay time for the next animation to fire
+     *
+     * @param   {Number} ms
+     * @returns {jax}
+     */
+    delay : function(ms) {
+        this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
+        return this;
+    }
+});
+/**
+ * effects/resize.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'resize'
+     *
+     * @param   {Mixed}  w
+     * @param   {Mixed}  h
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    resize : function(w, h, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['resize', {"w" : w, "h" : h}], opts);}, this.delayTime);
+            } else {
+                this.animate(['resize', {"w" : w, "h" : h}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * effects/fade.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'fade'
+     *
+     * @param   {Mixed}  o
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    fade : function(o, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
+            } else {
+                this.animate(['fade', {"o" : o}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * effects/scroll.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'scrollX'
+     *
+     * @param   {Mixed}  x
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    scrollX : function(x, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
+            } else {
+                this.animate(['scrollX', {"x" : x}], opts);
+            }
+        }
+        return this;
+    },
+    /**
+     * Alias function to animate selected elements via 'scrollY'
+     *
+     * @param   {Mixed}  y
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    scrollY : function(y, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
+            } else {
+                this.animate(['scrollY', {"y" : y}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * effects/animate.js
+ */
+(function(window){
+    window.jax.instances = [];
+})(window);
+
+jax.extend({
+    /**
+     * Function to calculate and perform the animation or animations
+     *
+     * @param   {Array}  params
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    animate : function(params, opts) {
+        var tween    = ((opts != undefined) && (opts.tween != undefined))    ? opts.tween : 25;
+        var speed    = ((opts != undefined) && (opts.speed != undefined))    ? Math.round(opts.speed / tween) : 20;
+        var trace    = ((opts != undefined) && (opts.trace != undefined))    ? opts.trace : null;
+        var complete = ((opts != undefined) && (opts.complete != undefined)) ? opts.complete : null;
+        var easingX  = null;
+        var easingY  = null;
+
+        if ((opts != undefined) && (opts.easing != undefined)) {
+            easingX = opts.easing;
+        }
+        if ((opts != undefined) && (opts.easingX != undefined)) {
+            easingX = opts.easingX;
+        }
+        if ((opts != undefined) && (opts.easingY != undefined)) {
+            easingY = opts.easingY;
+        }
+
+        // If elements have already been selected, use them as the overriding elements
+        if (this.length > 0) {
+            var realParams = [];
+            for (var i = 0; i < this.length; i++) {
+                realParams.push([this[i], params]);
+            }
+            params = realParams;
+        }
+
+        var elems = [];
+        // Iterate through the params passed.
+        for (var e = 0; e < params.length; e++) {
+            var fadeChange   = null;
+            var widthChange  = null;
+            var heightChange = null;
+            var steps        = null;
+            var elemSteps    = [];
+            var elem         = params[e][0];
+
+            // Convert into an array if not one already
+            if ((params[e][1].constructor == Array) && (params[e][1][0].constructor != Array)) {
+                params[e][1] = [params[e][1]];
+            }
+
+            // Iterate through the animation parameters of the elements passed.
+            for (var m = 0; m < params[e][1].length; m++) {
+                var type = params[e][1][m][0];
+                switch (type) {
+                    case 'move':
+                        steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, parseInt(window.jax(elem).css('left')), parseInt(window.jax(elem).css('top')), tween, easingX,  easingY);
+                        break;
+                    case 'slide':
+                        var backPos = window.jax(elem).css('background-position');
+                        if ((backPos != null) && (backPos.toString().indexOf('px') != -1)) {
+                            backPos = backPos.split(' ');
+                            var orgX = parseInt(backPos[0]);
+                            var orgY = parseInt(backPos[1]);
+                        } else {
+                            var orgX = 0;
+                            var orgY = 0;
+                        }
+                        steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, orgX, orgY, tween, easingX,  easingY);
+                        break;
+                    case 'resize':
+                        steps = this.calcSteps(params[e][1][m][1].w, params[e][1][m][1].h, parseInt(window.jax(elem).innerWidth()), parseInt(window.jax(elem).innerHeight()), tween, easingX,  easingY);
+                        break;
+                    case 'fade':
+                        var curOpacity = window.jax(elem).css('opacity');
+                        fadeChange = params[e][1][m][1].o;
+                        if (fadeChange != 0) {
+                            window.jax(elem).show();
+                        }
+                        steps = this.calcSteps(curOpacity, null, params[e][1][m][1].o, null, tween, easingX);
+                        break;
+                    case 'wipeOff':
+                        widthChange = params[e][1][m][1].w;
+                        if (widthChange != 0) {
+                            window.jax(elem).show();
+                        }
+                        steps = this.calcSteps(parseInt(window.jax(elem).innerWidth()), null, params[e][1][m][1].w, null, tween, easingX);
+                        break;
+                    case 'wipeUp':
+                        heightChange = params[e][1][m][1].h;
+                        if (heightChange != 0) {
+                            window.jax(elem).show();
+                        }
+                        steps = this.calcSteps(parseInt(window.jax(elem).innerHeight()), null, params[e][1][m][1].h, null, tween, easingX);
+                        break;
+                    case 'scrollX':
+                        var curX = (window.jax.isWindow(elem)) ? window.jax().getScrollX() : window.jax(elem).getScrollX();
+                        steps = this.calcSteps(curX, null, params[e][1][m][1].x, null, tween, easingX);
+                        break;
+                    case 'scrollY':
+                        var curY = (window.jax.isWindow(elem)) ? window.jax().getScrollY() : window.jax(elem).getScrollY();
+                        steps = this.calcSteps(curY, null, params[e][1][m][1].y, null, tween, easingX);
+                        break;
+                    case 'blendColor':
+                    case 'blendBgColor':
+                        var blend = window.jax.color(params[e][1][m][1].c1).blend(params[e][1][m][1].c2, tween, easingX);
+                        steps = [];
+                        for (var w = 0; w < blend.length; w++) {
+                            steps.push(blend[w].rgba);
+                        }
+                        break;
+                }
+                elemSteps.push([type, steps]);
+            }
+            elems.push([elem, elemSteps, [fadeChange, widthChange, heightChange]]);
+        }
+
+        var animateObj = function(elms, spd, c, i, trace) {
+            if (i == null) {
+                i = window.jax.random(100000, 999999);
+            }
+            if ((elms[0] != undefined) && (c < elms[0][1][0][1].length)) {
+                for (var q = 0; q < elms.length; q++) {
+                    for (var n = 0; n < elms[q][1].length; n++) {
+                        var e = elms[q][0];
+                        switch(elms[q][1][n][0]) {
+                            case 'move':
+                                var x = elms[q][1][n][1][c][0];
+                                var y = elms[q][1][n][1][c][1];
+                                window.jax(e).css('left', x + 'px');
+                                window.jax(e).css('top', y + 'px');
+                                break;
+                            case 'resize':
+                                var x = elms[q][1][n][1][c][0];
+                                var y = elms[q][1][n][1][c][1];
+                                window.jax(e).css('width', x + 'px');
+                                window.jax(e).css('height', y + 'px');
+                                break;
+                            case 'fade':
+                                var x = elms[q][1][n][1][c];
+                                var y = null;
+                                window.jax(e).css('opacity', x);
+                                break;
+                            case 'wipeOff':
+                                var x = elms[q][1][n][1][c];
+                                var y = null;
+                                window.jax(e).css('width', x + 'px');
+                                break;
+                            case 'wipeUp':
+                                var x = elms[q][1][n][1][c];
+                                var y = null;
+                                window.jax(e).css('height', x + 'px');
+                                break;
+                            case 'scrollX':
+                                var x = elms[q][1][n][1][c];
+                                var y = null;
+                                if (window.jax.isWindow(elem)) {
+                                    elem.scrollTo(x, 0);
+                                } else {
+                                    window.jax(e)[0].scrollLeft = x;
+                                }
+                                break;
+                            case 'scrollY':
+                                var x = null;
+                                var y = elms[q][1][n][1][c];
+                                if (window.jax.isWindow(elem)) {
+                                    elem.scrollTo(0, y);
+                                } else {
+                                    window.jax(e)[0].scrollTop = y;
+                                }
+                                break;
+                            case 'slide':
+                                var x = elms[q][1][n][1][c][0];
+                                var y = elms[q][1][n][1][c][1];
+                                window.jax(e).css('background-position', x + 'px ' + y + 'px');
+                                break;
+                            case 'blendColor':
+                                var x = elms[q][1][n][1][c];
+                                var y = null;
+                                window.jax(e).css('color', x);
+                                break;
+                            case 'blendBgColor':
+                                var x = elms[q][1][n][1][c];
+                                var y = null;
+                                window.jax(e).css('background-color', x);
+                                break;
+                        }
+                        if (trace != null) {
+                            trace.apply(undefined, [{"obj" : e, "x" : x, "y" : y, "i" : c}]);
+                        }
+                    }
+                }
+                c++;
+                window.jax.instances[i] = setTimeout(function() { animateObj(elms, spd, c, i, trace); }, spd);
+            } else {
+                for (var q = 0; q < elms.length; q++) {
+                    var e = elms[q][0];
+                    if (elms[q][2][0] != null) {
+                        if (elms[q][2][0] == 0) {
+                            window.jax(e).hide();
+                        }
+                        window.jax(e).css('opacity', elms[q][2][0]);
+                    } else if (elms[q][2][1] != null) {
+                        if (elms[q][2][1] == 0) {
+                            window.jax(e).hide();
+                        }
+                        window.jax(e).css('width', elms[q][2][1] + 'px');
+                    } else if (elms[q][2][2] != null) {
+                        if (elms[q][2][2] == 0) {
+                            window.jax(e).hide();
+                        }
+                        window.jax(e).css('height', elms[q][2][2] + 'px');
+                    }
+                }
+
+                if (complete != null) {
+                    complete();
+                }
+
+                window.jax.instances[i] = clearTimeout(window.jax.instances[i]);
+                window.jax.instances[i] = undefined;
+                delete window.jax.instances[i];
+            }
+        };
+
+        animateObj(elems, speed, 0, null, trace);
+        return this;
+    },
+    /**
+     * Function to calculate the in between steps of the animations
+     *
+     * @param   {Mixed}    a
+     * @param   {Mixed}    b
+     * @param   {Mixed}    c
+     * @param   {Mixed}    d
+     * @param   {Number}   tween
+     * @param   {Function} easingX
+     * @param   {Function} easingY
+     * @returns {Array}
+     */
+    calcSteps : function(a, b, c, d, tween, easingX,  easingY) {
+        // Reset the array.
+        var steps = [];
+
+        // Make sure the values are numbers, calculate any increment notation
+        if ((typeof c == 'string') && ((c.indexOf('+=') != -1) || (c.indexOf('-=') != -1))) {
+            a = parseFloat(a);
+            var inc = c;
+            c = a;
+            eval('c ' + inc);
+        } else {
+            c = parseFloat(c);
+            if ((typeof a == 'string') && ((a.indexOf('+=') != -1) || (a.indexOf('-=') != -1))) {
+                var inc = a;
+                a = c;
+                eval('a ' + inc);
+            } else {
+                a = parseFloat(a);
+            }
+        }
+
+        tween = parseFloat(tween);
+
+        // Calculate the total "distance" from point a to point b
+        var aTotal = c - a;
+        var bTotal = null;
+
+        if ((b != null) && (d != null)) {
+            // Make sure the values are numbers, calculate any increment notation
+            d = parseFloat(d);
+            if ((typeof b == 'string') && ((b.indexOf('+=') != -1) || (b.indexOf('-=') != -1))) {
+                var inc = b;
+                b = d;
+                eval('b ' + inc);
+            } else {
+                b = parseFloat(b);
+            }
+            bTotal = d - b;
+        }
+
+        if ((easingX == undefined) || (easingX == null) || (typeof easingX != 'function')) {
+            easingX = window.jax.tween.linear;
+        }
+        if ((easingY == undefined) || (easingY == null) || (typeof easingY != 'function')) {
+            easingY = easingX;
+        }
+
+        // Calculate the steps
+        for (var i = 0; i <= tween; i++) {
+            var curA = Math.round(easingX(i, a, aTotal, tween));
+            if (bTotal != null) {
+                var curB = Math.round(easingY(i, b, bTotal, tween));
+            }
+
+            if (bTotal != null) {
+                steps.unshift([curA, curB]);
+            } else {
+                steps.push(curA);
+            }
+        }
+
+        return steps;
+    }
+});
+/**
  * effects/slide.js
  */
 jax.extend({
@@ -3606,6 +3337,217 @@ jax.extend({
         return this;
     }
 });
+/**
+ * effects/tween.js
+ */
+(function(window){
+    /**
+     * Create the tween object and functions under the main jax object.
+     *
+     * Tween object and functions, based on Robert Penner's base easing functions (http://www.robertpenner.com/easing/)
+     * and George McGinley's extended easing functions (https://github.com/danro/jquery-easing/blob/master/jquery.easing.js)
+     */
+    window.jax.tween = {
+        /** Function to calculate a linear tween step */
+        linear : function(curStep, start, end, totalSteps) {
+            return (end * (curStep / totalSteps)) + start;
+        },
+        /** Tween ease-in object */
+        easein : {
+            /** Function to calculate a quadratic easing-in tween step */
+            quad  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep) + start;
+            },
+            /** Function to calculate a cubic easing-in tween step */
+            cubic : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep * curStep) + start;
+            },
+            /** Function to calculate a quartic easing-in tween step */
+            quart : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep * curStep * curStep) + start;
+            },
+            /** Function to calculate a quintic easing-in tween step */
+            quint : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep * curStep * curStep * curStep) + start;
+            },
+            /** Function to calculate a sinusoidal easing-in tween step */
+            sine  : function(curStep, start, end, totalSteps) {
+                return (-end * Math.cos(curStep / totalSteps * (Math.PI / 2))) + end + start;
+            },
+            /** Function to calculate an exponential easing-in tween step */
+            expo  : function(curStep, start, end, totalSteps) {
+                return (end * Math.pow(2, 10 * (curStep / totalSteps - 1))) + start;
+            },
+            /** Function to calculate a circular easing-in tween step */
+            circ  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (-end * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
+            },
+            /** Function to calculate an elastic easing-in tween step */
+            elastic : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                var p = 0;
+                var a = end;
+                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
+                if (a < Math.abs(end)) { a = end; var s = p / 4; }
+                else var s = p / (2 * Math.PI) * Math.asin(end / a);
+                return -(a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
+            },
+            /** Function to calculate a back easing-in tween step */
+            back : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                return end * (curStep /= totalSteps) * curStep *((s + 1) * curStep - s) + start;
+            },
+            /** Function to calculate a bounce easing-in tween step */
+            bounce : function(curStep, start, end, totalSteps) {
+                return end - window.jax.tween.easeout.bounce((totalSteps - curStep), 0, end, totalSteps) + start;
+            }
+        },
+        /** Tween ease-out object */
+        easeout : {
+            /** Function to calculate a quadratic easing-out tween step */
+            quad  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (-end * curStep * (curStep - 2)) + start;
+            },
+            /** Function to calculate a cubic easing-out tween step */
+            cubic : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (end *(curStep * curStep * curStep + 1)) + start;
+            },
+            /** Function to calculate a quartic easing-out tween step */
+            quart : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (-end * (curStep * curStep * curStep * curStep - 1)) + start;
+            },
+            /** Function to calculate a quintic easing-out tween step */
+            quint : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (end * ((curStep * curStep * curStep * curStep * curStep) + 1)) + start;
+            },
+            /** Function to calculate a sinusoidal easing-out tween step */
+            sine  : function(curStep, start, end, totalSteps) {
+                return (end * Math.sin(curStep / totalSteps * (Math.PI / 2))) + start;
+            },
+            /** Function to calculate an exponential easing-out tween step */
+            expo  : function(curStep, start, end, totalSteps) {
+                return (end * (-Math.pow(2, -10 * curStep / totalSteps) + 1)) + start;
+            },
+            /** Function to calculate a circular easing-out tween step */
+            circ  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (end * Math.sqrt(1 - (curStep * curStep))) + start;
+            },
+            /** Function to calculate an elastic easing-out tween step */
+            elastic : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                var p = 0;
+                var a = end;
+                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
+                if (a < Math.abs(end)) { a = end; var s = p / 4; }
+                else var s = p / (2 * Math.PI) * Math.asin(end / a);
+                return a * Math.pow(2, -10 * curStep) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) + end + start;
+            },
+            /** Function to calculate a back easing-out tween step */
+            back : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                return end * ((curStep = curStep / totalSteps - 1) * curStep * ((s + 1) * curStep + s) + 1) + start;
+            },
+            /** Function to calculate a bounce easing-out tween step */
+            bounce : function(curStep, start, end, totalSteps) {
+                if ((curStep /= totalSteps) < (1/2.75)) {
+                    return end * (7.5625 * curStep * curStep) + start;
+                } else if (curStep < (2 / 2.75)) {
+                    return end * (7.5625 * (curStep -= (1.5/2.75)) * curStep + .75) + start;
+                } else if (curStep < (2.5/2.75)) {
+                    return end * (7.5625 * (curStep -= (2.25/2.75)) * curStep + .9375) + start;
+                } else {
+                    return end * (7.5625 * (curStep -= (2.625/2.75)) * curStep + .984375) + start;
+                }
+            }
+        },
+        /** Tween ease-in-out object */
+        easeinout : {
+            /** Function to calculate a quadratic easing-in-out tween step */
+            quad  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep) + start;
+                curStep--;
+                return (-end / 2 * (curStep * (curStep - 2) - 1)) + start;
+            },
+            /** Function to calculate a cubic easing-in-out tween step */
+            cubic : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep) + start;
+                curStep -= 2;
+                return ((end / 2) * (curStep * curStep * curStep + 2)) + start;
+            },
+            /** Function to calculate a quartic easing-in-out tween step */
+            quart : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep) + start;
+                curStep -= 2;
+                return ((-end / 2) * (curStep * curStep * curStep * curStep - 2)) + start;
+            },
+            /** Function to calculate a quintic easing-in-out tween step */
+            quint : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep * curStep) + start;
+                curStep -= 2;
+                return ((end / 2) * ((curStep * curStep * curStep * curStep * curStep) + 2)) + start;
+            },
+            /** Function to calculate a sinusoidal easing-in-out tween step */
+            sine  : function(curStep, start, end, totalSteps) {
+                return ((-end / 2) * (Math.cos(Math.PI * curStep / totalSteps) - 1)) + start;
+            },
+            /** Function to calculate an exponential easing-in-out tween step */
+            expo  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * Math.pow(2, 10 * (curStep - 1))) + start;
+                curStep--;
+                return ((end / 2) * (-Math.pow(2, -10 * curStep) + 2)) + start;
+            },
+            /** Function to calculate a circular easing-in-out tween step */
+            circ  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((-end / 2) * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
+                curStep -= 2;
+                return ((end / 2) * (Math.sqrt(1 - (curStep * curStep)) + 1)) + start;
+            },
+            /** Function to calculate an elastic easing-in-out tween step */
+            elastic  : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                var p = 0;
+                var a = end;
+                if (curStep == 0) return start;  if ((curStep /= totalSteps / 2) == 2) return start + end;  if (!p) p = totalSteps * (.3 * 1.5);
+                if (a < Math.abs(end)) { a = end; var s = p/4; }
+                else var s = p / (2 * Math.PI) * Math.asin(end / a);
+                if (curStep < 1) return -.5 * (a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
+                return a * Math.pow(2, -10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) * .5 + end + start;
+            },
+            /** Function to calculate a back easing-in-out tween step */
+            back : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                if ((curStep /= totalSteps / 2) < 1) return end / 2 * (curStep * curStep * (((s *= (1.525)) + 1) * curStep - s)) + start;
+                return end / 2 * ((curStep -= 2) * curStep * (((s *= (1.525)) + 1) * curStep + s) + 2) + start;
+            },
+            /** Function to calculate a bounce easing-in-out tween step */
+            bounce : function(curStep, start, end, totalSteps) {
+                if (curStep < totalSteps / 2) return window.jax.tween.easeout.bounce((curStep * 2), 0, end, totalSteps) * .5 + start;
+                return window.jax.tween.easeout.bounce(((curStep * 2) - totalSteps), 0, end, totalSteps) * .5 + end * .5 + start;
+            }
+        }
+    };
+})(window);
+
 /**
  * event.js
  */
@@ -3684,76 +3626,38 @@ jax.extend({
     }
 });
 /**
- * event/select.js
+ * event/focus.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onselect of an object
+     * Function to attach a event to the onfocus of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    select : function(func) {
+    focus : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onselect = func;
+                this[i].onfocus = func;
             }
         }
         return this;
     }
 });
 /**
- * event/mouseup.js
+ * event/mouseout.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmouseup of an object
+     * Function to attach a event to the onmouseout of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    mouseup : function(func) {
+    mouseout : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmouseup = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/keyup.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onkeyup of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    keyup : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onkeyup = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/keypress.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onkeypress of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    keypress : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onkeypress = func;
+                this[i].onmouseout = func;
             }
         }
         return this;
@@ -3966,19 +3870,38 @@ jax.extend({
     }
 });
 /**
- * event/change.js
+ * event/select.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onchange of an object
+     * Function to attach a event to the onselect of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    change : function(func) {
+    select : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onchange = func;
+                this[i].onselect = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/keypress.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onkeypress of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    keypress : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onkeypress = func;
             }
         }
         return this;
@@ -4008,57 +3931,19 @@ jax.extend({
     }
 });
 /**
- * event/mousemove.js
+ * event/keydown.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmousemove of an object
+     * Function to attach a event to the onkeydown of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    mousemove : function(func) {
+    keydown : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmousemove = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mouseover.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmouseover of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseover : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseover = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/focus.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onfocus of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    focus : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onfocus = func;
+                this[i].onkeydown = func;
             }
         }
         return this;
@@ -4082,149 +3967,6 @@ jax.extend({
                     event.stopPropagation();
                     event.preventDefault();
                 }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mouseenter.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmouseenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseenter = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/touchenter.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the touchenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchenter', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/touchmove.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the touchmove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchmove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchmove', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/keydown.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onkeydown of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    keydown : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onkeydown = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/submit.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onsubmit of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    submit : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onsubmit = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mouseout.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmouseout of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseout : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseout = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/hover.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmouseover and onmouseout (hover) of an object
-     *
-     * @param   {Function} func1
-     * @param   {Function} func2
-     * @returns {jax}
-     */
-    hover : function(func1, func2) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseover = func1;
-                this[i].onmouseout  = func2;
             }
         }
         return this;
@@ -4277,6 +4019,25 @@ jax.extend({
     }
 });
 /**
+ * event/click.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onclick of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    click : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onclick = func;
+            }
+        }
+        return this;
+    }
+});
+/**
  * event/scroll.js
  */
 jax.extend({
@@ -4296,19 +4057,118 @@ jax.extend({
     }
 });
 /**
- * event/click.js
+ * event/mouseover.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onclick of an object
+     * Function to attach a event to the onmouseover of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    click : function(func) {
+    mouseover : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onclick = func;
+                this[i].onmouseover = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mousemove.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmousemove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mousemove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmousemove = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/keyup.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onkeyup of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    keyup : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onkeyup = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/touchmove.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the touchmove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchmove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchmove', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/change.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onchange of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    change : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onchange = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/blur.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onblur of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    blur : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onblur = func;
             }
         }
         return this;
@@ -4334,6 +4194,48 @@ jax.extend({
     }
 });
 /**
+ * event/touchenter.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the touchenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchenter', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouseenter.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmouseenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseenter = func;
+            }
+        }
+        return this;
+    }
+});
+/**
  * event/mousedown.js
  */
 jax.extend({
@@ -4353,19 +4255,59 @@ jax.extend({
     }
 });
 /**
- * event/blur.js
+ * event/hover.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onblur of an object
+     * Function to attach a event to the onmouseover and onmouseout (hover) of an object
+     *
+     * @param   {Function} func1
+     * @param   {Function} func2
+     * @returns {jax}
+     */
+    hover : function(func1, func2) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseover = func1;
+                this[i].onmouseout  = func2;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouseup.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmouseup of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    blur : function(func) {
+    mouseup : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onblur = func;
+                this[i].onmouseup = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/submit.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onsubmit of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    submit : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onsubmit = func;
             }
         }
         return this;
@@ -4472,54 +4414,20 @@ jax.extend({
     }
 });
 /**
- * filter/gt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements greater than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    gt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i > index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
-        }
-
-        return this;
-    }
-});
-/**
- * filter/lt.js
- */
-jax.extend({
-    /**
-     * Function to filter the collection to the elements less than the index
-     *
-     * @param   {Number} index
-     * @returns {jax}
-     */
-    lt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i < index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
         }
 
         return this;
@@ -4590,20 +4498,54 @@ jax.extend({
     }
 });
 /**
- * filter/eq.js
+ * filter/gt.js
  */
 jax.extend({
     /**
-     * Function to reduce the collection to the single element at the index
+     * Function to filter the collection to the elements greater than the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
+    gt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i > index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/lt.js
+ */
+jax.extend({
+    /**
+     * Function to filter the collection to the elements less than the index
+     *
+     * @param   {Number} index
+     * @returns {jax}
+     */
+    lt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i < index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
         }
 
         return this;
@@ -4712,37 +4654,6 @@ jax.extend({
 })(window);
 
 /**
- * mouse/x.js
- */
-jax.extend({
-    /**
-     * Function to retrieve the current mouse/touch X-position, either relative to the screen or an element
-     *
-     * @param   {Event} event
-     * @returns {Number}
-     */
-    mouseX : function(event) {
-        if ((window.jax.browser.mobile) && (event.changedTouches != undefined) && (event.changedTouches[0] != undefined)) {
-            var xPos = event.changedTouches[0].pageX;
-        } else {
-            var xPos = (window.jax.browser.msie) ? window.event.clientX : event.clientX;
-        }
-        if (this[0] != undefined) {
-            xPos -= this[0].offsetLeft;
-        }
-        return xPos;
-    },
-    /**
-     * Alias function for mouseX
-     *
-     * @param   {Event} event
-     * @returns {Number}
-     */
-    touchX : function(event) {
-        return this.mouseX(event);
-    }
-});
-/**
  * mouse/y.js
  */
 jax.extend({
@@ -4771,6 +4682,37 @@ jax.extend({
      */
     touchY : function(event) {
         return this.mouseY(event);
+    }
+});
+/**
+ * mouse/x.js
+ */
+jax.extend({
+    /**
+     * Function to retrieve the current mouse/touch X-position, either relative to the screen or an element
+     *
+     * @param   {Event} event
+     * @returns {Number}
+     */
+    mouseX : function(event) {
+        if ((window.jax.browser.mobile) && (event.changedTouches != undefined) && (event.changedTouches[0] != undefined)) {
+            var xPos = event.changedTouches[0].pageX;
+        } else {
+            var xPos = (window.jax.browser.msie) ? window.event.clientX : event.clientX;
+        }
+        if (this[0] != undefined) {
+            xPos -= this[0].offsetLeft;
+        }
+        return xPos;
+    },
+    /**
+     * Alias function for mouseX
+     *
+     * @param   {Event} event
+     * @returns {Number}
+     */
+    touchX : function(event) {
+        return this.mouseX(event);
     }
 });
 /**
@@ -4925,185 +4867,6 @@ jax.extend({
 })(window);
 
 /**
- * string/case.js
- */
-(function(window){
-    /**
-     * Function to convert string from under_score or hyphenated to camelCase.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toCamelcase = function() {
-        var str = this;
-        var delim = (str.indexOf('_') != -1) ? '_' : '-';
-
-        var strAry = str.split(delim);
-        var camelCase = '';
-        for (var i = 0; i < strAry.length; i++) {
-            if (i == 0) {
-                camelCase += strAry[i];
-            } else {
-                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
-            }
-        }
-
-        return camelCase;
-    };
-
-    /**
-     * Function to convert string from hyphenated or camelCase to under_score.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toUnderscore = function() {
-        var str = this;
-        var under_score = '';
-
-        if (str.indexOf('-') != -1) {
-            under_score = str.replace('-', '_').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    under_score += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        under_score += ('_' + str[i].toLowerCase());
-                    } else {
-                        under_score += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return under_score;
-    };
-
-    /**
-     * Function to convert string from under_score or camelCase to hyphenated.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toHyphen = function() {
-        var str = this;
-        var hyphen = '';
-
-        if (str.indexOf('_') != -1) {
-            hyphen = str.replace('_', '-').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    hyphen += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        hyphen += ('-' + str[i].toLowerCase());
-                    } else {
-                        hyphen += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return hyphen;
-    };
-})(window);
-
-/**
- * string/slashes.js
- */
-(function(window){
-    /**
-     * Function to add slashes to a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.addslashes = function(quot) {
-        var str = this.replace(/\\/g, '\\\\');
-        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
-            str = str.replace(/\'/g, "\\'");
-        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
-            str = str.replace(/\"/g, '\\"');
-        } else {
-            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
-        }
-        return str;
-    };
-
-    /**
-     * Function to strip slashes from a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.stripslashes = function(quot) {
-        var str = this.replace(/\\\\/g, '\\');
-        if (quot.toLowerCase() == 'single') {
-            str = str.replace(/\\'/g, "'");
-        } else if (quot.toLowerCase() == 'double') {
-            str = str.replace(/\\"/g, '"');
-        } else {
-            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
-        }
-        return str;
-    };
-})(window);
-
-/**
- * string/slug.js
- */
-(function(window){
-    /**
-     * Function to convert a string to an SEO-friendly slug.
-     *
-     * @param   {String} sep
-     * @returns {String}
-     */
-    window.jax.String.prototype.slug = function(sep) {
-        var slg = '';
-        var tmpSlg = '';
-        if (this.length > 0) {
-            if (sep != null) {
-                var slgAry = [];
-                var urlAry = this.split(sep);
-                for (var i = 0; i < urlAry.length; i++) {
-                    tmpSlg = urlAry[i].toLowerCase();
-                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                        .replace(/ /g, '-').replace(/-*-/g, '-');
-                    slgAry.push(tmpSlg);
-                }
-                tmpSlg = slgAry.join('/');
-                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
-                slg += tmpSlg;
-            } else {
-                tmpSlg = this.toLowerCase();
-                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                    .replace(/ /g, '-').replace(/-*-/g, '-');
-                slg += tmpSlg;
-                slg = slg.replace(/\/-/g, '/');
-            }
-            if (slg.lastIndexOf('-') == (slg.length - 1)) {
-                slg = slg.substring(0, slg.lastIndexOf('-'));
-            }
-        }
-        return slg;
-    };
-})(window);
-
-/**
- * string/trim.js
- */
-(function(window){
-    /** Function to trim the whitespace from the left of the string */
-    window.jax.String.prototype.trimLeft = function() {
-        return this.replace(/^\s+/, '');
-    };
-
-    /** Function to trim the whitespace from the right of the string */
-    window.jax.String.prototype.trimRight = function() {
-        return this.replace(/\s+$/, '');
-    };
-})(window);
-/**
  * string/money.js
  */
 (function(window){
@@ -5152,35 +4915,43 @@ jax.extend({
 })(window);
 
 /**
- * string/clean.js
+ * string/slug.js
  */
 (function(window){
     /**
-     * Function to clean any common MS Word-based characters.
+     * Function to convert a string to an SEO-friendly slug.
      *
-     * @param   {Boolean} html
+     * @param   {String} sep
      * @returns {String}
      */
-    window.jax.String.prototype.clean = function(html) {
-        if (html != null) {
-            var apos = "&#39;";
-            var quot = "&#34;";
-            var dash = "&#150;";
-        } else {
-            var apos = "'";
-            var quot = '"';
-            var dash = "-";
+    window.jax.String.prototype.slug = function(sep) {
+        var slg = '';
+        var tmpSlg = '';
+        if (this.length > 0) {
+            if (sep != null) {
+                var slgAry = [];
+                var urlAry = this.split(sep);
+                for (var i = 0; i < urlAry.length; i++) {
+                    tmpSlg = urlAry[i].toLowerCase();
+                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                        .replace(/ /g, '-').replace(/-*-/g, '-');
+                    slgAry.push(tmpSlg);
+                }
+                tmpSlg = slgAry.join('/');
+                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
+                slg += tmpSlg;
+            } else {
+                tmpSlg = this.toLowerCase();
+                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                    .replace(/ /g, '-').replace(/-*-/g, '-');
+                slg += tmpSlg;
+                slg = slg.replace(/\/-/g, '/');
+            }
+            if (slg.lastIndexOf('-') == (slg.length - 1)) {
+                slg = slg.substring(0, slg.lastIndexOf('-'));
+            }
         }
-
-        var str = this;
-        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
-        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
-
-        return str;
+        return slg;
     };
 })(window);
 
@@ -5282,6 +5053,20 @@ jax.extend({
 })(window);
 
 /**
+ * string/trim.js
+ */
+(function(window){
+    /** Function to trim the whitespace from the left of the string */
+    window.jax.String.prototype.trimLeft = function() {
+        return this.replace(/^\s+/, '');
+    };
+
+    /** Function to trim the whitespace from the right of the string */
+    window.jax.String.prototype.trimRight = function() {
+        return this.replace(/\s+$/, '');
+    };
+})(window);
+/**
  * string/random.js
  */
 (function(window){
@@ -5303,6 +5088,163 @@ jax.extend({
         }
 
         return str;
+    };
+})(window);
+
+/**
+ * string/clean.js
+ */
+(function(window){
+    /**
+     * Function to clean any common MS Word-based characters.
+     *
+     * @param   {Boolean} html
+     * @returns {String}
+     */
+    window.jax.String.prototype.clean = function(html) {
+        if (html != null) {
+            var apos = "&#39;";
+            var quot = "&#34;";
+            var dash = "&#150;";
+        } else {
+            var apos = "'";
+            var quot = '"';
+            var dash = "-";
+        }
+
+        var str = this;
+        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
+        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
+        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
+        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
+        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
+        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
+
+        return str;
+    };
+})(window);
+
+/**
+ * string/slashes.js
+ */
+(function(window){
+    /**
+     * Function to add slashes to a string.
+     *
+     * @param   {Boolean} quot
+     * @returns {String}
+     */
+    window.jax.String.prototype.addslashes = function(quot) {
+        var str = this.replace(/\\/g, '\\\\');
+        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
+            str = str.replace(/\'/g, "\\'");
+        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
+            str = str.replace(/\"/g, '\\"');
+        } else {
+            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
+        }
+        return str;
+    };
+
+    /**
+     * Function to strip slashes from a string.
+     *
+     * @param   {Boolean} quot
+     * @returns {String}
+     */
+    window.jax.String.prototype.stripslashes = function(quot) {
+        var str = this.replace(/\\\\/g, '\\');
+        if (quot.toLowerCase() == 'single') {
+            str = str.replace(/\\'/g, "'");
+        } else if (quot.toLowerCase() == 'double') {
+            str = str.replace(/\\"/g, '"');
+        } else {
+            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
+        }
+        return str;
+    };
+})(window);
+
+/**
+ * string/case.js
+ */
+(function(window){
+    /**
+     * Function to convert string from under_score or hyphenated to camelCase.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toCamelcase = function() {
+        var str = this;
+        var delim = (str.indexOf('_') != -1) ? '_' : '-';
+
+        var strAry = str.split(delim);
+        var camelCase = '';
+        for (var i = 0; i < strAry.length; i++) {
+            if (i == 0) {
+                camelCase += strAry[i];
+            } else {
+                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
+            }
+        }
+
+        return camelCase;
+    };
+
+    /**
+     * Function to convert string from hyphenated or camelCase to under_score.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toUnderscore = function() {
+        var str = this;
+        var under_score = '';
+
+        if (str.indexOf('-') != -1) {
+            under_score = str.replace('-', '_').toLowerCase();
+        } else {
+            for (var i = 0; i < str.length; i++) {
+                if (i == 0) {
+                    under_score += str[i].toLowerCase();
+                } else {
+                    if (str[i] == str[i].toUpperCase()) {
+                        under_score += ('_' + str[i].toLowerCase());
+                    } else {
+                        under_score += str[i].toLowerCase();
+                    }
+                }
+            }
+        }
+
+        return under_score;
+    };
+
+    /**
+     * Function to convert string from under_score or camelCase to hyphenated.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toHyphen = function() {
+        var str = this;
+        var hyphen = '';
+
+        if (str.indexOf('_') != -1) {
+            hyphen = str.replace('_', '-').toLowerCase();
+        } else {
+            for (var i = 0; i < str.length; i++) {
+                if (i == 0) {
+                    hyphen += str[i].toLowerCase();
+                } else {
+                    if (str[i] == str[i].toUpperCase()) {
+                        hyphen += ('-' + str[i].toLowerCase());
+                    } else {
+                        hyphen += str[i].toLowerCase();
+                    }
+                }
+            }
+        }
+
+        return hyphen;
     };
 })(window);
 
