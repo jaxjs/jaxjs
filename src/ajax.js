@@ -89,7 +89,7 @@
             // Else, rely on the built in response parser
         } else {
             window.jax.requests[index].send(data);
-            return window.jax.parseResponse(window.jax.getResponse(index), type, fields, delim, async, trace);
+            return window.jax.parseResponse(window.jax.getResponse(index), fields, type, delim, async, trace);
         }
     };
 })(window);

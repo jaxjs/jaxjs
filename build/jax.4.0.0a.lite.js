@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 28, 2014 02:35:14
+ * @build      Nov 28, 2014 12:24:31
  */
 (function(window){
     /**
@@ -532,11 +532,31 @@ jax.extend({
             // Else, rely on the built in response parser
         } else {
             window.jax.requests[index].send(data);
-            return window.jax.parseResponse(window.jax.getResponse(index), type, fields, delim, async, trace);
+            return window.jax.parseResponse(window.jax.getResponse(index), fields, type, delim, async, trace);
         }
     };
 })(window);
 
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
 /**
  * ajax/get.js
  */
@@ -625,34 +645,62 @@ jax.extend({
      * Function to parse a response
      *
      * @param   {Object}   response
-     * @param   {String}   type
      * @param   {Boolean}  fields
+     * @param   {String}   type
      * @param   {String}   delim
      * @param   {Boolean}  async
      * @param   {Function} trace
      * @returns {Object}
      */
-    window.jax.parseResponse = function(response, type, fields, delim, async, trace) {
+    window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
         var obj;
         var msie = (navigator.userAgent.toLowerCase().indexOf('msie') != -1);
 
         // Detect application type
         if (type == null) {
-            if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
-                type = 'json';
-            } else if (response.headers['Content-Type'].toLowerCase().indexOf('xml') != -1) {
-                type = 'xml';
-            } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
-                type = 'csv';
-                if (delim == null) {
-                    delim = ',';
+            // Try from response object content type header
+            if ((response.headers != undefined) && (response.headers['Content-Type'] != undefined)) {
+                if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
+                    type = 'json';
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('xml') != -1) {
+                    type = 'xml';
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
+                    type = 'csv';
+                    if (delim == null) {
+                        delim = ',';
+                    }
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
+                    type = 'csv';
+                    if (delim == null) {
+                        delim = "\t";
+                    }
                 }
-            } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
-                type = 'csv';
-                if (delim == null) {
-                    delim = "\t";
+            // Else, if string, try to detect from string
+            } else if (typeof response == 'string') {
+                if (response.substr(0, 5) == '<?xml') {
+                    type = 'xml';
+                } else if (response.substr(0, 1) == '{') {
+                    type = 'json';
+                } else {
+                    var validCsv = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
+                    var validTsv = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*(?:\t\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*)*$/;
+                    if (validCsv.test(response)) {
+                        type = 'csv';
+                        if (delim == null) {
+                            delim = ',';
+                        }
+                    } else if (validTsv.test(response)) {
+                        type = 'csv';
+                        if (delim == null) {
+                            delim = "\t";
+                        }
+                    }
                 }
             }
+        }
+
+        if (type == null) {
+            throw 'Error: The content type was either not passed or could not be auto-detected.';
         }
 
         switch (type) {
@@ -681,42 +729,42 @@ jax.extend({
 
                 var docObj = 'var xml = ';
 
-            function traverse(tree, objStr) {
-                var attribs = [];
-                var attribStr = '';
-                if (tree.attributes != undefined) {
-                    for (var j = 0; j < tree.attributes.length; j++) {
-                        attribs.push(tree.attributes[j].nodeName + ' : "' + new window.jax.String(tree.attributes[j].nodeValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
-                    }
-                }
-                if (tree.hasChildNodes()) {
-                    var regex = /^\s*$/;
-                    var nValue = '';
-                    for (var i = 0; i < tree.childNodes.length; i++) {
-                        if ((tree.childNodes[i].nodeType == 3) && (!regex.test(tree.childNodes[i].nodeValue))) {
-                            nValue += tree.childNodes[i].nodeValue;
+                function traverse(tree, objStr) {
+                    var attribs = [];
+                    var attribStr = '';
+                    if (tree.attributes != undefined) {
+                        for (var j = 0; j < tree.attributes.length; j++) {
+                            attribs.push(tree.attributes[j].nodeName + ' : "' + new window.jax.String(tree.attributes[j].nodeValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
                         }
                     }
-                    attribs.push('nodeValue : "' + new window.jax.String(nValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
-                    if (attribs.length > 0) {
-                        attribStr = '{' + attribs.join(', ');
-                    }
-                    objStr += '{' + tree.tagName + ' : ' + attribStr + ', nodes : [';
-                    for (var i = 0; i < tree.childNodes.length; i++) {
-                        objStr += traverse(tree.childNodes[i], '');
-                    }
-                    objStr += ']}},';
-                } else {
-                    if (tree.nodeValue == null) {
-                        attribs.push('nodeValue : ""');
+                    if (tree.hasChildNodes()) {
+                        var regex = /^\s*$/;
+                        var nValue = '';
+                        for (var i = 0; i < tree.childNodes.length; i++) {
+                            if ((tree.childNodes[i].nodeType == 3) && (!regex.test(tree.childNodes[i].nodeValue))) {
+                                nValue += tree.childNodes[i].nodeValue;
+                            }
+                        }
+                        attribs.push('nodeValue : "' + new window.jax.String(nValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
                         if (attribs.length > 0) {
-                            attribStr = '{' + attribs.join(', ') + '}';
+                            attribStr = '{' + attribs.join(', ');
                         }
-                        objStr += '{' + tree.tagName + ' : ' + attribStr + '}';
+                        objStr += '{' + tree.tagName + ' : ' + attribStr + ', nodes : [';
+                        for (var i = 0; i < tree.childNodes.length; i++) {
+                            objStr += traverse(tree.childNodes[i], '');
+                        }
+                        objStr += ']}},';
+                    } else {
+                        if (tree.nodeValue == null) {
+                            attribs.push('nodeValue : ""');
+                            if (attribs.length > 0) {
+                                attribStr = '{' + attribs.join(', ') + '}';
+                            }
+                            objStr += '{' + tree.tagName + ' : ' + attribStr + '}';
+                        }
                     }
+                    return objStr;
                 }
-                return objStr;
-            }
 
                 if (xDoc.childNodes.length > 0) {
                     if (msie) {
@@ -743,6 +791,9 @@ jax.extend({
 
             // Parse CSV or TSV response
             case 'csv':
+                if (delim == null) {
+                    throw 'Error: The content delimiter was either not passed or could not be auto-detected.';
+                }
                 var start = 0;
                 var csvDoc = (response.text != undefined) ? response.text : response.toString();
                 var csvObj = 'var csv = ';
@@ -861,26 +912,6 @@ jax.extend({
 })(window);
 
 /**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
  * append.js
  */
 jax.extend({
@@ -941,6 +972,116 @@ jax.extend({
      */
     prepend : function(type, attribs, value) {
         return this.append(type, attribs, value, true)
+    }
+});
+/**
+ * append/radio.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of radio elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {String}  marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendRadio : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objValues = [];
+        var objMarked = (marked != undefined) ? marked : null;
+        var objChild = document.createElement('fieldset');
+        objChild.setAttribute('class', 'radio-btn-fieldset');
+
+        // Set the elements' values.
+        if (values.constructor == Array) {
+            for (var i = 0; i < values.length; i++) {
+                objValues.push(values[i]);
+            }
+        } else {
+            objValues.push(values);
+        }
+
+        // Create the child elements.
+        for (var i = 0; i < objValues.length; i++) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'radio');
+            newElem.setAttribute('class', 'radio-btn');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
+            newElem.setAttribute('value', valuesAry[0]);
+
+            if (objMarked != null) {
+                newElem.checked = (objMarked == valuesAry[1]);
+            }
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'radio-span');
+            spanElem.innerHTML = valuesAry[1];
+
+            objChild.appendChild(spanElem);
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of radio elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependRadio : function(values, attribs, marked) {
+        return this.appendRadio(values, attribs, marked, true);
+    }
+});
+/**
+ * append/textarea.js
+ */
+jax.extend({
+    /**
+     * Alias function to append a new textarea element to the current element
+     *
+     * @param   {Object}  attribs
+     * @param   {String}  value
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendTextarea : function(attribs, value, pre) {
+        return this.append('textarea', attribs, value, pre);
+    },
+    /**
+     * Alias function to prepend a new textarea element to the current element
+     *
+     * @param   {Object} attribs
+     * @param   {String} value
+     * @returns {jax}
+     */
+    prependTextarea : function(attribs, value) {
+        return this.append('textarea', attribs, value, true);
     }
 });
 /**
@@ -1190,56 +1331,6 @@ jax.extend({
     };
 })(window);
 /**
- * append/textarea.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new textarea element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {String}  value
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendTextarea : function(attribs, value, pre) {
-        return this.append('textarea', attribs, value, pre);
-    },
-    /**
-     * Alias function to prepend a new textarea element to the current element
-     *
-     * @param   {Object} attribs
-     * @param   {String} value
-     * @returns {jax}
-     */
-    prependTextarea : function(attribs, value) {
-        return this.append('textarea', attribs, value, true);
-    }
-});
-/**
- * append/input.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new input element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendInput : function(attribs, pre) {
-        return this.append('input', attribs, null, pre);
-    },
-    /**
-     * Alias function to prepend a new input element to the current element
-     *
-     * @param   {Object} attribs
-     * @returns {jax}
-     */
-    prependInput : function(attribs) {
-        return this.append('input', attribs, null, true);
-    }
-});
-/**
  * append/checkbox.js
  */
 jax.extend({
@@ -1333,87 +1424,27 @@ jax.extend({
     }
 });
 /**
- * append/radio.js
+ * append/input.js
  */
 jax.extend({
     /**
-     * Function to append a new set of radio elements to the current element
+     * Alias function to append a new input element to the current element
      *
-     * @param   {Array}   values
      * @param   {Object}  attribs
-     * @param   {String}  marked
      * @param   {Boolean} pre
      * @returns {jax}
      */
-    appendRadio : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objValues = [];
-        var objMarked = (marked != undefined) ? marked : null;
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-btn-fieldset');
-
-        // Set the elements' values.
-        if (values.constructor == Array) {
-            for (var i = 0; i < values.length; i++) {
-                objValues.push(values[i]);
-            }
-        } else {
-            objValues.push(values);
-        }
-
-        // Create the child elements.
-        for (var i = 0; i < objValues.length; i++) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio-btn');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newElem.setAttribute('value', valuesAry[0]);
-
-            if (objMarked != null) {
-                newElem.checked = (objMarked == valuesAry[1]);
-            }
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = valuesAry[1];
-
-            objChild.appendChild(spanElem);
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
+    appendInput : function(attribs, pre) {
+        return this.append('input', attribs, null, pre);
     },
     /**
-     * Alias function to prepend a new set of radio elements to the current element
+     * Alias function to prepend a new input element to the current element
      *
-     * @param   {Array}  values
      * @param   {Object} attribs
-     * @param   {Mixed}  marked
      * @returns {jax}
      */
-    prependRadio : function(values, attribs, marked) {
-        return this.appendRadio(values, attribs, marked, true);
+    prependInput : function(attribs) {
+        return this.append('input', attribs, null, true);
     }
 });
 /**
@@ -1658,6 +1689,27 @@ jax.extend({
 })(window);
 
 /**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
+/**
  * children/child.js
  */
 jax.extend({
@@ -1782,27 +1834,6 @@ jax.extend({
         return traverse(container, contained);
     };
 })(window);
-/**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
-    }
-});
 /**
  * clone.js
  */
@@ -2182,16 +2213,54 @@ jax.extend({
     }
 });
 /**
- * css/position.js
+ * css/set.js
  */
 jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle the opacity/filter issue.
+                case 'opacity':
+                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
+                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
+                    } else {
+                        obj.style.opacity = properties[prop] / 100;
+                    }
+                    break;
+                // Handle the styleFloat/cssFloat issue.
+                case 'float':
+                    if (window.jax.browser.msie) {
+                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
+                    } else {
+                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
+                    }
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
     }
 });
 /**
@@ -2304,54 +2373,16 @@ jax.extend({
     }
 });
 /**
- * css/set.js
+ * css/position.js
  */
 jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle the opacity/filter issue.
-                case 'opacity':
-                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
-                    } else {
-                        obj.style.opacity = properties[prop] / 100;
-                    }
-                    break;
-                // Handle the styleFloat/cssFloat issue.
-                case 'float':
-                    if (window.jax.browser.msie) {
-                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
-                    } else {
-                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
-                    }
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**

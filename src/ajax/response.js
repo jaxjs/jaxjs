@@ -6,34 +6,62 @@
      * Function to parse a response
      *
      * @param   {Object}   response
-     * @param   {String}   type
      * @param   {Boolean}  fields
+     * @param   {String}   type
      * @param   {String}   delim
      * @param   {Boolean}  async
      * @param   {Function} trace
      * @returns {Object}
      */
-    window.jax.parseResponse = function(response, type, fields, delim, async, trace) {
+    window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
         var obj;
         var msie = (navigator.userAgent.toLowerCase().indexOf('msie') != -1);
 
         // Detect application type
         if (type == null) {
-            if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
-                type = 'json';
-            } else if (response.headers['Content-Type'].toLowerCase().indexOf('xml') != -1) {
-                type = 'xml';
-            } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
-                type = 'csv';
-                if (delim == null) {
-                    delim = ',';
+            // Try from response object content type header
+            if ((response.headers != undefined) && (response.headers['Content-Type'] != undefined)) {
+                if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
+                    type = 'json';
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('xml') != -1) {
+                    type = 'xml';
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
+                    type = 'csv';
+                    if (delim == null) {
+                        delim = ',';
+                    }
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
+                    type = 'csv';
+                    if (delim == null) {
+                        delim = "\t";
+                    }
                 }
-            } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
-                type = 'csv';
-                if (delim == null) {
-                    delim = "\t";
+            // Else, if string, try to detect from string
+            } else if (typeof response == 'string') {
+                if (response.substr(0, 5) == '<?xml') {
+                    type = 'xml';
+                } else if (response.substr(0, 1) == '{') {
+                    type = 'json';
+                } else {
+                    var validCsv = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*(?:,\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^,'"\s\\]*(?:\s+[^,'"\s\\]+)*)\s*)*$/;
+                    var validTsv = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*(?:\t\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*)*$/;
+                    if (validCsv.test(response)) {
+                        type = 'csv';
+                        if (delim == null) {
+                            delim = ',';
+                        }
+                    } else if (validTsv.test(response)) {
+                        type = 'csv';
+                        if (delim == null) {
+                            delim = "\t";
+                        }
+                    }
                 }
             }
+        }
+
+        if (type == null) {
+            throw 'Error: The content type was either not passed or could not be auto-detected.';
         }
 
         switch (type) {
@@ -62,42 +90,42 @@
 
                 var docObj = 'var xml = ';
 
-            function traverse(tree, objStr) {
-                var attribs = [];
-                var attribStr = '';
-                if (tree.attributes != undefined) {
-                    for (var j = 0; j < tree.attributes.length; j++) {
-                        attribs.push(tree.attributes[j].nodeName + ' : "' + new window.jax.String(tree.attributes[j].nodeValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
-                    }
-                }
-                if (tree.hasChildNodes()) {
-                    var regex = /^\s*$/;
-                    var nValue = '';
-                    for (var i = 0; i < tree.childNodes.length; i++) {
-                        if ((tree.childNodes[i].nodeType == 3) && (!regex.test(tree.childNodes[i].nodeValue))) {
-                            nValue += tree.childNodes[i].nodeValue;
+                function traverse(tree, objStr) {
+                    var attribs = [];
+                    var attribStr = '';
+                    if (tree.attributes != undefined) {
+                        for (var j = 0; j < tree.attributes.length; j++) {
+                            attribs.push(tree.attributes[j].nodeName + ' : "' + new window.jax.String(tree.attributes[j].nodeValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
                         }
                     }
-                    attribs.push('nodeValue : "' + new window.jax.String(nValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
-                    if (attribs.length > 0) {
-                        attribStr = '{' + attribs.join(', ');
-                    }
-                    objStr += '{' + tree.tagName + ' : ' + attribStr + ', nodes : [';
-                    for (var i = 0; i < tree.childNodes.length; i++) {
-                        objStr += traverse(tree.childNodes[i], '');
-                    }
-                    objStr += ']}},';
-                } else {
-                    if (tree.nodeValue == null) {
-                        attribs.push('nodeValue : ""');
+                    if (tree.hasChildNodes()) {
+                        var regex = /^\s*$/;
+                        var nValue = '';
+                        for (var i = 0; i < tree.childNodes.length; i++) {
+                            if ((tree.childNodes[i].nodeType == 3) && (!regex.test(tree.childNodes[i].nodeValue))) {
+                                nValue += tree.childNodes[i].nodeValue;
+                            }
+                        }
+                        attribs.push('nodeValue : "' + new window.jax.String(nValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
                         if (attribs.length > 0) {
-                            attribStr = '{' + attribs.join(', ') + '}';
+                            attribStr = '{' + attribs.join(', ');
                         }
-                        objStr += '{' + tree.tagName + ' : ' + attribStr + '}';
+                        objStr += '{' + tree.tagName + ' : ' + attribStr + ', nodes : [';
+                        for (var i = 0; i < tree.childNodes.length; i++) {
+                            objStr += traverse(tree.childNodes[i], '');
+                        }
+                        objStr += ']}},';
+                    } else {
+                        if (tree.nodeValue == null) {
+                            attribs.push('nodeValue : ""');
+                            if (attribs.length > 0) {
+                                attribStr = '{' + attribs.join(', ') + '}';
+                            }
+                            objStr += '{' + tree.tagName + ' : ' + attribStr + '}';
+                        }
                     }
+                    return objStr;
                 }
-                return objStr;
-            }
 
                 if (xDoc.childNodes.length > 0) {
                     if (msie) {
@@ -124,6 +152,9 @@
 
             // Parse CSV or TSV response
             case 'csv':
+                if (delim == null) {
+                    throw 'Error: The content delimiter was either not passed or could not be auto-detected.';
+                }
                 var start = 0;
                 var csvDoc = (response.text != undefined) ? response.text : response.toString();
                 var csvObj = 'var csv = ';
