@@ -2705,7 +2705,7 @@ jax.extend({
             if (this.color.indexOf('rgb') != -1) {
                 this.color = this.color.substring(this.color.indexOf('(') + 1);
                 this.color = this.color.substring(0, this.color.indexOf(')'));
-                this.rgb = this.color.replace(/, /g, ',').split(',');
+                this.rgb   = this.color.replace(/, /g, ',').split(',');
                 if (this.rgb[3] == undefined) {
                     this.rgb.push(1.0);
                 }
