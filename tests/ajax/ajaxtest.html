@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- Header //-->
 <html>
 
 <head>
@@ -11,101 +10,48 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
     <script type="text/javascript" src="../../build/jax.4.0.0a.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.15.0.css">
 
-    <script type="text/javascript">
-        $(document).ready(function(){
-            var debug = function(response) {
-                console.log(response.status + ' : ' + response.statusText);
-            };
-            var changeDivText = function(response) {
-                $('#text').val(response.text);
-            };
-            var getPostScript = function(response) {
-                $('#form-results').val(response.text);
-            };
-            var error = function(response) {
-                alert('XMLHttpRequest data retrieval error: ' + response.status + ' ' + response.statusText);
-            };
-            $('#link1').click(function(){
-                $.ajax('./process/test.txt', {
-                    status : {
-                        200   : changeDivText,
-                        error : error
-                    },
-                    trace : debug
-                });
-                return false;
-            });
-            $('#login-form').submit(function(){
-                $.ajax(this.action, {
-                    method : 'post',
-                    status : {
-                        200   : getPostScript,
-                        error : error},
-                        data  : this
-                });
-                return false;
-            });
-            $('#link2').click(function(){
-                $.post(this.href, {
-                    data : [
-                        ['user_name',  'Test'],
-                        ['user_email', 'test@test.com']
-                    ],
-                    status : {
-                        200   : getPostScript,
-                        error : error
-                    }
-                });
-                return false;
-            });
-        });
-    </script>
 </head>
 
 <body>
-<!-- Content //-->
-<h1>Jax Ajax Test</h1>
-<div id="text">
-    Hello!
-</div>
-<div>
-    <a href="#" id="link1">Click Here</a><br /><br />
-</div>
-<form action="./process/ajax.php" method="post" id="login-form">
-    <table>
-        <tr>
-            <td>
-                <label class="required" for="user_name">User Name:</label>
-            </td>
-            <td>
-                <input type="text" id="user_name" name="user_name" size="40" value="" tabindex="1" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label class="required" for="user_email">User Email:</label>
-            </td>
-            <td>
-                <input type="text" id="user_email" name="user_email" size="40" tabindex="2" value="" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                &nbsp;
-            </td>
-            <td>
-                <input type="submit" id="submit" name="submit" class="submitBtn" value="Send!" />
-            </td>
-        </tr>
-    </table>
-</form>
-<div>
-    Try it without a form: <a href="./process/ajax.php" id="link2">Test</a>
-</div>
-<div id="form-results">
-</div>
-<!-- Footer //-->
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <div id="text">
+        Hello!
+    </div>
+    <form action="./process/ajax.php" method="post" id="login-form">
+        <table>
+            <tr>
+                <td>
+                    <label class="required" for="user_name">User Name:</label>
+                </td>
+                <td>
+                    <input type="text" id="user_name" name="user_name" size="40" value="Test Name" tabindex="1" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label class="required" for="user_email">User Email:</label>
+                </td>
+                <td>
+                    <input type="text" id="user_email" name="user_email" size="40" tabindex="2" value="test@test.com" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    &nbsp;
+                </td>
+                <td>
+                    <input type="submit" id="submit" name="submit" class="submitBtn" value="Send!" />
+                </td>
+            </tr>
+        </table>
+    </form>
+    <div id="form-results">
+    </div>
+    <script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
+    <script src="js/ajaxtest.js"></script>
 </body>
 
 </html>
