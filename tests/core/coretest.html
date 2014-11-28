@@ -11,27 +11,20 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
     <script type="text/javascript" src="../../build/jax.4.0.0a.min.js"></script>
+    <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.15.0.css">
 
-    <script type="text/javascript">
-        $(document).ready(function(){
-            $('#mylist > li').each(function(){
-                console.log(this.innerHTML);
-            });
-        });
-    </script>
 </head>
 
 <body>
-<!-- Content //-->
-<div id="mydiv">
-    <h1>Jax Core Test</h1>
-</div>
-<ul id="mylist">
-    <li>Item 1</li>
-    <li>Item 2</li>
-    <li>Item 3</li>
-</ul>
-<!-- Footer //-->
+    <ul id="mylist">
+        <li>Item 1</li>
+        <li>Item 2</li>
+        <li>Item 3</li>
+    </ul>
+    <div id="qunit"></div>
+    <div id="qunit-fixture"></div>
+    <script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
+    <script src="js/coretest.js"></script>
 </body>
 
 </html>
