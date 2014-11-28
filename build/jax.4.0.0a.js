@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 28, 2014 01:08:54
+ * @build      Nov 28, 2014 02:35:11
  */
 (function(window){
     /**
@@ -254,160 +254,6 @@
 })(window);
 
 /**
- * core/ready.js
- */
-jax.extend({
-    /**
-     * Function to trigger a function when the document object (implied) is loaded & ready.
-     *
-     * @param {Function} func
-     */
-    ready : function(func) {
-        document.addEventListener('DOMContentLoaded', func, false);
-    }
-});
-/**
- * core/query.js
- */
-(function(window){
-    /**
-     * Function to get a variable or variables from the query string
-     *
-     * @param   {String} key
-     * @param   {String} u
-     * @returns {Mixed}
-     */
-    window.jax.query = function(key, u) {
-        var vars = [];
-        var url = (u != null) ? u : location.href;
-
-        if (url.indexOf('?') != -1) {
-            var varString = url.substring(url.indexOf('?') + 1);
-            if (varString.indexOf('#') != -1) {
-                varString = varString.substring(0, varString.indexOf('#'));
-            }
-            var varsAry = varString.split('&');
-            for (var i = 0; i < varsAry.length; i++) {
-                var gV = varsAry[i].split('=');
-                vars[gV[0]] = decodeURIComponent(gV[1]);
-            }
-        }
-
-        // If key was passed
-        if ((key != undefined) && (key != null)) {
-            return (vars[key] != undefined) ? vars[key] : undefined;
-            // Else, return entire array
-        } else {
-            return vars;
-        }
-    };
-
-    /**
-     * Function to build a query
-     *
-     * @param   {Mixed} data
-     * @returns {String}
-     */
-    window.jax.buildQuery = function(data) {
-        var query    = '';
-        var chkCount = [];
-
-        // Loop through the elements to assemble the qery string.
-        // If it's a form element object
-        if (data.elements != undefined) {
-            for (var i = 0; i < data.elements.length; i++) {
-                if (data.elements[i].value != undefined) {
-                    var name = (data.elements[i].name.indexOf('[') != -1) ?
-                        data.elements[i].name.substring(0, data.elements[i].name.indexOf('[')) : data.elements[i].name;
-
-                    // If the element is a checkbox or radio element that's checked
-                    if ((data.elements[i].type == 'checkbox') || (data.elements[i].type == 'radio')) {
-                        if (data.elements[i].checked) {
-                            if (chkCount[name] != undefined) {
-                                chkCount[name]++;
-                            } else {
-                                chkCount[name] = 0;
-                            }
-                            if (i != 0) {
-                                query += '&';
-                            }
-                            if (data.elements[i].type == 'checkbox') {
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].value);
-                            } else {
-                                query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
-                            }
-                        }
-                    // Else, if the element is a multiple select element
-                    } else if ((data.elements[i].type.indexOf('select') != -1) && (data.elements[i].multiple)) {
-                        for (var j = 0; j < data.elements[i].options.length; j++) {
-                            if (data.elements[i].options[j].selected) {
-                                if (chkCount[name] != undefined) {
-                                    chkCount[name]++;
-                                } else {
-                                    chkCount[name] = 0;
-                                }
-                                if (i != 0) {
-                                    query += '&';
-                                }
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].options[j].value);
-                            }
-                        }
-                    // Else a normal element
-                    } else {
-                        if (i != 0) {
-                            query += '&';
-                        }
-                        query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
-                    }
-                }
-            }
-        // If it's an object
-        } else if (data.constructor == Object) {
-            var i = 0;
-            for (var name in data) {
-                if (i != 0) {
-                    query += '&';
-                }
-                if (data[name].constructor == Array) {
-                    var aryVals = '';
-                    for (var j = 0; j < data[name].length; j++) {
-                        if (j != 0) {
-                            aryVals += '&';
-                        }
-                        aryVals += encodeURIComponent(name + '[' + j + ']') + '=' + encodeURIComponent(data[name][j]);
-                    }
-                    query += aryVals;
-                } else {
-                    query += encodeURIComponent(name) + '=' + encodeURIComponent(data[name]);
-                }
-                i++;
-            }
-        // If it's a basic array with a set of arrays with name/value pairs
-        } else if (data.constructor == Array) {
-            for (var i = 0; i < data.length; i++) {
-                if (i != 0) {
-                    query += '&';
-                }
-                if (data[i][1].constructor == Array) {
-                    var aryVals = '';
-                    for (var j = 0; j < data[i][1].length; j++) {
-                        if (j != 0) {
-                            aryVals += '&';
-                        }
-                        aryVals += encodeURIComponent(data[i][0] + '[' + j + ']') + '=' + encodeURIComponent(data[i][1][j]);
-                    }
-                    query += aryVals;
-                } else {
-                    query += encodeURIComponent(data[i][0]) + '=' + encodeURIComponent(data[i][1]);
-                }
-            }
-        }
-
-        return query;
-    };
-})(window);
-
-/**
  * core/target.js
  */
 (function(window){
@@ -428,39 +274,27 @@ jax.extend({
 })(window);
 
 /**
- * core/remove.js
+ * core/import.js
  */
-jax.extend({
-    /**
-     * Function to remove the selected element(s)
-     *
-     * @returns {jax}
-     */
-    remove : function() {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                var child = this[i] && this[i].parentNode;
-                if ((child) && (this[i].parentNode != undefined)) {
-                    this[i].parentNode.removeChild(this[i]);
+(function(window){
+    /** Function to import variables passed into JS files via a query-string */
+    window.jax.importVars = function() {
+        var scripts = document.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src != undefined) {
+                if (scripts[i].src.indexOf('.js?') != -1) {
+                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
+                    var varsAry = vars.split('&');
+                    for (var j = 0; j < varsAry.length; j++) {
+                        if (varsAry[j].indexOf('=') != -1) {
+                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
+                        }
+                    }
                 }
             }
         }
-        return this;
-    },
-    /**
-     * Function to remove the child contents of the selected elements
-     *
-     * @returns {jax}
-     */
-    empty : function() {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].innerHTML = '';
-            }
-        }
-        return this;
-    }
-});
+    };
+})(window);
 /**
  * core/timing.js
  */
@@ -608,27 +442,193 @@ jax.extend({
 })(window);
 
 /**
- * core/import.js
+ * core/query.js
  */
 (function(window){
-    /** Function to import variables passed into JS files via a query-string */
-    window.jax.importVars = function() {
-        var scripts = document.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].src != undefined) {
-                if (scripts[i].src.indexOf('.js?') != -1) {
-                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
-                    var varsAry = vars.split('&');
-                    for (var j = 0; j < varsAry.length; j++) {
-                        if (varsAry[j].indexOf('=') != -1) {
-                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
+    /**
+     * Function to get a variable or variables from the query string
+     *
+     * @param   {String} key
+     * @param   {String} u
+     * @returns {Mixed}
+     */
+    window.jax.query = function(key, u) {
+        var vars = [];
+        var url = (u != null) ? u : location.href;
+
+        if (url.indexOf('?') != -1) {
+            var varString = url.substring(url.indexOf('?') + 1);
+            if (varString.indexOf('#') != -1) {
+                varString = varString.substring(0, varString.indexOf('#'));
+            }
+            var varsAry = varString.split('&');
+            for (var i = 0; i < varsAry.length; i++) {
+                var gV = varsAry[i].split('=');
+                vars[gV[0]] = decodeURIComponent(gV[1]);
+            }
+        }
+
+        // If key was passed
+        if ((key != undefined) && (key != null)) {
+            return (vars[key] != undefined) ? vars[key] : undefined;
+            // Else, return entire array
+        } else {
+            return vars;
+        }
+    };
+
+    /**
+     * Function to build a query
+     *
+     * @param   {Mixed} data
+     * @returns {String}
+     */
+    window.jax.buildQuery = function(data) {
+        var query    = '';
+        var chkCount = [];
+
+        // Loop through the elements to assemble the qery string.
+        // If it's a form element object
+        if (data.elements != undefined) {
+            for (var i = 0; i < data.elements.length; i++) {
+                if (data.elements[i].value != undefined) {
+                    var name = (data.elements[i].name.indexOf('[') != -1) ?
+                        data.elements[i].name.substring(0, data.elements[i].name.indexOf('[')) : data.elements[i].name;
+
+                    // If the element is a checkbox or radio element that's checked
+                    if ((data.elements[i].type == 'checkbox') || (data.elements[i].type == 'radio')) {
+                        if (data.elements[i].checked) {
+                            if (chkCount[name] != undefined) {
+                                chkCount[name]++;
+                            } else {
+                                chkCount[name] = 0;
+                            }
+                            if (i != 0) {
+                                query += '&';
+                            }
+                            if (data.elements[i].type == 'checkbox') {
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].value);
+                            } else {
+                                query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
+                            }
                         }
+                    // Else, if the element is a multiple select element
+                    } else if ((data.elements[i].type.indexOf('select') != -1) && (data.elements[i].multiple)) {
+                        for (var j = 0; j < data.elements[i].options.length; j++) {
+                            if (data.elements[i].options[j].selected) {
+                                if (chkCount[name] != undefined) {
+                                    chkCount[name]++;
+                                } else {
+                                    chkCount[name] = 0;
+                                }
+                                if (i != 0) {
+                                    query += '&';
+                                }
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].options[j].value);
+                            }
+                        }
+                    // Else a normal element
+                    } else {
+                        if (i != 0) {
+                            query += '&';
+                        }
+                        query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
                     }
                 }
             }
+        // If it's an object
+        } else if (data.constructor == Object) {
+            var i = 0;
+            for (var name in data) {
+                if (i != 0) {
+                    query += '&';
+                }
+                if (data[name].constructor == Array) {
+                    var aryVals = '';
+                    for (var j = 0; j < data[name].length; j++) {
+                        if (j != 0) {
+                            aryVals += '&';
+                        }
+                        aryVals += encodeURIComponent(name + '[' + j + ']') + '=' + encodeURIComponent(data[name][j]);
+                    }
+                    query += aryVals;
+                } else {
+                    query += encodeURIComponent(name) + '=' + encodeURIComponent(data[name]);
+                }
+                i++;
+            }
+        // If it's a basic array with a set of arrays with name/value pairs
+        } else if (data.constructor == Array) {
+            for (var i = 0; i < data.length; i++) {
+                if (i != 0) {
+                    query += '&';
+                }
+                if (data[i][1].constructor == Array) {
+                    var aryVals = '';
+                    for (var j = 0; j < data[i][1].length; j++) {
+                        if (j != 0) {
+                            aryVals += '&';
+                        }
+                        aryVals += encodeURIComponent(data[i][0] + '[' + j + ']') + '=' + encodeURIComponent(data[i][1][j]);
+                    }
+                    query += aryVals;
+                } else {
+                    query += encodeURIComponent(data[i][0]) + '=' + encodeURIComponent(data[i][1]);
+                }
+            }
         }
+
+        return query;
     };
 })(window);
+
+/**
+ * core/ready.js
+ */
+jax.extend({
+    /**
+     * Function to trigger a function when the document object (implied) is loaded & ready.
+     *
+     * @param {Function} func
+     */
+    ready : function(func) {
+        document.addEventListener('DOMContentLoaded', func, false);
+    }
+});
+/**
+ * core/remove.js
+ */
+jax.extend({
+    /**
+     * Function to remove the selected element(s)
+     *
+     * @returns {jax}
+     */
+    remove : function() {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                var child = this[i] && this[i].parentNode;
+                if ((child) && (this[i].parentNode != undefined)) {
+                    this[i].parentNode.removeChild(this[i]);
+                }
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to remove the child contents of the selected elements
+     *
+     * @returns {jax}
+     */
+    empty : function() {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].innerHTML = '';
+            }
+        }
+        return this;
+    }
+});
 /**
  * ajax.js
  */
@@ -730,26 +730,6 @@ jax.extend({
  */
 (function(window){
     /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
      * Alias function to perform a GET AJAX request
      *
      * @param   {String} url
@@ -763,6 +743,65 @@ jax.extend({
             opts.method = 'get';
         }
         return window.jax.ajax(url, opts);
+    };
+})(window);
+
+/**
+ * ajax/http.js
+ */
+(function(window){
+    window.jax.http = {
+        /**
+         * Function to get the HTTP request status of a URL
+         *
+         * @param   {String} url
+         * @returns {Number}
+         */
+        getStatus : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status;
+        },
+        /**
+         * Function to determine if the HTTP request is successful
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isSuccess : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 3) || (type == 2) || (type == 1));
+        },
+        /**
+         * Function to determine if the HTTP request is a redirect
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isRedirect : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return (type == 3);
+        },
+        /**
+         * Function to determine if the HTTP request is an error
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isError : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 5) || (type == 4));
+        }
     };
 })(window);
 
@@ -1010,6 +1049,26 @@ jax.extend({
 })(window);
 
 /**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
  * append.js
  */
 jax.extend({
@@ -1070,116 +1129,6 @@ jax.extend({
      */
     prepend : function(type, attribs, value) {
         return this.append(type, attribs, value, true)
-    }
-});
-/**
- * append/radio.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of radio elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {String}  marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendRadio : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objValues = [];
-        var objMarked = (marked != undefined) ? marked : null;
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-btn-fieldset');
-
-        // Set the elements' values.
-        if (values.constructor == Array) {
-            for (var i = 0; i < values.length; i++) {
-                objValues.push(values[i]);
-            }
-        } else {
-            objValues.push(values);
-        }
-
-        // Create the child elements.
-        for (var i = 0; i < objValues.length; i++) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio-btn');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newElem.setAttribute('value', valuesAry[0]);
-
-            if (objMarked != null) {
-                newElem.checked = (objMarked == valuesAry[1]);
-            }
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = valuesAry[1];
-
-            objChild.appendChild(spanElem);
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of radio elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependRadio : function(values, attribs, marked) {
-        return this.appendRadio(values, attribs, marked, true);
-    }
-});
-/**
- * append/textarea.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new textarea element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {String}  value
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendTextarea : function(attribs, value, pre) {
-        return this.append('textarea', attribs, value, pre);
-    },
-    /**
-     * Alias function to prepend a new textarea element to the current element
-     *
-     * @param   {Object} attribs
-     * @param   {String} value
-     * @returns {jax}
-     */
-    prependTextarea : function(attribs, value) {
-        return this.append('textarea', attribs, value, true);
     }
 });
 /**
@@ -1429,6 +1378,56 @@ jax.extend({
     };
 })(window);
 /**
+ * append/textarea.js
+ */
+jax.extend({
+    /**
+     * Alias function to append a new textarea element to the current element
+     *
+     * @param   {Object}  attribs
+     * @param   {String}  value
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendTextarea : function(attribs, value, pre) {
+        return this.append('textarea', attribs, value, pre);
+    },
+    /**
+     * Alias function to prepend a new textarea element to the current element
+     *
+     * @param   {Object} attribs
+     * @param   {String} value
+     * @returns {jax}
+     */
+    prependTextarea : function(attribs, value) {
+        return this.append('textarea', attribs, value, true);
+    }
+});
+/**
+ * append/input.js
+ */
+jax.extend({
+    /**
+     * Alias function to append a new input element to the current element
+     *
+     * @param   {Object}  attribs
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendInput : function(attribs, pre) {
+        return this.append('input', attribs, null, pre);
+    },
+    /**
+     * Alias function to prepend a new input element to the current element
+     *
+     * @param   {Object} attribs
+     * @returns {jax}
+     */
+    prependInput : function(attribs) {
+        return this.append('input', attribs, null, true);
+    }
+});
+/**
  * append/checkbox.js
  */
 jax.extend({
@@ -1522,27 +1521,87 @@ jax.extend({
     }
 });
 /**
- * append/input.js
+ * append/radio.js
  */
 jax.extend({
     /**
-     * Alias function to append a new input element to the current element
+     * Function to append a new set of radio elements to the current element
      *
+     * @param   {Array}   values
      * @param   {Object}  attribs
+     * @param   {String}  marked
      * @param   {Boolean} pre
      * @returns {jax}
      */
-    appendInput : function(attribs, pre) {
-        return this.append('input', attribs, null, pre);
+    appendRadio : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objValues = [];
+        var objMarked = (marked != undefined) ? marked : null;
+        var objChild = document.createElement('fieldset');
+        objChild.setAttribute('class', 'radio-btn-fieldset');
+
+        // Set the elements' values.
+        if (values.constructor == Array) {
+            for (var i = 0; i < values.length; i++) {
+                objValues.push(values[i]);
+            }
+        } else {
+            objValues.push(values);
+        }
+
+        // Create the child elements.
+        for (var i = 0; i < objValues.length; i++) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'radio');
+            newElem.setAttribute('class', 'radio-btn');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
+            newElem.setAttribute('value', valuesAry[0]);
+
+            if (objMarked != null) {
+                newElem.checked = (objMarked == valuesAry[1]);
+            }
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'radio-span');
+            spanElem.innerHTML = valuesAry[1];
+
+            objChild.appendChild(spanElem);
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
     },
     /**
-     * Alias function to prepend a new input element to the current element
+     * Alias function to prepend a new set of radio elements to the current element
      *
+     * @param   {Array}  values
      * @param   {Object} attribs
+     * @param   {Mixed}  marked
      * @returns {jax}
      */
-    prependInput : function(attribs) {
-        return this.append('input', attribs, null, true);
+    prependRadio : function(values, attribs, marked) {
+        return this.appendRadio(values, attribs, marked, true);
     }
 });
 /**
@@ -1787,27 +1846,6 @@ jax.extend({
 })(window);
 
 /**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
-    }
-});
-/**
  * children/child.js
  */
 jax.extend({
@@ -1932,6 +1970,27 @@ jax.extend({
         return traverse(container, contained);
     };
 })(window);
+/**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
 /**
  * clone.js
  */
@@ -2311,54 +2370,16 @@ jax.extend({
     }
 });
 /**
- * css/set.js
+ * css/position.js
  */
 jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle the opacity/filter issue.
-                case 'opacity':
-                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
-                    } else {
-                        obj.style.opacity = properties[prop] / 100;
-                    }
-                    break;
-                // Handle the styleFloat/cssFloat issue.
-                case 'float':
-                    if (window.jax.browser.msie) {
-                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
-                    } else {
-                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
-                    }
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2471,16 +2492,54 @@ jax.extend({
     }
 });
 /**
- * css/position.js
+ * css/set.js
  */
 jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle the opacity/filter issue.
+                case 'opacity':
+                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
+                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
+                    } else {
+                        obj.style.opacity = properties[prop] / 100;
+                    }
+                    break;
+                // Handle the styleFloat/cssFloat issue.
+                case 'float':
+                    if (window.jax.browser.msie) {
+                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
+                    } else {
+                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
+                    }
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
     }
 });
 /**
@@ -2580,24 +2639,24 @@ jax.extend({
     }
 });
 /**
- * effects/move.js
+ * effects/resize.js
  */
 jax.extend({
     /**
-     * Alias function to animate selected elements via 'move'
+     * Alias function to animate selected elements via 'resize'
      *
-     * @param   {Mixed}  x
-     * @param   {Mixed}  y
+     * @param   {Mixed}  w
+     * @param   {Mixed}  h
      * @param   {Object} opts
      * @returns {jax}
      */
-    move : function(x, y, opts) {
+    resize : function(w, h, opts) {
         if (this.length > 0) {
             if (this.delayTime > 0) {
                 var self = this;
-                var tO = setTimeout(function() {self.animate(['move', {"x" : x, "y" : y}], opts);}, this.delayTime);
+                var tO = setTimeout(function() {self.animate(['resize', {"w" : w, "h" : h}], opts);}, this.delayTime);
             } else {
-                this.animate(['move', {"x" : x, "y" : y}], opts);
+                this.animate(['resize', {"w" : w, "h" : h}], opts);
             }
         }
         return this;
@@ -2639,365 +2698,6 @@ jax.extend({
                 var tO = setTimeout(function() {self.animate(['wipeUp', {"h" : h}], opts);}, this.delayTime);
             } else {
                 this.animate(['wipeUp', {"h" : h}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/color.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'blendColor'
-     *
-     * @param   {Mixed}  c1
-     * @param   {Mixed}  c2
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    blendColor : function(c1, c2, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['blendColor', {"c1" : c1, "c2" : c2}], opts);}, this.delayTime);
-            } else {
-                this.animate(['blendColor', {"c1" : c1, "c2" : c2}], opts);
-            }
-        }
-        return this;
-    },
-    /**
-     * Alias function to animate selected elements via 'blendBgColor'
-     *
-     * @param   {Mixed}  c1
-     * @param   {Mixed}  c2
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    blendBgColor : function(c1, c2, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['blendBgColor', {"c1" : c1, "c2" : c2}], opts);}, this.delayTime);
-            } else {
-                this.animate(['blendBgColor', {"c1" : c1, "c2" : c2}], opts);
-            }
-        }
-        return this;
-    }
-});
-
-(function(window){
-    /** Object for manipulation and calculation of color conversions and blends */
-    var color = {
-        color : null,
-        rgb   : null,
-        hex   : null,
-        /**
-         * Init/constructor function for the color object
-         *
-         * @param   {Mixed}  color
-         * @returns {Object}
-         */
-        init  : function(color) {
-            this.color = color;
-            if (this.color.indexOf('rgb') != -1) {
-                this.color = this.color.substring(this.color.indexOf('(') + 1);
-                this.color = this.color.substring(0, this.color.indexOf(')'));
-                this.rgb   = this.color.replace(/, /g, ',').split(',');
-                if (this.rgb[3] == undefined) {
-                    this.rgb.push(1.0);
-                }
-
-                var rHex = parseInt(this.rgb[0]).toString(16);
-                var gHex = parseInt(this.rgb[1]).toString(16);
-                var bHex = parseInt(this.rgb[2]).toString(16);
-
-                if (rHex.length == 1) {
-                    rHex = '0' + rHex;
-                }
-                if (gHex.length == 1) {
-                    gHex = '0' + gHex;
-                }
-                if (bHex.length == 1) {
-                    bHex = '0' + bHex;
-                }
-                this.hex = [rHex, gHex, bHex];
-            } else {
-                if (this.color.substring(0, 1) == '#') {
-                    this.color = this.color.substring(1);
-                }
-                if (this.color.length == 3) {
-                    this.hex = [
-                        this.color.substring(0, 1).toString() + this.color.substring(0, 1).toString(),
-                        this.color.substring(1, 2).toString() + this.color.substring(1, 2).toString(),
-                        this.color.substring(2).toString() + this.color.substring(2).toString()
-                    ]
-                } else {
-                    this.hex = [this.color.substring(0, 2), this.color.substring(2, 4), this.color.substring(4)];
-                }
-                this.rgb = [
-                    parseInt(this.hex[0], 16),
-                    parseInt(this.hex[1], 16),
-                    parseInt(this.hex[2], 16),
-                    1.0
-                ];
-            }
-
-            return this;
-        },
-        /**
-         * Function to get the hex value as string
-         *
-         * @returns {String}
-         */
-        toHex : function() {
-            return '#' + this.hex[0] + this.hex[1] + this.hex[2];
-        },
-        /**
-         * Function to get the hex R value
-         *
-         * @returns {String}
-         */
-        hexR : function() {
-            return this.hex[0];
-        },
-        /**
-         * Function to get the hex G value
-         *
-         * @returns {String}
-         */
-        hexG : function() {
-            return this.hex[1];
-        },
-        /**
-         * Function to get the hex B value
-         *
-         * @returns {String}
-         */
-        hexB : function() {
-            return this.hex[2];
-        },
-        /**
-         * Function to get the rgb value as string
-         *
-         * @returns {String}
-         */
-        toRgb : function() {
-            return 'rgb(' + this.rgb[0] + ', ' + this.rgb[1] + ', ' + this.rgb[2] + ')';
-        },
-        /**
-         * Function to get the rgba value as string
-         *
-         * @returns {String}
-         */
-        toRgbA : function() {
-            return 'rgba(' + this.rgb[0] + ', ' + this.rgb[1] + ', ' + this.rgb[2] + ', ' + this.rgb[3] + ')';
-        },
-        /**
-         * Function to get the R value
-         *
-         * @returns {String}
-         */
-        r : function() {
-            return this.rgb[0];
-        },
-        /**
-         * Function to get the G value
-         *
-         * @returns {String}
-         */
-        g : function() {
-            return this.rgb[1];
-        },
-        /**
-         * Function to get the B value
-         *
-         * @returns {String}
-         */
-        b : function() {
-            return this.rgb[2];
-        },
-        /**
-         * Function to get the A value
-         *
-         * @returns {String}
-         */
-        a : function() {
-            return this.rgb[3];
-        },
-        /**
-         * Function to create an array of colors that represent a blend between two colors
-         *
-         * @param   {Mixed}    color
-         * @param   {Number}   tween
-         * @param   {Function} easing
-         * @returns {Array}
-         */
-        blend : function(color, tween, easing) {
-            var blend = [];
-            var r1 = parseInt(this.rgb[0]);
-            var g1 = parseInt(this.rgb[1]);
-            var b1 = parseInt(this.rgb[2]);
-            var a1 = parseFloat(this.rgb[3]);
-
-            var color2 = window.jax.color(color);
-            var r2 = parseInt(color2.rgb[0]);
-            var g2 = parseInt(color2.rgb[1]);
-            var b2 = parseInt(color2.rgb[2]);
-            var a2 = parseFloat(color2.rgb[3]);
-
-            if ((easing == undefined) || (easing == null) || (typeof easing != 'function')) {
-                easing = window.jax.tween.linear;
-            }
-
-            // Calculate the total "distance" from point a to point b
-            var rTotal = r2 - r1;
-            var gTotal = g2 - g1;
-            var bTotal = b2 - b1;
-            var aTotal = a2 - a1;
-
-            // Calculate the steps
-            for (var i = 0; i <= tween; i++) {
-                var curR = Math.round(easing(i, r1, rTotal, tween));
-                var curG = Math.round(easing(i, g1, gTotal, tween));
-                var curB = Math.round(easing(i, b1, bTotal, tween));
-                var curA = Math.round(easing(i, a1, aTotal, tween));
-
-                var rHex = parseInt(r2).toString(16);
-                var gHex = parseInt(g2).toString(16);
-                var bHex = parseInt(b2).toString(16);
-                if (rHex.length == 1) {
-                    rHex = '0' + rHex;
-                }
-                if (gHex.length == 1) {
-                    gHex = '0' + gHex;
-                }
-                if (bHex.length == 1) {
-                    bHex = '0' + bHex;
-                }
-
-                blend.push({
-                    "rgb"  : 'rgb(' + curR + ', ' + curG + ', ' + curB + ')',
-                    "rgba" : 'rgba(' + curR + ', ' + curG + ', ' + curB + ', ' + curA + ')',
-                    "hex"  : '#' + rHex + gHex + bHex
-                });
-            }
-
-            return blend;
-        }
-    };
-
-    /**
-     * Color object factory
-     *
-     * @param   {Mixed} c
-     * @returns {Object}
-     */
-    window.jax.color = function(c) {
-        return color.init(c);
-    };
-})(window);
-/**
- * effects/delay.js
- */
-jax.extend({
-    delayTime : 0,
-    /**
-     * Function to set the delay time for the next animation to fire
-     *
-     * @param   {Number} ms
-     * @returns {jax}
-     */
-    delay : function(ms) {
-        this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
-        return this;
-    }
-});
-/**
- * effects/resize.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'resize'
-     *
-     * @param   {Mixed}  w
-     * @param   {Mixed}  h
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    resize : function(w, h, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['resize', {"w" : w, "h" : h}], opts);}, this.delayTime);
-            } else {
-                this.animate(['resize', {"w" : w, "h" : h}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/fade.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'fade'
-     *
-     * @param   {Mixed}  o
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    fade : function(o, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
-            } else {
-                this.animate(['fade', {"o" : o}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/scroll.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'scrollX'
-     *
-     * @param   {Mixed}  x
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    scrollX : function(x, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
-            } else {
-                this.animate(['scrollX', {"x" : x}], opts);
-            }
-        }
-        return this;
-    },
-    /**
-     * Alias function to animate selected elements via 'scrollY'
-     *
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    scrollY : function(y, opts) {
-        if (this.length > 0) {
-            if (this.delayTime > 0) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['scrollY', {"y" : y}], opts);
             }
         }
         return this;
@@ -3314,24 +3014,104 @@ jax.extend({
     }
 });
 /**
- * effects/slide.js
+ * effects/move.js
  */
 jax.extend({
     /**
-     * Alias function to animate selected elements via 'slide'
+     * Alias function to animate selected elements via 'move'
      *
      * @param   {Mixed}  x
      * @param   {Mixed}  y
      * @param   {Object} opts
      * @returns {jax}
      */
-    slide : function(x, y, opts) {
+    move : function(x, y, opts) {
         if (this.length > 0) {
             if (this.delayTime > 0) {
                 var self = this;
-                var tO = setTimeout(function() {self.animate(['slide', {"x" : x, "y" : y}], opts);}, this.delayTime);
+                var tO = setTimeout(function() {self.animate(['move', {"x" : x, "y" : y}], opts);}, this.delayTime);
             } else {
-                this.animate(['slide', {"x" : x, "y" : y}], opts);
+                this.animate(['move', {"x" : x, "y" : y}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * effects/delay.js
+ */
+jax.extend({
+    delayTime : 0,
+    /**
+     * Function to set the delay time for the next animation to fire
+     *
+     * @param   {Number} ms
+     * @returns {jax}
+     */
+    delay : function(ms) {
+        this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
+        return this;
+    }
+});
+/**
+ * effects/fade.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'fade'
+     *
+     * @param   {Mixed}  o
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    fade : function(o, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
+            } else {
+                this.animate(['fade', {"o" : o}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * effects/scroll.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'scrollX'
+     *
+     * @param   {Mixed}  x
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    scrollX : function(x, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
+            } else {
+                this.animate(['scrollX', {"x" : x}], opts);
+            }
+        }
+        return this;
+    },
+    /**
+     * Alias function to animate selected elements via 'scrollY'
+     *
+     * @param   {Mixed}  y
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    scrollY : function(y, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
+            } else {
+                this.animate(['scrollY', {"y" : y}], opts);
             }
         }
         return this;
@@ -3549,6 +3329,285 @@ jax.extend({
 })(window);
 
 /**
+ * effects/color.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'blendColor'
+     *
+     * @param   {Mixed}  c1
+     * @param   {Mixed}  c2
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    blendColor : function(c1, c2, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['blendColor', {"c1" : c1, "c2" : c2}], opts);}, this.delayTime);
+            } else {
+                this.animate(['blendColor', {"c1" : c1, "c2" : c2}], opts);
+            }
+        }
+        return this;
+    },
+    /**
+     * Alias function to animate selected elements via 'blendBgColor'
+     *
+     * @param   {Mixed}  c1
+     * @param   {Mixed}  c2
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    blendBgColor : function(c1, c2, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['blendBgColor', {"c1" : c1, "c2" : c2}], opts);}, this.delayTime);
+            } else {
+                this.animate(['blendBgColor', {"c1" : c1, "c2" : c2}], opts);
+            }
+        }
+        return this;
+    }
+});
+
+(function(window){
+    /** Object for manipulation and calculation of color conversions and blends */
+    var color = {
+        color : null,
+        rgb   : null,
+        hex   : null,
+        /**
+         * Init/constructor function for the color object
+         *
+         * @param   {Mixed}  color
+         * @returns {Object}
+         */
+        init  : function(color) {
+            this.color = color;
+            if (this.color.indexOf('rgb') != -1) {
+                this.color = this.color.substring(this.color.indexOf('(') + 1);
+                this.color = this.color.substring(0, this.color.indexOf(')'));
+                this.rgb   = this.color.replace(/, /g, ',').split(',');
+                if (this.rgb[3] == undefined) {
+                    this.rgb.push(1.0);
+                }
+
+                var rHex = parseInt(this.rgb[0]).toString(16);
+                var gHex = parseInt(this.rgb[1]).toString(16);
+                var bHex = parseInt(this.rgb[2]).toString(16);
+
+                if (rHex.length == 1) {
+                    rHex = '0' + rHex;
+                }
+                if (gHex.length == 1) {
+                    gHex = '0' + gHex;
+                }
+                if (bHex.length == 1) {
+                    bHex = '0' + bHex;
+                }
+                this.hex = [rHex, gHex, bHex];
+            } else {
+                if (this.color.substring(0, 1) == '#') {
+                    this.color = this.color.substring(1);
+                }
+                if (this.color.length == 3) {
+                    this.hex = [
+                        this.color.substring(0, 1).toString() + this.color.substring(0, 1).toString(),
+                        this.color.substring(1, 2).toString() + this.color.substring(1, 2).toString(),
+                        this.color.substring(2).toString() + this.color.substring(2).toString()
+                    ]
+                } else {
+                    this.hex = [this.color.substring(0, 2), this.color.substring(2, 4), this.color.substring(4)];
+                }
+                this.rgb = [
+                    parseInt(this.hex[0], 16),
+                    parseInt(this.hex[1], 16),
+                    parseInt(this.hex[2], 16),
+                    1.0
+                ];
+            }
+
+            return this;
+        },
+        /**
+         * Function to get the hex value as string
+         *
+         * @returns {String}
+         */
+        toHex : function() {
+            return '#' + this.hex[0] + this.hex[1] + this.hex[2];
+        },
+        /**
+         * Function to get the hex R value
+         *
+         * @returns {String}
+         */
+        hexR : function() {
+            return this.hex[0];
+        },
+        /**
+         * Function to get the hex G value
+         *
+         * @returns {String}
+         */
+        hexG : function() {
+            return this.hex[1];
+        },
+        /**
+         * Function to get the hex B value
+         *
+         * @returns {String}
+         */
+        hexB : function() {
+            return this.hex[2];
+        },
+        /**
+         * Function to get the rgb value as string
+         *
+         * @returns {String}
+         */
+        toRgb : function() {
+            return 'rgb(' + this.rgb[0] + ', ' + this.rgb[1] + ', ' + this.rgb[2] + ')';
+        },
+        /**
+         * Function to get the rgba value as string
+         *
+         * @returns {String}
+         */
+        toRgbA : function() {
+            return 'rgba(' + this.rgb[0] + ', ' + this.rgb[1] + ', ' + this.rgb[2] + ', ' + this.rgb[3] + ')';
+        },
+        /**
+         * Function to get the R value
+         *
+         * @returns {String}
+         */
+        r : function() {
+            return this.rgb[0];
+        },
+        /**
+         * Function to get the G value
+         *
+         * @returns {String}
+         */
+        g : function() {
+            return this.rgb[1];
+        },
+        /**
+         * Function to get the B value
+         *
+         * @returns {String}
+         */
+        b : function() {
+            return this.rgb[2];
+        },
+        /**
+         * Function to get the A value
+         *
+         * @returns {String}
+         */
+        a : function() {
+            return this.rgb[3];
+        },
+        /**
+         * Function to create an array of colors that represent a blend between two colors
+         *
+         * @param   {Mixed}    color
+         * @param   {Number}   tween
+         * @param   {Function} easing
+         * @returns {Array}
+         */
+        blend : function(color, tween, easing) {
+            var blend = [];
+            var r1 = parseInt(this.rgb[0]);
+            var g1 = parseInt(this.rgb[1]);
+            var b1 = parseInt(this.rgb[2]);
+            var a1 = parseFloat(this.rgb[3]);
+
+            var color2 = window.jax.color(color);
+            var r2 = parseInt(color2.rgb[0]);
+            var g2 = parseInt(color2.rgb[1]);
+            var b2 = parseInt(color2.rgb[2]);
+            var a2 = parseFloat(color2.rgb[3]);
+
+            if ((easing == undefined) || (easing == null) || (typeof easing != 'function')) {
+                easing = window.jax.tween.linear;
+            }
+
+            // Calculate the total "distance" from point a to point b
+            var rTotal = r2 - r1;
+            var gTotal = g2 - g1;
+            var bTotal = b2 - b1;
+            var aTotal = a2 - a1;
+
+            // Calculate the steps
+            for (var i = 0; i <= tween; i++) {
+                var curR = Math.round(easing(i, r1, rTotal, tween));
+                var curG = Math.round(easing(i, g1, gTotal, tween));
+                var curB = Math.round(easing(i, b1, bTotal, tween));
+                var curA = Math.round(easing(i, a1, aTotal, tween));
+
+                var rHex = parseInt(r2).toString(16);
+                var gHex = parseInt(g2).toString(16);
+                var bHex = parseInt(b2).toString(16);
+                if (rHex.length == 1) {
+                    rHex = '0' + rHex;
+                }
+                if (gHex.length == 1) {
+                    gHex = '0' + gHex;
+                }
+                if (bHex.length == 1) {
+                    bHex = '0' + bHex;
+                }
+
+                blend.push({
+                    "rgb"  : 'rgb(' + curR + ', ' + curG + ', ' + curB + ')',
+                    "rgba" : 'rgba(' + curR + ', ' + curG + ', ' + curB + ', ' + curA + ')',
+                    "hex"  : '#' + rHex + gHex + bHex
+                });
+            }
+
+            return blend;
+        }
+    };
+
+    /**
+     * Color object factory
+     *
+     * @param   {Mixed} c
+     * @returns {Object}
+     */
+    window.jax.color = function(c) {
+        return color.init(c);
+    };
+})(window);
+/**
+ * effects/slide.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'slide'
+     *
+     * @param   {Mixed}  x
+     * @param   {Mixed}  y
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    slide : function(x, y, opts) {
+        if (this.length > 0) {
+            if (this.delayTime > 0) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['slide', {"x" : x, "y" : y}], opts);}, this.delayTime);
+            } else {
+                this.animate(['slide', {"x" : x, "y" : y}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
  * event.js
  */
 jax.extend({
@@ -3626,38 +3685,76 @@ jax.extend({
     }
 });
 /**
- * event/focus.js
+ * event/select.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onfocus of an object
+     * Function to attach a event to the onselect of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    focus : function(func) {
+    select : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onfocus = func;
+                this[i].onselect = func;
             }
         }
         return this;
     }
 });
 /**
- * event/mouseout.js
+ * event/mouseup.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmouseout of an object
+     * Function to attach a event to the onmouseup of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    mouseout : function(func) {
+    mouseup : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmouseout = func;
+                this[i].onmouseup = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/keyup.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onkeyup of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    keyup : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onkeyup = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/keypress.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onkeypress of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    keypress : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onkeypress = func;
             }
         }
         return this;
@@ -3870,38 +3967,19 @@ jax.extend({
     }
 });
 /**
- * event/select.js
+ * event/change.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onselect of an object
+     * Function to attach a event to the onchange of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    select : function(func) {
+    change : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onselect = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/keypress.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onkeypress of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    keypress : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onkeypress = func;
+                this[i].onchange = func;
             }
         }
         return this;
@@ -3931,19 +4009,57 @@ jax.extend({
     }
 });
 /**
- * event/keydown.js
+ * event/mousemove.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onkeydown of an object
+     * Function to attach a event to the onmousemove of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    keydown : function(func) {
+    mousemove : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onkeydown = func;
+                this[i].onmousemove = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouseover.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmouseover of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseover : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseover = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/focus.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onfocus of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    focus : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onfocus = func;
             }
         }
         return this;
@@ -3967,6 +4083,149 @@ jax.extend({
                     event.stopPropagation();
                     event.preventDefault();
                 }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouseenter.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmouseenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseenter = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/touchenter.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the touchenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchenter', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/touchmove.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the touchmove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchmove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchmove', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/keydown.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onkeydown of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    keydown : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onkeydown = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/submit.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onsubmit of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    submit : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onsubmit = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouseout.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmouseout of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseout : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseout = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/hover.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmouseover and onmouseout (hover) of an object
+     *
+     * @param   {Function} func1
+     * @param   {Function} func2
+     * @returns {jax}
+     */
+    hover : function(func1, func2) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseover = func1;
+                this[i].onmouseout  = func2;
             }
         }
         return this;
@@ -4019,25 +4278,6 @@ jax.extend({
     }
 });
 /**
- * event/click.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onclick of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    click : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onclick = func;
-            }
-        }
-        return this;
-    }
-});
-/**
  * event/scroll.js
  */
 jax.extend({
@@ -4057,118 +4297,19 @@ jax.extend({
     }
 });
 /**
- * event/mouseover.js
+ * event/click.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmouseover of an object
+     * Function to attach a event to the onclick of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    mouseover : function(func) {
+    click : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmouseover = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mousemove.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmousemove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mousemove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmousemove = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/keyup.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onkeyup of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    keyup : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onkeyup = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/touchmove.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the touchmove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchmove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchmove', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/change.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onchange of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    change : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onchange = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/blur.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onblur of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    blur : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onblur = func;
+                this[i].onclick = func;
             }
         }
         return this;
@@ -4194,48 +4335,6 @@ jax.extend({
     }
 });
 /**
- * event/touchenter.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the touchenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchenter', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mouseenter.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmouseenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseenter = func;
-            }
-        }
-        return this;
-    }
-});
-/**
  * event/mousedown.js
  */
 jax.extend({
@@ -4255,59 +4354,19 @@ jax.extend({
     }
 });
 /**
- * event/hover.js
+ * event/blur.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmouseover and onmouseout (hover) of an object
-     *
-     * @param   {Function} func1
-     * @param   {Function} func2
-     * @returns {jax}
-     */
-    hover : function(func1, func2) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseover = func1;
-                this[i].onmouseout  = func2;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mouseup.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmouseup of an object
+     * Function to attach a event to the onblur of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    mouseup : function(func) {
+    blur : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmouseup = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/submit.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onsubmit of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    submit : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onsubmit = func;
+                this[i].onblur = func;
             }
         }
         return this;
@@ -4414,20 +4473,54 @@ jax.extend({
     }
 });
 /**
- * filter/eq.js
+ * filter/gt.js
  */
 jax.extend({
     /**
-     * Function to reduce the collection to the single element at the index
+     * Function to filter the collection to the elements greater than the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
+    gt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i > index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/lt.js
+ */
+jax.extend({
+    /**
+     * Function to filter the collection to the elements less than the index
+     *
+     * @param   {Number} index
+     * @returns {jax}
+     */
+    lt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i < index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
         }
 
         return this;
@@ -4498,54 +4591,20 @@ jax.extend({
     }
 });
 /**
- * filter/gt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements greater than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    gt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i > index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
-        }
-
-        return this;
-    }
-});
-/**
- * filter/lt.js
- */
-jax.extend({
-    /**
-     * Function to filter the collection to the elements less than the index
-     *
-     * @param   {Number} index
-     * @returns {jax}
-     */
-    lt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i < index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
         }
 
         return this;
@@ -4654,37 +4713,6 @@ jax.extend({
 })(window);
 
 /**
- * mouse/y.js
- */
-jax.extend({
-    /**
-     * Function to retrieve the current mouse/touch Y-position, either relative to the screen or an element
-     *
-     * @param   {Event} event
-     * @returns {Number}
-     */
-    mouseY : function(event) {
-        if ((window.jax.browser.mobile) && (event.changedTouches != undefined) && (event.changedTouches[0] != undefined)) {
-            var yPos = event.changedTouches[0].pageY;
-        } else {
-            var yPos = (window.jax.browser.msie) ? window.event.clientY : event.clientY;
-        }
-        if (this[0] != null) {
-            yPos -= this[0].offsetTop;
-        }
-        return yPos;
-    },
-    /**
-     * Alias function for mouseY
-     *
-     * @param   {Event} event
-     * @returns {Number}
-     */
-    touchY : function(event) {
-        return this.mouseY(event);
-    }
-});
-/**
  * mouse/x.js
  */
 jax.extend({
@@ -4713,6 +4741,37 @@ jax.extend({
      */
     touchX : function(event) {
         return this.mouseX(event);
+    }
+});
+/**
+ * mouse/y.js
+ */
+jax.extend({
+    /**
+     * Function to retrieve the current mouse/touch Y-position, either relative to the screen or an element
+     *
+     * @param   {Event} event
+     * @returns {Number}
+     */
+    mouseY : function(event) {
+        if ((window.jax.browser.mobile) && (event.changedTouches != undefined) && (event.changedTouches[0] != undefined)) {
+            var yPos = event.changedTouches[0].pageY;
+        } else {
+            var yPos = (window.jax.browser.msie) ? window.event.clientY : event.clientY;
+        }
+        if (this[0] != null) {
+            yPos -= this[0].offsetTop;
+        }
+        return yPos;
+    },
+    /**
+     * Alias function for mouseY
+     *
+     * @param   {Event} event
+     * @returns {Number}
+     */
+    touchY : function(event) {
+        return this.mouseY(event);
     }
 });
 /**
@@ -4867,6 +4926,185 @@ jax.extend({
 })(window);
 
 /**
+ * string/case.js
+ */
+(function(window){
+    /**
+     * Function to convert string from under_score or hyphenated to camelCase.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toCamelcase = function() {
+        var str = this;
+        var delim = (str.indexOf('_') != -1) ? '_' : '-';
+
+        var strAry = str.split(delim);
+        var camelCase = '';
+        for (var i = 0; i < strAry.length; i++) {
+            if (i == 0) {
+                camelCase += strAry[i];
+            } else {
+                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
+            }
+        }
+
+        return camelCase;
+    };
+
+    /**
+     * Function to convert string from hyphenated or camelCase to under_score.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toUnderscore = function() {
+        var str = this;
+        var under_score = '';
+
+        if (str.indexOf('-') != -1) {
+            under_score = str.replace('-', '_').toLowerCase();
+        } else {
+            for (var i = 0; i < str.length; i++) {
+                if (i == 0) {
+                    under_score += str[i].toLowerCase();
+                } else {
+                    if (str[i] == str[i].toUpperCase()) {
+                        under_score += ('_' + str[i].toLowerCase());
+                    } else {
+                        under_score += str[i].toLowerCase();
+                    }
+                }
+            }
+        }
+
+        return under_score;
+    };
+
+    /**
+     * Function to convert string from under_score or camelCase to hyphenated.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toHyphen = function() {
+        var str = this;
+        var hyphen = '';
+
+        if (str.indexOf('_') != -1) {
+            hyphen = str.replace('_', '-').toLowerCase();
+        } else {
+            for (var i = 0; i < str.length; i++) {
+                if (i == 0) {
+                    hyphen += str[i].toLowerCase();
+                } else {
+                    if (str[i] == str[i].toUpperCase()) {
+                        hyphen += ('-' + str[i].toLowerCase());
+                    } else {
+                        hyphen += str[i].toLowerCase();
+                    }
+                }
+            }
+        }
+
+        return hyphen;
+    };
+})(window);
+
+/**
+ * string/slashes.js
+ */
+(function(window){
+    /**
+     * Function to add slashes to a string.
+     *
+     * @param   {Boolean} quot
+     * @returns {String}
+     */
+    window.jax.String.prototype.addslashes = function(quot) {
+        var str = this.replace(/\\/g, '\\\\');
+        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
+            str = str.replace(/\'/g, "\\'");
+        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
+            str = str.replace(/\"/g, '\\"');
+        } else {
+            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
+        }
+        return str;
+    };
+
+    /**
+     * Function to strip slashes from a string.
+     *
+     * @param   {Boolean} quot
+     * @returns {String}
+     */
+    window.jax.String.prototype.stripslashes = function(quot) {
+        var str = this.replace(/\\\\/g, '\\');
+        if (quot.toLowerCase() == 'single') {
+            str = str.replace(/\\'/g, "'");
+        } else if (quot.toLowerCase() == 'double') {
+            str = str.replace(/\\"/g, '"');
+        } else {
+            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
+        }
+        return str;
+    };
+})(window);
+
+/**
+ * string/slug.js
+ */
+(function(window){
+    /**
+     * Function to convert a string to an SEO-friendly slug.
+     *
+     * @param   {String} sep
+     * @returns {String}
+     */
+    window.jax.String.prototype.slug = function(sep) {
+        var slg = '';
+        var tmpSlg = '';
+        if (this.length > 0) {
+            if (sep != null) {
+                var slgAry = [];
+                var urlAry = this.split(sep);
+                for (var i = 0; i < urlAry.length; i++) {
+                    tmpSlg = urlAry[i].toLowerCase();
+                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                        .replace(/ /g, '-').replace(/-*-/g, '-');
+                    slgAry.push(tmpSlg);
+                }
+                tmpSlg = slgAry.join('/');
+                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
+                slg += tmpSlg;
+            } else {
+                tmpSlg = this.toLowerCase();
+                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                    .replace(/ /g, '-').replace(/-*-/g, '-');
+                slg += tmpSlg;
+                slg = slg.replace(/\/-/g, '/');
+            }
+            if (slg.lastIndexOf('-') == (slg.length - 1)) {
+                slg = slg.substring(0, slg.lastIndexOf('-'));
+            }
+        }
+        return slg;
+    };
+})(window);
+
+/**
+ * string/trim.js
+ */
+(function(window){
+    /** Function to trim the whitespace from the left of the string */
+    window.jax.String.prototype.trimLeft = function() {
+        return this.replace(/^\s+/, '');
+    };
+
+    /** Function to trim the whitespace from the right of the string */
+    window.jax.String.prototype.trimRight = function() {
+        return this.replace(/\s+$/, '');
+    };
+})(window);
+/**
  * string/money.js
  */
 (function(window){
@@ -4915,43 +5153,35 @@ jax.extend({
 })(window);
 
 /**
- * string/slug.js
+ * string/clean.js
  */
 (function(window){
     /**
-     * Function to convert a string to an SEO-friendly slug.
+     * Function to clean any common MS Word-based characters.
      *
-     * @param   {String} sep
+     * @param   {Boolean} html
      * @returns {String}
      */
-    window.jax.String.prototype.slug = function(sep) {
-        var slg = '';
-        var tmpSlg = '';
-        if (this.length > 0) {
-            if (sep != null) {
-                var slgAry = [];
-                var urlAry = this.split(sep);
-                for (var i = 0; i < urlAry.length; i++) {
-                    tmpSlg = urlAry[i].toLowerCase();
-                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                        .replace(/ /g, '-').replace(/-*-/g, '-');
-                    slgAry.push(tmpSlg);
-                }
-                tmpSlg = slgAry.join('/');
-                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
-                slg += tmpSlg;
-            } else {
-                tmpSlg = this.toLowerCase();
-                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                    .replace(/ /g, '-').replace(/-*-/g, '-');
-                slg += tmpSlg;
-                slg = slg.replace(/\/-/g, '/');
-            }
-            if (slg.lastIndexOf('-') == (slg.length - 1)) {
-                slg = slg.substring(0, slg.lastIndexOf('-'));
-            }
+    window.jax.String.prototype.clean = function(html) {
+        if (html != null) {
+            var apos = "&#39;";
+            var quot = "&#34;";
+            var dash = "&#150;";
+        } else {
+            var apos = "'";
+            var quot = '"';
+            var dash = "-";
         }
-        return slg;
+
+        var str = this;
+        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
+        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
+        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
+        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
+        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
+        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
+
+        return str;
     };
 })(window);
 
@@ -5053,20 +5283,6 @@ jax.extend({
 })(window);
 
 /**
- * string/trim.js
- */
-(function(window){
-    /** Function to trim the whitespace from the left of the string */
-    window.jax.String.prototype.trimLeft = function() {
-        return this.replace(/^\s+/, '');
-    };
-
-    /** Function to trim the whitespace from the right of the string */
-    window.jax.String.prototype.trimRight = function() {
-        return this.replace(/\s+$/, '');
-    };
-})(window);
-/**
  * string/random.js
  */
 (function(window){
@@ -5088,163 +5304,6 @@ jax.extend({
         }
 
         return str;
-    };
-})(window);
-
-/**
- * string/clean.js
- */
-(function(window){
-    /**
-     * Function to clean any common MS Word-based characters.
-     *
-     * @param   {Boolean} html
-     * @returns {String}
-     */
-    window.jax.String.prototype.clean = function(html) {
-        if (html != null) {
-            var apos = "&#39;";
-            var quot = "&#34;";
-            var dash = "&#150;";
-        } else {
-            var apos = "'";
-            var quot = '"';
-            var dash = "-";
-        }
-
-        var str = this;
-        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
-        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
-
-        return str;
-    };
-})(window);
-
-/**
- * string/slashes.js
- */
-(function(window){
-    /**
-     * Function to add slashes to a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.addslashes = function(quot) {
-        var str = this.replace(/\\/g, '\\\\');
-        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
-            str = str.replace(/\'/g, "\\'");
-        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
-            str = str.replace(/\"/g, '\\"');
-        } else {
-            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
-        }
-        return str;
-    };
-
-    /**
-     * Function to strip slashes from a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.stripslashes = function(quot) {
-        var str = this.replace(/\\\\/g, '\\');
-        if (quot.toLowerCase() == 'single') {
-            str = str.replace(/\\'/g, "'");
-        } else if (quot.toLowerCase() == 'double') {
-            str = str.replace(/\\"/g, '"');
-        } else {
-            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
-        }
-        return str;
-    };
-})(window);
-
-/**
- * string/case.js
- */
-(function(window){
-    /**
-     * Function to convert string from under_score or hyphenated to camelCase.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toCamelcase = function() {
-        var str = this;
-        var delim = (str.indexOf('_') != -1) ? '_' : '-';
-
-        var strAry = str.split(delim);
-        var camelCase = '';
-        for (var i = 0; i < strAry.length; i++) {
-            if (i == 0) {
-                camelCase += strAry[i];
-            } else {
-                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
-            }
-        }
-
-        return camelCase;
-    };
-
-    /**
-     * Function to convert string from hyphenated or camelCase to under_score.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toUnderscore = function() {
-        var str = this;
-        var under_score = '';
-
-        if (str.indexOf('-') != -1) {
-            under_score = str.replace('-', '_').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    under_score += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        under_score += ('_' + str[i].toLowerCase());
-                    } else {
-                        under_score += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return under_score;
-    };
-
-    /**
-     * Function to convert string from under_score or camelCase to hyphenated.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toHyphen = function() {
-        var str = this;
-        var hyphen = '';
-
-        if (str.indexOf('_') != -1) {
-            hyphen = str.replace('_', '-').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    hyphen += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        hyphen += ('-' + str[i].toLowerCase());
-                    } else {
-                        hyphen += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return hyphen;
     };
 })(window);
 
