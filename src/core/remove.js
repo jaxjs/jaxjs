@@ -1,5 +1,5 @@
 /**
- * remove.js
+ * core/remove.js
  */
 jax.extend({
     /**

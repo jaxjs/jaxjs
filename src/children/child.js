@@ -4,6 +4,22 @@
 jax.extend({
     childIndex : 0,
     /**
+     * Function to return the child nodes of an element
+     *
+     * @returns {Boolean}
+     */
+    hasChildren : function() {
+        return ((this[0] != undefined) && (this[0].hasChildNodes()));
+    },
+    /**
+     * Function to return the child nodes of an element
+     *
+     * @returns {Array}
+     */
+    children : function() {
+        return ((this[0] != undefined) && (this[0].hasChildNodes())) ? this[0].childNodes : [];
+    },
+    /**
      * Function to get a child element of the current element
      *
      * @returns {Mixed}
@@ -15,14 +31,6 @@ jax.extend({
         } else {
             return undefined;
         }
-    },
-    /**
-     * Function to return the child nodes of an element
-     *
-     * @returns {Array}
-     */
-    children : function() {
-        return ((this[0] != undefined) && (this[0].hasChildNodes())) ? this[0].childNodes : [];
     },
     /**
      * Function to return the first child node of an element

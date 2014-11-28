@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# Build file
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+SCRIPT_PATH="$SCRIPT_DIR/build.php $@"
+php $SCRIPT_PATH
+
+# Compress build file
+if [ "$(which uglifyjs)" != "" ]; then
+    VERSION=`sed -n '/version\"/p' build.json`
+    VERSION="${VERSION//[[:space:]]/}"
+    VERSION=${VERSION/"\"version\":\""/""}
+    VERSION=${VERSION/"\","/""}
+    FILE="../build/jax.$VERSION.js"
+    if [ -f "$FILE" ]; then
+        echo -e "\nCompressing the build file...\n"
+        MINFILE="../build/jax.$VERSION.min.js"
+        uglifyjs -v "$FILE" > "$MINFILE"
+        echo -e "\nBuild file compressed.\n"
+    fi
+fi

@@ -1,5 +1,5 @@
 /**
- * ready.js
+ * core/ready.js
  */
 jax.extend({
     /**

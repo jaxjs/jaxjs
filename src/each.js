@@ -28,18 +28,27 @@ jax.extend({
     }
 });
 
-window.jax.each = function(obj, func, args) {
-    if (args != null) {
-        for (var name in obj) {
-            if (func.apply(obj[name], args) === false) {
-                break;
+(function(window){
+    /**
+     * Function to iterate over an object or array of items with a function
+     *
+     * @param {Object}   obj
+     * @param {Function} func
+     * @param {Array}    args
+     */
+    window.jax.each = function(obj, func, args) {
+        if (args != null) {
+            for (var name in obj) {
+                if (func.apply(obj[name], args) === false) {
+                    break;
+                }
+            }
+        } else {
+            for (var name in obj) {
+                if (func.call(obj[name], name, obj[name]) === false) {
+                    break;
+                }
             }
         }
-    } else {
-        for (var name in obj) {
-            if (func.call(obj[name], name, obj[name]) === false) {
-                break;
-            }
-        }
-    }
-};
+    };
+})(window);

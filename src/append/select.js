@@ -164,7 +164,7 @@ jax.extend({
                         vl = values;
                         // Else, if a string is passed, check for any option sets in the options XML file in the data folder, based on the string passed.
                     } else if (optionsFile != null) {
-                        vl = window.jax.parseOptions(optionFile, values);
+                        vl = window.jax.parseOptionsFile(optionsFile, values);
                     }
             }
         }
@@ -215,3 +215,42 @@ jax.extend({
         return this.appendSelect(values, attribs, marked, optionsFile, true);
     }
 });
+
+(function(window){
+    /**
+     * Function to parse an options XML file
+     *
+     * @param   {String} file
+     * @param   {Array}  values
+     * @returns {Array}
+     */
+    window.jax.parseOptionsFile = function(file, values) {
+        var xml = window.jax.ajax(file);
+        var optionNames = [];
+        if (xml.options.nodes != undefined) {
+            for (var i = 0; i < xml.options.nodes.length; i++) {
+                if ((xml.options.nodes[i] != undefined) && (xml.options.nodes[i].set.name != undefined)) {
+                    optionNames.push(xml.options.nodes[i].set.name);
+                }
+            }
+        }
+        // If found, construct the values array based on the values found.
+        if (optionNames.indexOf(values) != -1) {
+            var vl = [];
+            for (var i = 0; i < xml.options.nodes.length; i++) {
+                if ((xml.options.nodes[i] != undefined) && (xml.options.nodes[i].set.name == values)) {
+                    for (var j = 0; j < xml.options.nodes[i].set.nodes.length; j++) {
+                        if (xml.options.nodes[i].set.nodes[j] != undefined) {
+                            vl.push([xml.options.nodes[i].set.nodes[j].opt.value, xml.options.nodes[i].set.nodes[j].opt.nodeValue]);
+                        }
+                    }
+                }
+            }
+            // Else, just set the values array to the original parameter passed.
+        } else {
+            var vl = values;
+        }
+
+        return vl;
+    };
+})(window);

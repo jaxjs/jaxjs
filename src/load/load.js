@@ -1,5 +1,5 @@
 /**
- * load.js
+ * load/load.js
  */
 jax.extend({
     /**
