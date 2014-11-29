@@ -61,7 +61,8 @@
             // Start the selection process
             if (this.selector != undefined) {
                 // If selector is the window object, document object or pre-selected object
-                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) && (this.selector.constructor != String))) {
+                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) &&
+                    (this.selector.constructor != String))) {
                     this.push(this.selector);
                 // Else, make selection
                 } else {

@@ -12,7 +12,7 @@ jax.extend({
         if (this[0] != undefined) {
             xPos = this[0].scrollLeft;
         } else {
-            if (window.jax.browser.msie) {
+            if (((document.documentElement) && (document.documentElement.scrollLeft)) || (document.body.scrollLeft)) {
                 xPos = (document.documentElement.scrollLeft) ? document.documentElement.scrollLeft : document.body.scrollLeft;
             } else {
                 xPos = window.scrollX;
@@ -30,7 +30,7 @@ jax.extend({
         if (this[0] != undefined) {
             yPos = this[0].scrollTop;
         } else {
-            if (window.jax.browser.msie) {
+            if (((document.documentElement) && (document.documentElement.scrollTop)) || (document.body.scrollTop)) {
                 yPos = (document.documentElement.scrollTop) ? document.documentElement.scrollTop : document.body.scrollTop;
             } else {
                 yPos = window.scrollY;
@@ -48,7 +48,7 @@ jax.extend({
         if (this[0] != undefined) {
             wid = this[0].scrollWidth;
         } else {
-            if (window.jax.browser.msie) {
+            if (((document.documentElement) && (document.documentElement.scrollWidth)) || (document.body.scrollWidth)) {
                 wid = (document.documentElement.scrollWidth) ? document.documentElement.scrollWidth : document.body.scrollWidth;
             } else {
                 wid = document.body.scrollWidth;
@@ -66,7 +66,7 @@ jax.extend({
         if (this[0] != undefined) {
             hgt = this[0].scrollHeight;
         } else {
-            if (window.jax.browser.msie) {
+            if (((document.documentElement) && (document.documentElement.scrollHeight)) || (document.body.scrollHeight)) {
                 hgt = (document.documentElement.scrollHeight) ? document.documentElement.scrollHeight : document.body.scrollHeight;
             } else {
                 hgt = document.body.scrollHeight;
