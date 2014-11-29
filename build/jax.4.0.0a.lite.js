@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 28, 2014 12:24:31
+ * @build      Nov 29, 2014 17:46:36
  */
 (function(window){
     /**
@@ -61,7 +61,8 @@
             // Start the selection process
             if (this.selector != undefined) {
                 // If selector is the window object, document object or pre-selected object
-                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) && (this.selector.constructor != String))) {
+                if ((this.selector == document) || (this.selector == window) || ((this.selector.constructor != Array) &&
+                    (this.selector.constructor != String))) {
                     this.push(this.selector);
                 // Else, make selection
                 } else {
@@ -299,7 +300,7 @@
         var query    = '';
         var chkCount = [];
 
-        // Loop through the elements to assemble the qery string.
+        // Loop through the elements to assemble the query string.
         // If it's a form element object
         if (data.elements != undefined) {
             for (var i = 0; i < data.elements.length; i++) {
@@ -319,7 +320,8 @@
                                 query += '&';
                             }
                             if (data.elements[i].type == 'checkbox') {
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].value);
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' +
+                                    encodeURIComponent(data.elements[i].value);
                             } else {
                                 query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
                             }
@@ -336,7 +338,8 @@
                                 if (i != 0) {
                                     query += '&';
                                 }
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].options[j].value);
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' +
+                                    encodeURIComponent(data.elements[i].options[j].value);
                             }
                         }
                     // Else a normal element
@@ -391,6 +394,44 @@
         }
 
         return query;
+    };
+})(window);
+
+/**
+ * core/random.js
+ */
+(function(window){
+    /**
+     * Function to generate a random number between two numbers
+     *
+     * @param   {Number} num1
+     * @param   {Number} num2
+     * @returns {Number}
+     */
+    window.jax.rand   = null;
+    window.jax.random = function(num1, num2) {
+        var range;
+        var rand;
+
+        if ((num1 < 0) && (num2 < 0)) {
+            range = Math.abs(num1 - num2);
+        } else if ((num1 < 0) && (num2 >= 0)) {
+            range = Math.abs(num2 - num1);
+        } else {
+            range = num2 - num1;
+        }
+
+        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
+            window.jax.rand = [];
+        }
+
+        rand = Math.floor(Math.random() * (range + 1)) + num1;
+        while (window.jax.rand.indexOf(rand) != -1) {
+            rand = Math.floor(Math.random() * (range + 1)) + num1;
+        }
+
+        window.jax.rand.push(rand);
+        return rand;
     };
 })(window);
 
@@ -654,7 +695,6 @@ jax.extend({
      */
     window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
         var obj;
-        var msie = (navigator.userAgent.toLowerCase().indexOf('msie') != -1);
 
         // Detect application type
         if (type == null) {
@@ -714,7 +754,7 @@ jax.extend({
                 // Get XML doc from string if doesn't exist
                 if (!response.xml) {
                     var str = (response.text != undefined) ? response.text : response.toString();
-                    if (msie) {
+                    if (ActiveXObject) {
                         var xDoc = new ActiveXObject('Microsoft.XMLDOM');
                         xDoc.async = (async != undefined) ? async : true;
                         xDoc.loadXML(str);
@@ -734,7 +774,14 @@ jax.extend({
                     var attribStr = '';
                     if (tree.attributes != undefined) {
                         for (var j = 0; j < tree.attributes.length; j++) {
-                            attribs.push(tree.attributes[j].nodeName + ' : "' + new window.jax.String(tree.attributes[j].nodeValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
+                            var nodeValue = tree.attributes[j].nodeValue
+                                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\(/g, '&#40;')
+                                .replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
+                                .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
+                                .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;')
+                                .replace(/\"/g, '\\"').replace(/\n/g, '\\n');
+                            attribs.push(tree.attributes[j].nodeName + ' : "' + nodeValue + '"');
                         }
                     }
                     if (tree.hasChildNodes()) {
@@ -745,7 +792,13 @@ jax.extend({
                                 nValue += tree.childNodes[i].nodeValue;
                             }
                         }
-                        attribs.push('nodeValue : "' + new window.jax.String(nValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
+                        nValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\(/g, '&#40;')
+                            .replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
+                            .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
+                            .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;')
+                            .replace(/\"/g, '\\"').replace(/\n/g, '\\n');
+                        attribs.push('nodeValue : "' + nValue + '"');
                         if (attribs.length > 0) {
                             attribStr = '{' + attribs.join(', ');
                         }
@@ -767,7 +820,7 @@ jax.extend({
                 }
 
                 if (xDoc.childNodes.length > 0) {
-                    if (msie) {
+                    if (ActiveXObject) {
                         docObj += traverse(xDoc.documentElement, '');
                     } else {
                         if (xDoc.childNodes[0].nodeType == 10) {
@@ -941,10 +994,15 @@ jax.extend({
 
         // If the element type is a textarea
         if (type == 'textarea') {
-            if (window.jax.browser.msie) {
+            if (objChild.innerText) {
                 objChild.innerText = (value != null) ? value : '';
             } else {
-                objChild.innerHTML = (value != null) ? new window.jax.String(value).html(true) : '';
+                objChild.innerHTML = (value != null) ?
+                    value.replace(/&/g, '&amp;')
+                         .replace(/</g, '&lt;')
+                         .replace(/>/g, '&gt;')
+                         .replace(/"/g, '&quot;')
+                         .replace(/'/g, '&#39;') : '';
             }
             // Else, set any value within the element.
         } else {
@@ -1151,19 +1209,12 @@ jax.extend({
             var vl = null;
             switch (values) {
                 // Months, numeric short values.
+                case 'HOURS_12':
                 case 'MONTHS_SHORT':
                     vl = [
                         ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
                         ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
                         ['12', '12']
-                    ];
-                    break;
-                // Months, long name values.
-                case 'MONTHS_LONG':
-                    vl = [
-                        ['--', '------'], ['01', 'January'], ['02', 'February'], ['03', 'March'], ['04', 'April'],
-                        ['05', 'May'], ['06', 'June'], ['07', 'July'], ['08', 'August'], ['09', 'September'],
-                        ['10', 'October'], ['11', 'November'], ['12', 'December']
                     ];
                     break;
                 // Days of Month, numeric short values.
@@ -1176,21 +1227,6 @@ jax.extend({
                         ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'], ['29', '29'],
                         ['30', '30'], ['31', '31']
                     ];
-                    break;
-                // Days of Week, long name values.
-                case 'DAYS_OF_WEEK':
-                    vl = [
-                        ['--', '------'], ['Sunday', 'Sunday'], ['Monday', 'Monday'], ['Tuesday', 'Tuesday'],
-                        ['Wednesday', 'Wednesday'], ['Thursday', 'Thursday'], ['Friday', 'Friday'],
-                        ['Saturday', 'Saturday']
-                    ];
-                    break;
-                // Hours, 12-hour values.
-                case 'HOURS_12':
-                    vl = [
-                        ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
-                        ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
-                        ['12', '12']];
                     break;
                 // Hours, 24-hour values.
                 case 'HOURS_24':
@@ -1238,7 +1274,8 @@ jax.extend({
                     // If an array is passed, set the values to the array.
                     if (values.constructor == Array) {
                         vl = values;
-                        // Else, if a string is passed, check for any option sets in the options XML file in the data folder, based on the string passed.
+                    // Else, if a string is passed, check for any option sets in the options XML file in the data folder,
+                    // based on the string passed.
                     } else if (optionsFile != null) {
                         vl = window.jax.parseOptionsFile(optionsFile, values);
                     }
@@ -1521,174 +1558,6 @@ jax.extend({
     }
 });
 /**
- * browser.js
- */
-(function(window){
-    /** Initial browser object and detection */
-    var browser = {
-        ua      : navigator.userAgent,
-        os      : null,  name    : null,  version : null,
-        webkit  : false, mozilla : false, msie    : false,
-        chrome  : false, safari  : false, opera   : false,
-
-        // Define mobile browser properties
-        mobile     : false, tablet     : false,
-        android    : false, apple      : false, windows    : false,
-        blackberry : false, pre        : false, device     : null,
-        geo        : false,
-        /**
-         * Function to open a browser window
-         *
-         * @param {String} url
-         * @param {String} name
-         * @param {Object} opts
-         */
-        open : function(url, name, opts) {
-            var wid  = (opts.width != undefined)    ? opts.width    : 640;
-            var hgt  = (opts.height != undefined)   ? opts.height   : 480;
-            var scr  = (opts.scroll != undefined)   ? opts.scroll   : 'no';
-            var res  = (opts.resize != undefined)   ? opts.resize   : 'no';
-            var stat = (opts.status != undefined)   ? opts.status   : 'no';
-            var loc  = (opts.location != undefined) ? opts.location : 'no';
-            var mnu  = (opts.menu != undefined)     ? opts.menu     : 'no';
-            var tool = (opts.tool != undefined)     ? opts.tool     : 'no';
-            var x    = (opts.x != undefined)        ? opts.x        : (screen.width / 2) - (wid / 2);
-            var y    = (opts.y != undefined)        ? opts.y        : (screen.height / 2) - (hgt / 2);
-
-            var windowOpts = 'width=' + wid + ',height=' + hgt + ',scrollbars=' + scr + ',resizable=' + res +
-                ',status=' + stat + ',location=' + loc + ',menubar=' + mnu + ',toolbar=' + tool +
-                ',left=' + x + ',top=' + y;
-            window.open(url, name, windowOpts);
-        },
-        /**
-         * Function to route browser to a specific device
-         *
-         * @param {Object} opts
-         */
-        route : function(options) {
-            if (options == undefined) {
-                throw 'The options were not defined.';
-            } else if (options.mobile == undefined) {
-                throw 'The mobile URL was not defined.';
-            }
-            var mobile = options.mobile;
-            var desktop = (options.desktop != undefined) ? options.desktop : location.href;
-
-            // Route based on force property
-            if (options.force != undefined) {
-                if ((options.force.toLowerCase() == 'desktop') && (location.href.indexOf(desktop) == -1)) {
-                    window.location = desktop;
-                } else if ((options.force.toLowerCase() == 'mobile') && (location.href.indexOf(mobile) == -1)) {
-                    window.location = mobile;
-                }
-                // Else, just route to mobile, if mobile
-            } else {
-                if ((this.mobile) && (location.href.indexOf(mobile) == -1)) {
-                    window.location = mobile;
-                }
-            }
-        }
-    };
-
-    /** Calculate browser properties */
-    var os  = browser.ua.toLowerCase().match(/(windows|macintosh|linux|freebsd|openbsd|netbsd|sunos)/i);
-    var brw = browser.ua.toLowerCase().match(/(chrome|firefox|msie|trident|konqueror|navigator|opera|safari)/i);
-    var dev = browser.ua.toLowerCase().match(/(android|blackberry|windows ce|windows phone|opera mini|pre|presto|ipod|iphone|ipad|nokia|symbian|palm|treo|hiptop|avantgo|plucker|xiino|blazer|elaine|teleca|up.browser|up.link|mmp|smartphone|midp|wap|vodafone|o2|pocket|kindle|mobile|pda|psp)/i);
-
-    /** Get platform OS */
-    if ((os != null) && (os[0] != undefined)) {
-        browser.os = os[0].charAt(0).toUpperCase() + os[0].substring(1).replace('bsd', 'BSD').replace('os', 'OS');
-    }
-
-    /** Get browser name */
-    if ((brw != null) && (brw[0] != undefined)) {
-        if ((brw[0] == 'msie') || (brw[0] == 'trident')) {
-            browser.name = 'MSIE';
-        } else {
-            browser.name = brw[0].charAt(0).toUpperCase() + brw[0].substring(1);
-        }
-    }
-
-    /** Is it webkit */
-    browser.webkit = (browser.ua.toLowerCase().indexOf('webkit') != -1) ;
-
-    /** Has geolocation */
-    browser.geo = (navigator.geolocation) ? navigator.geolocation : false;
-
-    /** Get browser and version */
-    switch (browser.name) {
-        case 'Chrome':
-            browser.chrome = true;
-            browser.version = browser.ua.substring(browser.ua.indexOf('Chrome/') + 7);
-            browser.version = browser.version.substring(0, browser.version.indexOf(' '));
-            break;
-        case 'Firefox':
-            browser.mozilla = true;
-            browser.version = browser.ua.substring(browser.ua.indexOf('Firefox/') + 8);
-            break;
-        case 'MSIE':
-            browser.msie = true;
-            if (browser.ua.indexOf('MSIE ') != -1) {
-                browser.version = browser.ua.substring(browser.ua.indexOf('MSIE ') + 5);
-                browser.version = browser.version.substring(0, browser.version.indexOf(';'));
-            } else {
-                browser.version = browser.ua.substring(browser.ua.indexOf('rv:') + 3);
-                browser.version = browser.version.substring(0, browser.version.indexOf(')'));
-            }
-            break;
-        case 'Konqueror':
-            browser.version = browser.ua.substring(browser.ua.indexOf('Konqueror/') + 10);
-            browser.version = browser.version.substring(0, browser.version.indexOf(';'));
-            break;
-        case 'Navigator':
-            browser.mozilla = true;
-            browser.version = browser.ua.substring(browser.ua.indexOf('Navigator/') + 10);
-            break;
-        case 'Opera':
-            browser.opera = true;
-            browser.version = browser.ua.substring(browser.ua.indexOf('Opera/') + 6);
-            browser.version = browser.version.substring(0, browser.version.indexOf(' '));
-            break;
-        case 'Safari':
-            browser.safari = true;
-            browser.version = browser.ua.substring(browser.ua.indexOf('Version/') + 8);
-            browser.version = browser.version.substring(0, browser.version.indexOf(' '));
-            break;
-    }
-
-    /** If mobile, get device */
-    if ((dev != null) && (dev[0] != undefined)) {
-        browser.device = dev[0];
-        browser.mobile = true;
-        browser.tablet = (browser.device == 'ipad') ? true : !(browser.ua.indexOf('Mobile') != -1);
-
-        switch (browser.device) {
-            case 'android':
-                browser.android = true;
-                break;
-            case 'blackberry':
-                browser.blackberry = true;
-                break;
-            case 'ipod':
-            case 'ipad':
-            case 'iphone':
-                browser.apple = true;
-                break;
-            case 'windows ce':
-            case 'windows phone':
-                browser.windows = true;
-                break;
-            case 'pre':
-            case 'presto':
-                browser.pre = true;
-                break;
-        }
-    }
-
-    window.jax.browser = browser;
-})(window);
-
-/**
  * children/parent.js
  */
 jax.extend({
@@ -1804,36 +1673,6 @@ jax.extend({
         }
     }
 });
-/**
- * children/contains.js
- */
-(function(window){
-    /**
-     * Function to check if the container contains the contained
-     *
-     * @param   {Object}  container
-     * @param   {Object}  contained
-     * @returns {Boolean}
-     */
-    window.jax.contains = function(container, contained) {
-        // Function to traverse a node
-        var traverse = function(parent, child) {
-            var contains = false;
-            if (parent.hasChildNodes()) {
-                for (var i = 0; i < parent.childNodes.length; i++) {
-                    if (parent.childNodes[i] == child) {
-                        contains = true;
-                    } else if (!contains) {
-                        contains = traverse(parent.childNodes[i], child);
-                    }
-                }
-            }
-            return contains;
-        };
-
-        return traverse(container, contained);
-    };
-})(window);
 /**
  * clone.js
  */
@@ -2059,7 +1898,7 @@ jax.extend({
             var wid = this.width();
             var hgt = this.height();
 
-            if (window.jax.browser.msie) {
+            if (((document.documentElement) && (document.documentElement.scrollLeft)) || (document.body.scrollLeft)) {
                 var xPos = (document.documentElement.scrollLeft) ? document.documentElement.scrollLeft : document.body.scrollLeft;
                 var yPos = (document.documentElement.scrollTop) ? document.documentElement.scrollTop : document.body.scrollTop;
             } else {
@@ -2233,21 +2072,13 @@ jax.extend({
 
         for (var prop in properties) {
             switch(prop) {
-                // Handle the opacity/filter issue.
+                // Handle opacity
                 case 'opacity':
-                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
-                    } else {
-                        obj.style.opacity = properties[prop] / 100;
-                    }
+                    obj.style.opacity = properties[prop] / 100;
                     break;
-                // Handle the styleFloat/cssFloat issue.
+                // Handle cssFloat
                 case 'float':
-                    if (window.jax.browser.msie) {
-                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
-                    } else {
-                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
-                    }
+                    obj.style.cssFloat = properties[prop];
                     break;
                 // Handle all other CSS properties.
                 default:
@@ -2274,31 +2105,20 @@ jax.extend({
      * @return {Mixed}
      */
     getCss : function(props) {
-        var sty = null;
-        var styY = null;
-        var opac = false;
+        var sty           = null;
+        var opac          = false;
         var formattedProp = null;
-        var formattedPropY = null;
 
         if (this[0] != undefined) {
             switch(props) {
-                // Handle the opacity/filter issue.
+                // Handle opacity
                 case 'opacity':
-                    formattedProp = ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) ? 'filter' : 'opacity';
-                    opac = true;
+                    formattedProp = 'opacity';
+                    opac          = true;
                     break;
-                // Handle the styleFloat/cssFloat issue.
+                // Handle cssFloat
                 case 'float':
-                    formattedProp = (window.jax.browser.msie) ? 'styleFloat' : 'cssFloat';
-                    break;
-                // Handle the backgroundPosition issue.
-                case 'background-position':
-                    if (window.jax.browser.msie) {
-                        formattedProp  = 'backgroundPositionX';
-                        formattedPropY = 'backgroundPositionY';
-                    } else {
-                        formattedProp  = 'backgroundPosition';
-                    }
+                    formattedProp = 'cssFloat';
                     break;
                 // Handle all other CSS properties.
                 default:
@@ -2316,30 +2136,15 @@ jax.extend({
 
             // Attempt to get the style if assigned via JavaScript, else attempt to get the style is computed/rendered via CSS.
             var assignedStyle = eval("this[0].style." + formattedProp + ";");
-            var computedStyle = (window.jax.browser.msie) ? eval('this[0].currentStyle.' + formattedProp) : window.getComputedStyle(this[0], null).getPropertyValue(props);
+            var computedStyle = (window.getComputedStyle) ? window.getComputedStyle(this[0], null).getPropertyValue(props) :
+                eval('this[0].currentStyle.' + formattedProp);
             sty = (assignedStyle != '') ? assignedStyle : computedStyle;
             if (sty == '0%') {
                 sty = '0px';
             }
 
-            // If there's a formattedPropY value
-            if (formattedPropY != null) {
-                var assignedStyleY = eval("this[0].style." + formattedPropY + ";");
-                var computedStyleY = (window.jax.browser.msie) ? eval('this[0].currentStyle.' + formattedPropY) : window.getComputedStyle(this[0], null).getPropertyValue(props);
-                styY = (assignedStyleY != '') ? assignedStyleY : computedStyleY;
-                if (styY == '0%') {
-                    styY = '0px';
-                }
-                sty += ' ' + styY;
-            }
-
             if (opac) {
-                if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                    sty = sty.substring((sty.indexOf('=') + 1));
-                    sty = sty.substring(0, sty.indexOf(')'));
-                } else {
-                    sty = Math.round(sty * 100);
-                }
+                sty = Math.round(sty * 100);
                 if (sty.toString() == '') {
                     sty = (window.jax(this[0]).css('display') != 'none') ? 100 : 0;
                 }
@@ -2443,6 +2248,7 @@ jax.extend({
  * effects.js
  */
 jax.extend({
+    delayTime : 0,
     /**
      * Function to show all current elements
      *
@@ -2478,6 +2284,16 @@ jax.extend({
         for (var i = 0; i < this.length; i++) {
             this[i].style.display = (this[i].style.display == 'none') ? disp : 'none';
         }
+        return this;
+    },
+    /**
+     * Function to set the delay time for the next animation to fire
+     *
+     * @param   {Number} ms
+     * @returns {jax}
+     */
+    delay : function(ms) {
+        this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
         return this;
     }
 });
@@ -2540,7 +2356,7 @@ jax.extend({
     trigger : function(evt, bubbles, cancelable) {
         var bub = (bubbles != null)    ? bubbles    : true;
         var can = (cancelable != null) ? cancelable : true;
-        var e = ((window.jax.browser.msie) && (window.jax.browser.version >= 9)) ?
+        var e = (document.createEvent) ?
             document.createEvent('Event') : new CustomEvent('Event', {"bubbles" : bub, "cancelable" : can});
 
         // Check the event type and the obj accordingly.
@@ -2558,6 +2374,298 @@ jax.extend({
         return this;
     }
 });
+/**
+ * filter.js
+ */
+jax.extend({
+    /**
+     * Function to apply a filter to the collection
+     * Available filters are:
+     *     :contains('some text'), :even, :odd, :checked, :selected, :hidden, :visible
+     *     :button, :checkbox, :file, :image, :password, :radio, :reset, :submit, :text
+     *
+     * @param   {String} filter
+     * @returns {jax}
+     */
+    filter : function(filter) {
+        var ary = [];
+
+        if (filter.indexOf(':contains(') != -1) {
+            var text = filter.substring(filter.indexOf('(') + 1);
+            text = text.substring(0, text.lastIndexOf(')'));
+            if ((text.substring(0, 1) == '"') || (text.substring(0, 1) == "'")) {
+                text = text.substring(1);
+                text = text.substring(0, (text.length - 1));
+            }
+            for (var i = 0; i < this.length; i++) {
+                if (this[i].innerHTML.indexOf(text) != -1) {
+                    ary.push(this[i]);
+                }
+            }
+        }
+
+        switch (filter) {
+            case ':even':
+                for (var i = 0; i < this.length; i++) {
+                    if ((i % 2) == 0) {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+            case ':odd':
+                for (var i = 0; i < this.length; i++) {
+                    if ((i % 2) != 0) {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+            case ':checked':
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i].checked) {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+            case ':selected':
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i].selected) {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+            case ':hidden':
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i].style.display == 'none') {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+            case ':visible':
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i].style.display != 'none') {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+            case ':button':
+            case ':checkbox':
+            case ':file':
+            case ':image':
+            case ':password':
+            case ':radio':
+            case ':reset':
+            case ':submit':
+            case ':text':
+                var type = filter.substring(1);
+                for (var i = 0; i < this.length; i++) {
+                    if (this[i].getAttribute('type') == type) {
+                        ary.push(this[i]);
+                    }
+                }
+                break;
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+
+(function(window){
+    /**
+     * Function to check if the container contains the contained
+     *
+     * @param   {Object}  container
+     * @param   {Object}  contained
+     * @returns {Boolean}
+     */
+    window.jax.contains = function(container, contained) {
+        // Function to traverse a node
+        var traverse = function(parent, child) {
+            var contains = false;
+            if (parent.hasChildNodes()) {
+                for (var i = 0; i < parent.childNodes.length; i++) {
+                    if (parent.childNodes[i] == child) {
+                        contains = true;
+                    } else if (!contains) {
+                        contains = traverse(parent.childNodes[i], child);
+                    }
+                }
+            }
+            return contains;
+        };
+
+        return traverse(container, contained);
+    };
+})(window);
+
+/**
+ * filter/eq.js
+ */
+jax.extend({
+    /**
+     * Function to reduce the collection to the single element at the index
+     *
+     * @param   {Number} index
+     * @returns {jax}
+     */
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/has.js
+ */
+jax.extend({
+    /**
+     * Function to filter the collection to elements that only contain the selector passed
+     *
+     * @param   {String} selector
+     * @returns {jax}
+     */
+    has : function(selector) {
+        var ary = [];
+        var x = window.jax(this.selector + ' ' + selector);
+        for (var i = 0; i < x.length; i++) {
+            for (var j = 0; j < this.length; j++) {
+                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
+                    ary.push(this[j]);
+                }
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/not.js
+ */
+jax.extend({
+    /**
+     * Function to negate the collection based on the negative selection
+     *
+     * @param   {Mixed} selector
+     * @returns {jax}
+     */
+    not : function(selector) {
+        var x = window.jax(selector);
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            var neq = true;
+            for (var j = 0; j < x.length; j++) {
+                if (this[i] === x[j]) {
+                    neq = false
+                }
+            }
+            if (neq) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/gt.js
+ */
+jax.extend({
+    /**
+     * Function to filter the collection to the elements greater than the index
+     *
+     * @param   {Number} index
+     * @returns {jax}
+     */
+    gt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i > index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/lt.js
+ */
+jax.extend({
+    /**
+     * Function to filter the collection to the elements less than the index
+     *
+     * @param   {Number} index
+     * @returns {jax}
+     */
+    lt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i < index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
+        }
+
+        return this;
+    }
+});
+/**
+ * json.js
+ */
+(function(window){
+    window.jax.json = {
+        /**
+         * Function to parse either JSON string or a file that contains a JSON string
+         *
+         * @param   {String} json
+         * @returns {Object}
+         */
+        parse : function(json) {
+            return(json.indexOf('{') != -1) ? JSON.parse(decodeURIComponent(json)) : window.jax.ajax(json);
+        },
+        /**
+         * Function to turn an object into a JSON string
+         *
+         * @param   {Object} obj
+         * @returns {String}
+         */
+        toString : function(obj) {
+            return JSON.stringify(obj);
+        }
+    };
+})(window);
 /**
  * val.js
  */

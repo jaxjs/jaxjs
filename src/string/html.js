@@ -11,13 +11,13 @@
      */
     window.jax.String.prototype.html = function(quot, strict) {
         var str = this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        if (quot != undefined) {
+        if ((quot != undefined) && (quot != null)) {
             str = str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
         }
-        if (strict != undefined) {
+        if ((strict != undefined) && (strict != null)) {
             str = str.replace(/\(/g, '&#40;').replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
-                .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
-                .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;');
+                     .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
+                     .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;');
         }
         return str;
     };

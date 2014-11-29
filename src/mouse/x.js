@@ -9,10 +9,10 @@ jax.extend({
      * @returns {Number}
      */
     mouseX : function(event) {
-        if ((window.jax.browser.mobile) && (event.changedTouches != undefined) && (event.changedTouches[0] != undefined)) {
+        if ((event.changedTouches != undefined) && (event.changedTouches[0] != undefined)) {
             var xPos = event.changedTouches[0].pageX;
         } else {
-            var xPos = (window.jax.browser.msie) ? window.event.clientX : event.clientX;
+            var xPos = ((window.event) && (window.event.clientX)) ? window.event.clientX : event.clientX;
         }
         if (this[0] != undefined) {
             xPos -= this[0].offsetLeft;

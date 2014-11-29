@@ -4,6 +4,7 @@
     "include" : [
         "core.js",
         "core/query.js",
+        "core/random.js",
         "core/ready.js",
         "core/remove.js",
         "ajax.js",
@@ -11,7 +12,6 @@
         "append.js",
         "append",
         "attrib.js",
-        "browser.js",
         "children",
         "clone.js",
         "cookie.js",
@@ -20,6 +20,9 @@
         "each.js",
         "effects.js",
         "event.js",
+        "filter.js",
+        "filter",
+        "json.js",
         "val.js"
     ]
 }

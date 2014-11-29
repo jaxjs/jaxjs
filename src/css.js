@@ -12,7 +12,7 @@ jax.extend({
             var wid = this.width();
             var hgt = this.height();
 
-            if (window.jax.browser.msie) {
+            if (((document.documentElement) && (document.documentElement.scrollLeft)) || (document.body.scrollLeft)) {
                 var xPos = (document.documentElement.scrollLeft) ? document.documentElement.scrollLeft : document.body.scrollLeft;
                 var yPos = (document.documentElement.scrollTop) ? document.documentElement.scrollTop : document.body.scrollTop;
             } else {

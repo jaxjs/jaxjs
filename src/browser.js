@@ -49,7 +49,7 @@
             } else if (options.mobile == undefined) {
                 throw 'The mobile URL was not defined.';
             }
-            var mobile = options.mobile;
+            var mobile  = options.mobile;
             var desktop = (options.desktop != undefined) ? options.desktop : location.href;
 
             // Route based on force property

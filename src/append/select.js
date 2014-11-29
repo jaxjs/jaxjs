@@ -65,19 +65,12 @@ jax.extend({
             var vl = null;
             switch (values) {
                 // Months, numeric short values.
+                case 'HOURS_12':
                 case 'MONTHS_SHORT':
                     vl = [
                         ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
                         ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
                         ['12', '12']
-                    ];
-                    break;
-                // Months, long name values.
-                case 'MONTHS_LONG':
-                    vl = [
-                        ['--', '------'], ['01', 'January'], ['02', 'February'], ['03', 'March'], ['04', 'April'],
-                        ['05', 'May'], ['06', 'June'], ['07', 'July'], ['08', 'August'], ['09', 'September'],
-                        ['10', 'October'], ['11', 'November'], ['12', 'December']
                     ];
                     break;
                 // Days of Month, numeric short values.
@@ -90,21 +83,6 @@ jax.extend({
                         ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'], ['29', '29'],
                         ['30', '30'], ['31', '31']
                     ];
-                    break;
-                // Days of Week, long name values.
-                case 'DAYS_OF_WEEK':
-                    vl = [
-                        ['--', '------'], ['Sunday', 'Sunday'], ['Monday', 'Monday'], ['Tuesday', 'Tuesday'],
-                        ['Wednesday', 'Wednesday'], ['Thursday', 'Thursday'], ['Friday', 'Friday'],
-                        ['Saturday', 'Saturday']
-                    ];
-                    break;
-                // Hours, 12-hour values.
-                case 'HOURS_12':
-                    vl = [
-                        ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
-                        ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
-                        ['12', '12']];
                     break;
                 // Hours, 24-hour values.
                 case 'HOURS_24':
@@ -152,7 +130,8 @@ jax.extend({
                     // If an array is passed, set the values to the array.
                     if (values.constructor == Array) {
                         vl = values;
-                        // Else, if a string is passed, check for any option sets in the options XML file in the data folder, based on the string passed.
+                    // Else, if a string is passed, check for any option sets in the options XML file in the data folder,
+                    // based on the string passed.
                     } else if (optionsFile != null) {
                         vl = window.jax.parseOptionsFile(optionsFile, values);
                     }

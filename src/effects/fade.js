@@ -11,7 +11,7 @@ jax.extend({
      */
     fade : function(o, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
             } else {

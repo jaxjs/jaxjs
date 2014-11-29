@@ -44,7 +44,7 @@
         var query    = '';
         var chkCount = [];
 
-        // Loop through the elements to assemble the qery string.
+        // Loop through the elements to assemble the query string.
         // If it's a form element object
         if (data.elements != undefined) {
             for (var i = 0; i < data.elements.length; i++) {
@@ -64,7 +64,8 @@
                                 query += '&';
                             }
                             if (data.elements[i].type == 'checkbox') {
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].value);
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' +
+                                    encodeURIComponent(data.elements[i].value);
                             } else {
                                 query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
                             }
@@ -81,7 +82,8 @@
                                 if (i != 0) {
                                     query += '&';
                                 }
-                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' + encodeURIComponent(data.elements[i].options[j].value);
+                                query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' +
+                                    encodeURIComponent(data.elements[i].options[j].value);
                             }
                         }
                     // Else a normal element

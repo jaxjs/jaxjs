@@ -57,7 +57,7 @@ jax.extend({
     trigger : function(evt, bubbles, cancelable) {
         var bub = (bubbles != null)    ? bubbles    : true;
         var can = (cancelable != null) ? cancelable : true;
-        var e = ((window.jax.browser.msie) && (window.jax.browser.version >= 9)) ?
+        var e = (document.createEvent) ?
             document.createEvent('Event') : new CustomEvent('Event', {"bubbles" : bub, "cancelable" : can});
 
         // Check the event type and the obj accordingly.

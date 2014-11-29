@@ -11,7 +11,7 @@ jax.extend({
      */
     scrollX : function(x, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
             } else {
@@ -29,7 +29,7 @@ jax.extend({
      */
     scrollY : function(y, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
             } else {

@@ -15,7 +15,6 @@
      */
     window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
         var obj;
-        var msie = (navigator.userAgent.toLowerCase().indexOf('msie') != -1);
 
         // Detect application type
         if (type == null) {
@@ -75,7 +74,7 @@
                 // Get XML doc from string if doesn't exist
                 if (!response.xml) {
                     var str = (response.text != undefined) ? response.text : response.toString();
-                    if (msie) {
+                    if (ActiveXObject) {
                         var xDoc = new ActiveXObject('Microsoft.XMLDOM');
                         xDoc.async = (async != undefined) ? async : true;
                         xDoc.loadXML(str);
@@ -95,7 +94,14 @@
                     var attribStr = '';
                     if (tree.attributes != undefined) {
                         for (var j = 0; j < tree.attributes.length; j++) {
-                            attribs.push(tree.attributes[j].nodeName + ' : "' + new window.jax.String(tree.attributes[j].nodeValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
+                            var nodeValue = tree.attributes[j].nodeValue
+                                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                                .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\(/g, '&#40;')
+                                .replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
+                                .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
+                                .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;')
+                                .replace(/\"/g, '\\"').replace(/\n/g, '\\n');
+                            attribs.push(tree.attributes[j].nodeName + ' : "' + nodeValue + '"');
                         }
                     }
                     if (tree.hasChildNodes()) {
@@ -106,7 +112,13 @@
                                 nValue += tree.childNodes[i].nodeValue;
                             }
                         }
-                        attribs.push('nodeValue : "' + new window.jax.String(nValue).html(null, true).addslashes('double').replace(/\n/g, '\\n') + '"');
+                        nValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                            .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\(/g, '&#40;')
+                            .replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
+                            .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
+                            .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;')
+                            .replace(/\"/g, '\\"').replace(/\n/g, '\\n');
+                        attribs.push('nodeValue : "' + nValue + '"');
                         if (attribs.length > 0) {
                             attribStr = '{' + attribs.join(', ');
                         }
@@ -128,7 +140,7 @@
                 }
 
                 if (xDoc.childNodes.length > 0) {
-                    if (msie) {
+                    if (ActiveXObject) {
                         docObj += traverse(xDoc.documentElement, '');
                     } else {
                         if (xDoc.childNodes[0].nodeType == 10) {

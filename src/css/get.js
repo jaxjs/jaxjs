@@ -9,31 +9,20 @@ jax.extend({
      * @return {Mixed}
      */
     getCss : function(props) {
-        var sty = null;
-        var styY = null;
-        var opac = false;
+        var sty           = null;
+        var opac          = false;
         var formattedProp = null;
-        var formattedPropY = null;
 
         if (this[0] != undefined) {
             switch(props) {
-                // Handle the opacity/filter issue.
+                // Handle opacity
                 case 'opacity':
-                    formattedProp = ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) ? 'filter' : 'opacity';
-                    opac = true;
+                    formattedProp = 'opacity';
+                    opac          = true;
                     break;
-                // Handle the styleFloat/cssFloat issue.
+                // Handle cssFloat
                 case 'float':
-                    formattedProp = (window.jax.browser.msie) ? 'styleFloat' : 'cssFloat';
-                    break;
-                // Handle the backgroundPosition issue.
-                case 'background-position':
-                    if (window.jax.browser.msie) {
-                        formattedProp  = 'backgroundPositionX';
-                        formattedPropY = 'backgroundPositionY';
-                    } else {
-                        formattedProp  = 'backgroundPosition';
-                    }
+                    formattedProp = 'cssFloat';
                     break;
                 // Handle all other CSS properties.
                 default:
@@ -51,30 +40,15 @@ jax.extend({
 
             // Attempt to get the style if assigned via JavaScript, else attempt to get the style is computed/rendered via CSS.
             var assignedStyle = eval("this[0].style." + formattedProp + ";");
-            var computedStyle = (window.jax.browser.msie) ? eval('this[0].currentStyle.' + formattedProp) : window.getComputedStyle(this[0], null).getPropertyValue(props);
+            var computedStyle = (window.getComputedStyle) ? window.getComputedStyle(this[0], null).getPropertyValue(props) :
+                eval('this[0].currentStyle.' + formattedProp);
             sty = (assignedStyle != '') ? assignedStyle : computedStyle;
             if (sty == '0%') {
                 sty = '0px';
             }
 
-            // If there's a formattedPropY value
-            if (formattedPropY != null) {
-                var assignedStyleY = eval("this[0].style." + formattedPropY + ";");
-                var computedStyleY = (window.jax.browser.msie) ? eval('this[0].currentStyle.' + formattedPropY) : window.getComputedStyle(this[0], null).getPropertyValue(props);
-                styY = (assignedStyleY != '') ? assignedStyleY : computedStyleY;
-                if (styY == '0%') {
-                    styY = '0px';
-                }
-                sty += ' ' + styY;
-            }
-
             if (opac) {
-                if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                    sty = sty.substring((sty.indexOf('=') + 1));
-                    sty = sty.substring(0, sty.indexOf(')'));
-                } else {
-                    sty = Math.round(sty * 100);
-                }
+                sty = Math.round(sty * 100);
                 if (sty.toString() == '') {
                     sty = (window.jax(this[0]).css('display') != 'none') ? 100 : 0;
                 }

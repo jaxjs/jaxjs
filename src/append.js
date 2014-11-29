@@ -28,10 +28,15 @@ jax.extend({
 
         // If the element type is a textarea
         if (type == 'textarea') {
-            if (window.jax.browser.msie) {
+            if (objChild.innerText) {
                 objChild.innerText = (value != null) ? value : '';
             } else {
-                objChild.innerHTML = (value != null) ? new window.jax.String(value).html(true) : '';
+                objChild.innerHTML = (value != null) ?
+                    value.replace(/&/g, '&amp;')
+                         .replace(/</g, '&lt;')
+                         .replace(/>/g, '&gt;')
+                         .replace(/"/g, '&quot;')
+                         .replace(/'/g, '&#39;') : '';
             }
             // Else, set any value within the element.
         } else {

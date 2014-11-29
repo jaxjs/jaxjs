@@ -12,7 +12,7 @@ jax.extend({
      */
     blendColor : function(c1, c2, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['blendColor', {"c1" : c1, "c2" : c2}], opts);}, this.delayTime);
             } else {
@@ -31,7 +31,7 @@ jax.extend({
      */
     blendBgColor : function(c1, c2, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['blendBgColor', {"c1" : c1, "c2" : c2}], opts);}, this.delayTime);
             } else {

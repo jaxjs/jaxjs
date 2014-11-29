@@ -2,6 +2,7 @@
  * effects.js
  */
 jax.extend({
+    delayTime : 0,
     /**
      * Function to show all current elements
      *
@@ -37,6 +38,16 @@ jax.extend({
         for (var i = 0; i < this.length; i++) {
             this[i].style.display = (this[i].style.display == 'none') ? disp : 'none';
         }
+        return this;
+    },
+    /**
+     * Function to set the delay time for the next animation to fire
+     *
+     * @param   {Number} ms
+     * @returns {jax}
+     */
+    delay : function(ms) {
+        this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
         return this;
     }
 });

@@ -60,7 +60,12 @@ jax.extend({
                 var type = params[e][1][m][0];
                 switch (type) {
                     case 'move':
-                        steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, parseInt(window.jax(elem).css('left')), parseInt(window.jax(elem).css('top')), tween, easingX,  easingY);
+                        steps = this.calcSteps(
+                            params[e][1][m][1].x,
+                            params[e][1][m][1].y,
+                            parseInt(window.jax(elem).css('left')),
+                            parseInt(window.jax(elem).css('top')), tween, easingX,  easingY
+                        );
                         break;
                     case 'slide':
                         var backPos = window.jax(elem).css('background-position');
@@ -75,7 +80,13 @@ jax.extend({
                         steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, orgX, orgY, tween, easingX,  easingY);
                         break;
                     case 'resize':
-                        steps = this.calcSteps(params[e][1][m][1].w, params[e][1][m][1].h, parseInt(window.jax(elem).innerWidth()), parseInt(window.jax(elem).innerHeight()), tween, easingX,  easingY);
+                        steps = this.calcSteps(
+                            params[e][1][m][1].w,
+                            params[e][1][m][1].h,
+                            parseInt(window.jax(elem).innerWidth()),
+                            parseInt(window.jax(elem).innerHeight()),
+                            tween, easingX,  easingY
+                        );
                         break;
                     case 'fade':
                         var curOpacity = window.jax(elem).css('opacity');

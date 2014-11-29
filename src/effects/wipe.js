@@ -11,7 +11,7 @@ jax.extend({
      */
     wipeOff : function(w, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['wipeOff', {"w" : w}], opts);}, this.delayTime);
             } else {
@@ -29,7 +29,7 @@ jax.extend({
      */
     wipeUp : function(h, opts) {
         if (this.length > 0) {
-            if (this.delayTime > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
                 var tO = setTimeout(function() {self.animate(['wipeUp', {"h" : h}], opts);}, this.delayTime);
             } else {

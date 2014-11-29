@@ -19,21 +19,13 @@ jax.extend({
 
         for (var prop in properties) {
             switch(prop) {
-                // Handle the opacity/filter issue.
+                // Handle opacity
                 case 'opacity':
-                    if ((window.jax.browser.msie) && (parseInt(window.jax.browser.version) < 10)) {
-                        obj.style.filter = 'alpha(opacity=' + properties[prop] + ')';
-                    } else {
-                        obj.style.opacity = properties[prop] / 100;
-                    }
+                    obj.style.opacity = properties[prop] / 100;
                     break;
-                // Handle the styleFloat/cssFloat issue.
+                // Handle cssFloat
                 case 'float':
-                    if (window.jax.browser.msie) {
-                        eval("obj.style.styleFloat = '" + properties[prop] + "';");
-                    } else {
-                        eval("obj.style.cssFloat = '" + properties[prop] + "';");
-                    }
+                    obj.style.cssFloat = properties[prop];
                     break;
                 // Handle all other CSS properties.
                 default:
