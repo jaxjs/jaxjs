@@ -74,7 +74,7 @@
                 // Get XML doc from string if doesn't exist
                 if (!response.xml) {
                     var str = (response.text != undefined) ? response.text : response.toString();
-                    if (ActiveXObject) {
+                    if ("ActiveXObject" in window) {
                         var xDoc = new ActiveXObject('Microsoft.XMLDOM');
                         xDoc.async = (async != undefined) ? async : true;
                         xDoc.loadXML(str);
@@ -112,7 +112,7 @@
                                 nValue += tree.childNodes[i].nodeValue;
                             }
                         }
-                        nValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        nValue = nValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                             .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\(/g, '&#40;')
                             .replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
                             .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
@@ -140,7 +140,7 @@
                 }
 
                 if (xDoc.childNodes.length > 0) {
-                    if (ActiveXObject) {
+                    if ("ActiveXObject" in window) {
                         docObj += traverse(xDoc.documentElement, '');
                     } else {
                         if (xDoc.childNodes[0].nodeType == 10) {

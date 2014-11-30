@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 29, 2014 17:46:36
+ * @build      Nov 29, 2014 18:47:18
  */
 (function(window){
     /**
@@ -754,7 +754,7 @@ jax.extend({
                 // Get XML doc from string if doesn't exist
                 if (!response.xml) {
                     var str = (response.text != undefined) ? response.text : response.toString();
-                    if (ActiveXObject) {
+                    if ("ActiveXObject" in window) {
                         var xDoc = new ActiveXObject('Microsoft.XMLDOM');
                         xDoc.async = (async != undefined) ? async : true;
                         xDoc.loadXML(str);
@@ -792,7 +792,7 @@ jax.extend({
                                 nValue += tree.childNodes[i].nodeValue;
                             }
                         }
-                        nValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                        nValue = nValue.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
                             .replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/\(/g, '&#40;')
                             .replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
                             .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
@@ -820,7 +820,7 @@ jax.extend({
                 }
 
                 if (xDoc.childNodes.length > 0) {
-                    if (ActiveXObject) {
+                    if ("ActiveXObject" in window) {
                         docObj += traverse(xDoc.documentElement, '');
                     } else {
                         if (xDoc.childNodes[0].nodeType == 10) {
