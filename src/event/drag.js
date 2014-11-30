@@ -31,6 +31,9 @@ jax.extend({
             var boundBottom = null;
             var onDragFunc  = null;
 
+            var dev    = browser.ua.toLowerCase().match(/(android|blackberry|windows ce|windows phone|opera mini|pre|presto|ipod|iphone|ipad|nokia|symbian|palm|treo|hiptop|avantgo|plucker|xiino|blazer|elaine|teleca|up.browser|up.link|mmp|smartphone|midp|wap|vodafone|o2|pocket|kindle|mobile|pda|psp)/i);
+            var mobile = ((dev != null) && (dev[0] != undefined));
+
             for (var i = 0; i < this.length; i++) {
                 var obj = this[i];
                 if (bound != null) {
@@ -61,7 +64,7 @@ jax.extend({
                         }
                     }
                 }
-                if (window.jax.browser.mobile) {
+                if (mobile) {
                     window.jax(this[i]).touchstart(function(event) {
                         event.preventDefault();
                         event.stopPropagation();
