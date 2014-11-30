@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 29, 2014 18:47:14
+ * @build      Nov 30, 2014 10:11:28
  */
 (function(window){
     /**
@@ -3760,6 +3760,9 @@ jax.extend({
             var boundBottom = null;
             var onDragFunc  = null;
 
+            var dev    = browser.ua.toLowerCase().match(/(android|blackberry|windows ce|windows phone|opera mini|pre|presto|ipod|iphone|ipad|nokia|symbian|palm|treo|hiptop|avantgo|plucker|xiino|blazer|elaine|teleca|up.browser|up.link|mmp|smartphone|midp|wap|vodafone|o2|pocket|kindle|mobile|pda|psp)/i);
+            var mobile = ((dev != null) && (dev[0] != undefined));
+
             for (var i = 0; i < this.length; i++) {
                 var obj = this[i];
                 if (bound != null) {
@@ -3790,7 +3793,7 @@ jax.extend({
                         }
                     }
                 }
-                if (window.jax.browser.mobile) {
+                if (mobile) {
                     window.jax(this[i]).touchstart(function(event) {
                         event.preventDefault();
                         event.stopPropagation();
