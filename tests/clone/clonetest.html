@@ -4,7 +4,7 @@
 <head>
 
     <title>
-        Jax Attrib Test
+        Jax Clone Test
     </title>
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -17,9 +17,18 @@
 <body>
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
-    <div id="mydiv" class="divclass" data-foo="bar"></div>
+    <br /><br />
+    <div id="clone-div">
+        <p>Top</p>
+        <select name="some_select_new_1" id="some_select_new_1" style="margin: 0 0 10px 0; display: block; border: solid 1px #000; background-color: #e2f8ff;">
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+        </select>
+        <p>Bottom</p>
+    </div>
     <script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
-    <script src="js/attribtest.js"></script>
+    <script src="js/clonetest.js"></script>
 </body>
 
 </html>

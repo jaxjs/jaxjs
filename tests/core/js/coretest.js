@@ -1,27 +1,22 @@
 /**
  * Core test
  */
-QUnit.test('each instance test', function(assert) {
-    var expected = ['Item 1', 'Item 2', 'Item 3'];
-    var actual   = [];
-    $('#mylist > li').each(function(){
-        actual.push(this.innerHTML);
-    });
-    for (var i = 0; i < expected.length; i++) {
-        assert.equal(expected[i], actual[i]);
-    }
+QUnit.test('core selector test', function(assert) {
+    var li = $('#mylist > li');
+    assert.equal(li.length, 3, "List items length equals 3");
+    assert.equal(li[0].innerHTML, 'Item 1', "List item 1 contents retrieved");
+    assert.equal(li[1].innerHTML, 'Item 2', "List item 2 contents retrieved");
+    assert.equal(li[2].innerHTML, 'Item 3', "List item 3 contents retrieved");
 });
 
-QUnit.test('each static array test', function(assert) {
-    var a        = ['one', 'two', 'three'];
-    var expected = ['0 => one', '1 => two', '2 => three'];
-    var actual   = [];
-
-    $.each(a, function(k, v) {
-        actual.push(k + ' => ' + v);
-    });
-    for (var i = 0; i < expected.length; i++) {
-        assert.equal(expected[i], actual[i]);
-    }
+QUnit.test('empty test', function(assert) {
+    assert.equal($('#mydiv').val(), 'Remove Me', "Div contents exist before being emptied");
+    $('#mydiv').empty();
+    assert.equal($('#mydiv').val(), '', "Div contents do not exist after being emptied");
 });
 
+QUnit.test('remove test', function(assert) {
+    assert.notEqual($('#mydiv')[0], undefined, "Div exists before being removed");
+    $('#mydiv').remove();
+    assert.equal($('#mydiv')[0], undefined, "Div does not exists after being removed");
+});

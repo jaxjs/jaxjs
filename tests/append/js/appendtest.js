@@ -19,33 +19,19 @@ QUnit.test('append test', function(assert) {
         .append('br')
         .append('br');
 
-    assert.equal($('#test-image').attrib('alt'), 'Hello this is an image.');
-    assert.equal($('#first_name').val(), 'Bubba');
-    assert.notEqual($('#colors')[0], undefined);
-    assert.notEqual($('#nums')[0], undefined);
-    assert.notEqual($('#more_colors')[0], undefined);
-    assert.notEqual($('#months')[0], undefined);
-    assert.notEqual($('#some_text')[0], undefined);
+    assert.equal($('#test-image').attrib('alt'), 'Hello this is an image.', "Image appended");
+    assert.equal($('#first_name').val(), 'Bubba', "Input field appended");
+    assert.notEqual($('#colors')[0], undefined, "Checkbox appended");
+    assert.notEqual($('#nums')[0], undefined, "Radio appended");
+    assert.notEqual($('#more_colors')[0], undefined, "Select (multiple) appended");
+    assert.notEqual($('#months')[0], undefined, "Select appended");
+    assert.notEqual($('#some_text')[0], undefined, "Textarea appended");
 
-});
-
-QUnit.test('remove test', function(assert) {
-    $('#test-image').remove();
-    $('#first_name').remove();
-    $('div.test-div').val('Testing 1 2 3');
-    assert.equal($('#test-image')[0], undefined);
-    assert.equal($('#first_name')[0], undefined);
-    assert.equal($('div.test-div').val(), 'Testing 1 2 3');
-});
-
-QUnit.test('clone test', function(assert) {
-    $('#some_select_new_1').clone({'name' : 'some_select_new_2', 'id' : 'some_select_new_2'}, true, true).appendTo('#clone-div');
-    assert.notEqual($('#some_select_new_2')[0], undefined);
 });
 
 QUnit.test('prepend test', function(assert) {
     $('#prepend-div').prepend('div', {'id' : 'new-div', 'style' : 'width: 300px; height: 50px; background-color: #e2f8ff; border: solid 1px #000;'}, 'New Div!');
-    assert.notEqual($('#new-div')[0], undefined);
+    assert.notEqual($('#new-div')[0], undefined, "New div prepended");
 });
 
 

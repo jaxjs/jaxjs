@@ -4,22 +4,31 @@
 <head>
 
     <title>
-        Jax Attrib Test
+        Jax Effects Test
     </title>
 
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 
     <script type="text/javascript" src="../../build/jax.4.0.0a.min.js"></script>
     <link rel="stylesheet" href="//code.jquery.com/qunit/qunit-1.15.0.css">
-
+    <style type="text/css">
+        #mydiv {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            width: 200px;
+            height: 200px;
+            background-color: #6ad0fc;
+        }
+    </style>
 </head>
 
 <body>
     <div id="qunit"></div>
     <div id="qunit-fixture"></div>
-    <div id="mydiv" class="divclass" data-foo="bar"></div>
+    <div id="mydiv"></div>
     <script src="//code.jquery.com/qunit/qunit-1.15.0.js"></script>
-    <script src="js/attribtest.js"></script>
+    <script src="js/effectstest.js"></script>
 </body>
 
 </html>

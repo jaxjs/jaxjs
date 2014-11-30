@@ -9,7 +9,7 @@ QUnit.test('basic ajax test', function(assert) {
             }
         }
     });
-    assert.notEqual($('#text').html().indexOf('This is a test!'), -1);
+    assert.notEqual($('#text').html().indexOf('This is a test!'), -1, "Ajax test retrieved and set the test content");
 });
 
 QUnit.test('ajax post test', function(assert) {
@@ -22,7 +22,7 @@ QUnit.test('ajax post test', function(assert) {
         },
         data  : $('#login-form')[0]
     });
-    assert.notEqual($('#form-results').html().indexOf('Your Username: Test Name'), -1);
+    assert.notEqual($('#form-results').html().indexOf('Your Username: Test Name'), -1, "Ajax test posted the initial form data and retrieved the results");
 });
 
 QUnit.test('ajax post test', function(assert) {
@@ -37,19 +37,17 @@ QUnit.test('ajax post test', function(assert) {
             }
         }
     });
-    assert.notEqual($('#form-results').html().indexOf('Your Username: Another Test'), -1);
+    assert.notEqual($('#form-results').html().indexOf('Your Username: Another Test'), -1, "Ajax test posted the override form data and retrieved the results");
 });
 
 QUnit.test('ajax json test', function(assert) {
     var json = $.ajax('process/test.json');
-    assert.equal(json.firstName, 'Oliver');
-    assert.equal(json.lastName, 'Twist');
-    assert.equal(json.age, '12');
+    assert.equal(json.firstName + ' ' + json.lastName, 'Oliver Twist', "Ajax JSON test data retrieved");
 });
 
 QUnit.test('ajax xml from file test', function(assert) {
     var xml = $.ajax('process/test2.xml');
-    assert.equal(xml.test.nodes[0].person.fname, 'Oliver');
+    assert.equal(xml.test.nodes[0].person.fname, 'Oliver', "Ajax XML file test data retrieved");
 });
 
 QUnit.test('ajax xml from string test', function(assert) {
@@ -65,10 +63,10 @@ QUnit.test('ajax xml from string test', function(assert) {
 </test>';
 
     var xml = $.parseResponse(xmlString);
-    assert.equal(xml.test.nodes[0].person.fname, 'Oliver');
+    assert.equal(xml.test.nodes[0].person.fname, 'Oliver', "Ajax XML string test data retrieved");
 });
 
 QUnit.test('ajax csv test', function(assert) {
     var csv = $.ajax('process/test.csv');
-    assert.equal(csv[0].fname, 'Oliver');
+    assert.equal(csv[0].fname, 'Oliver', "Ajax CSV file test data retrieved");
 });
