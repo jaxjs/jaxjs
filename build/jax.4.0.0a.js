@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 30, 2014 10:11:28
+ * @build      Nov 30, 2014 23:05:49
  */
 (function(window){
     /**
@@ -4620,12 +4620,12 @@ jax.extend({
         var objs = (this.length > 0) ? this.toArray() : [window];
         for (var i = 0; i < objs.length; i++) {
             // Get old unload function(s), if they exist.
-            var oldUnLoad = obj[i].onunload;
+            var oldUnLoad = objs[i].onunload;
 
-            if (typeof obj[i].onunload != 'function') {
-                obj[i].onunload = func;
+            if (typeof objs[i].onunload != 'function') {
+                objs[i].onunload = func;
             } else {
-                obj[i].onunload = function() {
+                objs[i].onunload = function() {
                     if (oldUnLoad) {
                         oldUnLoad();
                     }
