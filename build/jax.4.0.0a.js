@@ -5157,9 +5157,9 @@ jax.extend({
      */
     window.jax.String.prototype.stripslashes = function(quot) {
         var str = this.replace(/\\\\/g, '\\');
-        if (quot.toLowerCase() == 'single') {
+        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
             str = str.replace(/\\'/g, "'");
-        } else if (quot.toLowerCase() == 'double') {
+        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
             str = str.replace(/\\"/g, '"');
         } else {
             str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
