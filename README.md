@@ -1,5 +1,5 @@
-Welcome to Jax JavaScript Library 4
-===================================
+Welcome to Jax JavaScript Library
+=================================
 
 RELEASE INFORMATION
 -------------------
@@ -8,6 +8,6 @@ Release TBD
 
 OVERVIEW
 --------
-Jax JavaScript Library 4 is the latest version of the Jax JavaScript Library.
+Jax JavaScript Library is a lightweight, robust JavaScript library.
 It is currently in early stages of development. Stay tuned!
 
