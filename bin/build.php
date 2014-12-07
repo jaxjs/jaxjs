@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 if (!isset($argv[1])) {
-    echo PHP_EOL . 'The build file was not passed.' . PHP_EOL . PHP_EOL;
+    echo PHP_EOL . 'You must pass in a JSON build file.' . PHP_EOL . PHP_EOL;
     exit();
 } else if (!file_exists($argv[1])) {
     echo PHP_EOL . 'The build file does not exist.' . PHP_EOL . PHP_EOL;

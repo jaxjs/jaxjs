@@ -1,6 +1,9 @@
 #!/bin/bash
 
-if [ ! -f "$1" ]; then
+if [ "$1" == "" ]; then
+    echo -e "\nYou must pass in a JSON build file.\n"
+    exit
+elif [ ! -f "$1" ]; then
     echo -e "\nBuild file does not exist.\n"
     exit
 fi
