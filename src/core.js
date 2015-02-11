@@ -1,7 +1,7 @@
 /**
  * jax javascript library (http://www.jaxjs.org/)
  *
- * @link       https://github.com/jaxjs/jaxjs4
+ * @link       https://github.com/jaxjs/jaxjs
  * @category   jax
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)

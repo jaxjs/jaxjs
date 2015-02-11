@@ -1,13 +1,13 @@
 /**
  * jax javascript library (http://www.jaxjs.org/)
  *
- * @link       https://github.com/jaxjs/jaxjs4
+ * @link       https://github.com/jaxjs/jaxjs
  * @category   jax
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 11, 2015 13:56:59
+ * @build      Feb 11, 2015 14:06:59
  */
 (function(window){
     /**
