@@ -4,10 +4,10 @@
  * @link       https://github.com/jaxjs/jaxjs4
  * @category   jax
  * @author     Nick Sagona, III <dev@nolainteractive.com>
- * @copyright  Copyright (c) 2009-2014 NOLA Interactive, LLC. (http://www.nolainteractive.com)
+ * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Nov 30, 2014 23:52:38
+ * @build      Feb 11, 2015 13:56:52
  */
 (function(window){
     /**
