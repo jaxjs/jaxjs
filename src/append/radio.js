@@ -41,6 +41,9 @@ jax.extend({
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
                     var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
                     newElem.setAttribute(attrib, att);
                 }
             }

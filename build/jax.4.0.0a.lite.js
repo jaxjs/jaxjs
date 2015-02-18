@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 11, 2015 14:06:59
+ * @build      Feb 18, 2015 17:09:45
  */
 (function(window){
     /**
@@ -1075,6 +1075,9 @@ jax.extend({
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
                     var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
                     newElem.setAttribute(attrib, att);
                 }
             }
@@ -1421,7 +1424,9 @@ jax.extend({
             if ((attribs != undefined) && (attribs != null)) {
                 for (var attrib in attribs) {
                     var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    // Account for IE7 style property issue.
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
                     newElem.setAttribute(attrib, att);
                 }
             }
