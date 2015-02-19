@@ -17,22 +17,12 @@ jax.extend({
         }
 
         // Set the main child element.
-        var objValues = [];
-        var objMarked = (marked != undefined) ? marked : null;
-        var objChild = document.createElement('fieldset');
+        var objChild  = document.createElement('fieldset');
         objChild.setAttribute('class', 'radio-btn-fieldset');
 
-        // Set the elements' values.
-        if (values.constructor == Array) {
-            for (var i = 0; i < values.length; i++) {
-                objValues.push(values[i]);
-            }
-        } else {
-            objValues.push(values);
-        }
-
         // Create the child elements.
-        for (var i = 0; i < objValues.length; i++) {
+        var i = 0;
+        for (var key in values) {
             var newElem = document.createElement('input');
             newElem.setAttribute('type', 'radio');
             newElem.setAttribute('class', 'radio-btn');
@@ -49,19 +39,19 @@ jax.extend({
             }
 
             // Set elements' values and append them to the parent element.
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newElem.setAttribute('value', valuesAry[0]);
+            newElem.setAttribute('value', key);
 
-            if (objMarked != null) {
-                newElem.checked = (objMarked == valuesAry[1]);
+            if (marked != null) {
+                newElem.checked = (marked == key);
             }
             objChild.appendChild(newElem);
 
             var spanElem = document.createElement('span');
             spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = valuesAry[1];
+            spanElem.innerHTML = values[key];
 
             objChild.appendChild(spanElem);
+            i++;
         }
 
         // Prepend or append the child element to the parent element.

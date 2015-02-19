@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 18, 2015 17:09:45
+ * @build      Feb 19, 2015 13:59:49
  */
 (function(window){
     /**
@@ -579,106 +579,6 @@ jax.extend({
 })(window);
 
 /**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a GET AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.get = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'get'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
-            opts.method = 'get';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-
-/**
- * ajax/http.js
- */
-(function(window){
-    window.jax.http = {
-        /**
-         * Function to get the HTTP request status of a URL
-         *
-         * @param   {String} url
-         * @returns {Number}
-         */
-        getStatus : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            return http.status;
-        },
-        /**
-         * Function to determine if the HTTP request is successful
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isSuccess : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 3) || (type == 2) || (type == 1));
-        },
-        /**
-         * Function to determine if the HTTP request is a redirect
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isRedirect : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return (type == 3);
-        },
-        /**
-         * Function to determine if the HTTP request is an error
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isError : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 5) || (type == 4));
-        }
-    };
-})(window);
-
-/**
  * ajax/response.js
  */
 (function(window){
@@ -965,6 +865,106 @@ jax.extend({
 })(window);
 
 /**
+ * ajax/http.js
+ */
+(function(window){
+    window.jax.http = {
+        /**
+         * Function to get the HTTP request status of a URL
+         *
+         * @param   {String} url
+         * @returns {Number}
+         */
+        getStatus : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status;
+        },
+        /**
+         * Function to determine if the HTTP request is successful
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isSuccess : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 3) || (type == 2) || (type == 1));
+        },
+        /**
+         * Function to determine if the HTTP request is a redirect
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isRedirect : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return (type == 3);
+        },
+        /**
+         * Function to determine if the HTTP request is an error
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isError : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 5) || (type == 4));
+        }
+    };
+})(window);
+
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a GET AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.get = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'get'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
+            opts.method = 'get';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+
+/**
  * append.js
  */
 jax.extend({
@@ -1033,93 +1033,6 @@ jax.extend({
     }
 });
 /**
- * append/radio.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of radio elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {String}  marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendRadio : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objValues = [];
-        var objMarked = (marked != undefined) ? marked : null;
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-btn-fieldset');
-
-        // Set the elements' values.
-        if (values.constructor == Array) {
-            for (var i = 0; i < values.length; i++) {
-                objValues.push(values[i]);
-            }
-        } else {
-            objValues.push(values);
-        }
-
-        // Create the child elements.
-        for (var i = 0; i < objValues.length; i++) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio-btn');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    if (attrib == 'tabindex') {
-                        att = att + i;
-                    }
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newElem.setAttribute('value', valuesAry[0]);
-
-            if (objMarked != null) {
-                newElem.checked = (objMarked == valuesAry[1]);
-            }
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = valuesAry[1];
-
-            objChild.appendChild(spanElem);
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of radio elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependRadio : function(values, attribs, marked) {
-        return this.appendRadio(values, attribs, marked, true);
-    }
-});
-/**
  * append/textarea.js
  */
 jax.extend({
@@ -1146,6 +1059,164 @@ jax.extend({
     }
 });
 /**
+ * append/checkbox.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of checkbox elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {Mixed}   marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendCheckbox : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objChild = document.createElement('fieldset');
+        objChild.setAttribute('class', 'check-box-fieldset');
+
+        // Set the elements that are marked/checked.
+        if ((marked != undefined) && (marked != null)) {
+            if (marked.constructor != Array) {
+                marked = [marked];
+            }
+        }
+
+        // Create the child checkbox elements.
+        var i = 0;
+        for (var key in values) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'checkbox');
+            newElem.setAttribute('class', 'check-box');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            newElem.setAttribute('value', key);
+            newElem.checked = (marked.indexOf(key) != -1);
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'check-span');
+            spanElem.innerHTML = values[key];
+
+            objChild.appendChild(spanElem);
+            i++;
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of checkbox elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependCheckbox : function(values, attribs, marked) {
+        return this.appendCheckbox(values, attribs, marked, true);
+    }
+});
+/**
+ * append/radio.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of radio elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {String}  marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendRadio : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objChild  = document.createElement('fieldset');
+        objChild.setAttribute('class', 'radio-btn-fieldset');
+
+        // Create the child elements.
+        var i = 0;
+        for (var key in values) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'radio');
+            newElem.setAttribute('class', 'radio-btn');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            newElem.setAttribute('value', key);
+
+            if (marked != null) {
+                newElem.checked = (marked == key);
+            }
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'radio-span');
+            spanElem.innerHTML = values[key];
+
+            objChild.appendChild(spanElem);
+            i++;
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of radio elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependRadio : function(values, attribs, marked) {
+        return this.appendRadio(values, attribs, marked, true);
+    }
+});
+/**
  * append/select.js
  */
 jax.extend({
@@ -1162,8 +1233,6 @@ jax.extend({
     appendSelect : function(values, attribs, marked, optionsFile, pre) {
         // Set the parent element and define the properties.
         var objChild = document.createElement('select');
-        var objValues = [];
-        var objMarked = (marked != undefined) ? marked : null;
 
         // Set any element attributes.
         if ((attribs != undefined) && (attribs != null)) {
@@ -1173,18 +1242,18 @@ jax.extend({
         }
 
         // If value passed was a YEAR flag, calculate the year range and set the values
-        if (values.indexOf('YEAR') != -1) {
-            var years = ['----'];
+        if ((values.constructor == String) && (values.indexOf('YEAR') != -1)) {
+            var years   = {"----" : "----"};
             var yearAry = values.split('_');
 
             if ((yearAry[1] != undefined) && (yearAry[2] != undefined)) {
                 if (yearAry[1] < yearAry[2]) {
                     for (var i = yearAry[1]; i <= yearAry[2]; i++) {
-                        years.push(i);
+                        years[i.toString()] = i.toString();
                     }
                 } else {
                     for (var i = yearAry[1]; i >= yearAry[2]; i--) {
-                        years.push(i);
+                        years[i.toString()] = i.toString();
                     }
                 }
             } else if (yearAry[1] != undefined) {
@@ -1192,120 +1261,105 @@ jax.extend({
                 var year = d.getFullYear();
                 if (year < yearAry[1]) {
                     for (var i = year; i <= yearAry[1]; i++) {
-                        years.push(i);
+                        years[i.toString()] = i.toString();
                     }
                 } else {
                     for (var i = year; i >= yearAry[1]; i--) {
-                        years.push(i);
+                        years[i.toString()] = i.toString();
                     }
                 }
             } else {
                 var d = new Date();
                 var year = d.getFullYear();
                 for (var i = year; i <= (year + 10); i++) {
-                    years.push(i);
+                    years[i.toString()] = i.toString();
                 }
             }
-            vl = years;
-            // Else, set the values based of a pre-defined flag, or the an array of values passed.
+            values = years;
+        // Else, set the values based of a pre-defined flag, or the an array of values passed.
         } else {
-            var vl = null;
             switch (values) {
                 // Months, numeric short values.
                 case 'HOURS_12':
                 case 'MONTHS_SHORT':
-                    vl = [
-                        ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
-                        ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
-                        ['12', '12']
-                    ];
+                    values = {
+                        "--" : "--", "01" : "01", "02" : "02", "03" : "03", "04" : "04", "05" : "05",
+                        "06" : "06", "07" : "07", "08" : "08", "09" : "09", "10" : "10", "11" : "11",
+                        "12" : "12"
+                    };
                     break;
                 // Days of Month, numeric short values.
                 case 'DAYS_OF_MONTH':
-                    vl = [
-                        ['--', '--'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'], ['05', '05'],
-                        ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'], ['11', '11'],
-                        ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'], ['17', '17'],
-                        ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'], ['23', '23'],
-                        ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'], ['29', '29'],
-                        ['30', '30'], ['31', '31']
-                    ];
+                    values = {
+                        "--" : "--", "01" : "01", "02" : "02", "03" : "03", "04" : "04", "05" : "05",
+                        "06" : "06", "07" : "07", "08" : "08", "09" : "09", "10" : "10", "11" : "11",
+                        "12" : "12", "13" : "13", "14" : "14", "15" : "15", "16" : "16", "17" : "17",
+                        "18" : "18", "19" : "19", "20" : "20", "21" : "21", "22" : "22", "23" : "23",
+                        "24" : "24", "25" : "25", "26" : "26", "27" : "27", "28" : "28", "29" : "29",
+                        "30" : "30", "31" : "31"
+                    };
                     break;
                 // Hours, 24-hour values.
                 case 'HOURS_24':
-                    vl = [
-                        ['--', '--'], ['00', '00'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'],
-                        ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'],
-                        ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'],
-                        ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'],
-                        ['23', '23']
-                    ];
+                    values = {
+                        "--" : "--", "00" : "00", "01" : "01", "02" : "02", "03" : "03", "04" : "04",
+                        "05" : "05", "06" : "06", "07" : "07", "08" : "08", "09" : "09", "10" : "10",
+                        "11" : "11", "12" : "12", "13" : "13", "14" : "14", "15" : "15", "16" : "16",
+                        "17" : "17", "18" : "18", "19" : "19", "20" : "20", "21" : "21", "22" : "22",
+                        "23" : "23"
+                    };
                     break;
                 // Minutes, incremental by 1 minute.
                 case 'MINUTES':
-                    vl = [
-                        ['--', '--'], ['00', '00'], ['01', '01'], ['02', '02'], ['03', '03'], ['04', '04'],
-                        ['05', '05'], ['06', '06'], ['07', '07'], ['08', '08'], ['09', '09'], ['10', '10'],
-                        ['11', '11'], ['12', '12'], ['13', '13'], ['14', '14'], ['15', '15'], ['16', '16'],
-                        ['17', '17'], ['18', '18'], ['19', '19'], ['20', '20'], ['21', '21'], ['22', '22'],
-                        ['23', '23'], ['24', '24'], ['25', '25'], ['26', '26'], ['27', '27'], ['28', '28'],
-                        ['29', '29'], ['30', '30'], ['31', '31'], ['32', '32'], ['33', '33'], ['34', '34'],
-                        ['35', '35'], ['36', '36'], ['37', '37'], ['38', '38'], ['39', '39'], ['40', '40'],
-                        ['41', '41'], ['42', '42'], ['43', '43'], ['44', '44'], ['45', '45'], ['46', '46'],
-                        ['47', '47'], ['48', '48'], ['49', '49'], ['50', '50'], ['51', '51'], ['52', '52'],
-                        ['53', '53'], ['54', '54'], ['55', '55'], ['56', '56'], ['57', '57'], ['58', '58'],
-                        ['59', '59']
-                    ];
+                    values = {
+                        "--" : "--", "00" : "00", "01" : "01", "02" : "02", "03" : "03", "04" : "04",
+                        "05" : "05", "06" : "06", "07" : "07", "08" : "08", "09" : "09", "10" : "10",
+                        "11" : "11", "12" : "12", "13" : "13", "14" : "14", "15" : "15", "16" : "16",
+                        "17" : "17", "18" : "18", "19" : "19", "20" : "20", "21" : "21", "22" : "22",
+                        "23" : "23", "24" : "24", "25" : "25", "26" : "26", "27" : "27", "28" : "28",
+                        "29" : "29", "30" : "30", "31" : "31", "32" : "32", "33" : "33", "34" : "34",
+                        "35" : "35", "36" : "36", "37" : "37", "38" : "38", "39" : "39", "40" : "40",
+                        "41" : "41", "42" : "42", "43" : "43", "44" : "44", "45" : "45", "46" : "46",
+                        "47" : "47", "48" : "48", "49" : "49", "50" : "50", "51" : "51", "52" : "52",
+                        "53" : "53", "54" : "54", "55" : "55", "56" : "56", "57" : "57", "58" : "58",
+                        "59" : "59"
+                    };
                     break;
                 // Minutes, incremental by 5 minutes.
                 case 'MINUTES_5':
-                    vl = [
-                        ['--', '--'], ['00', '00'], ['05', '05'], ['10', '10'], ['15', '15'], ['20', '20'],
-                        ['25', '25'], ['30', '30'], ['35', '35'], ['40', '40'], ['45', '45'], ['50', '50'],
-                        ['55', '55']
-                    ];
+                    values = {
+                        "--" : "--", "00" : "00", "05" : "05", "10" : "10", "15" : "15", "20" : "20",
+                        "25" : "25", "30" : "30", "35" : "35", "40" : "40", "45" : "45", "50" : "50",
+                        "55" : "55"
+                    };
                     break;
                 // Minutes, incremental by 10 minutes.
                 case 'MINUTES_10':
-                    vl = [['--', '--'], ['00', '00'], ['10', '10'], ['20', '20'], ['30', '30'], ['40', '40'], ['50', '50']];
+                    values = {"--" : "--", "00" : "00", "10" : "10", "20" : "20", "30" : "30", "40" : "40", "50" : "50"};
                     break;
                 // Minutes, incremental by 15 minutes.
                 case 'MINUTES_15':
-                    vl = [['--', '--'], ['00', '00'], ['15', '15'], ['30', '30'], ['45', '45']];
+                    values = {"--" : "--", "00" : "00", "15" : "15", "30" : "30", "45" : "45"};
                     break;
                 default:
-                    // If an array is passed, set the values to the array.
-                    if (values.constructor == Array) {
-                        vl = values;
-                    // Else, if a string is passed, check for any option sets in the options XML file in the data folder,
-                    // based on the string passed.
-                    } else if (optionsFile != null) {
-                        vl = window.jax.parseOptionsFile(optionsFile, values);
+                    if (optionsFile != null) {
+                        values = window.jax.parseOptionsFile(optionsFile, values);
                     }
             }
         }
 
-        if (vl.constructor == Array) {
-            for (var i = 0; i < vl.length; i++) {
-                objValues.push(vl[i]);
-            }
-        } else {
-            objValues.push(vl);
-        }
-
         // Create the option elements.
-        for (var i = 0; i < objValues.length; i++) {
+        for (var key in values) {
             var newOpt = document.createElement('option');
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newOpt.setAttribute('value', valuesAry[0]);
-            if (objMarked != null) {
-                if (objMarked.constructor != Array) {
-                    newOpt.selected = !!((objMarked == valuesAry[1]));
+            newOpt.setAttribute('value', key);
+            if (marked != null) {
+                if (marked.constructor != Array) {
+                    newOpt.selected = !!((marked == key));
                 } else {
-                    newOpt.selected = !!((objMarked.indexOf(valuesAry[1]) != -1));
+                    newOpt.selected = !!((marked.indexOf(key) != -1));
                 }
             }
-            newOpt.innerHTML = valuesAry[1];
+            newOpt.innerHTML = values[key];
             objChild.appendChild(newOpt);
         }
 
@@ -1338,11 +1392,12 @@ jax.extend({
      *
      * @param   {String} file
      * @param   {Array}  values
-     * @returns {Array}
+     * @returns {Mixed}
      */
     window.jax.parseOptionsFile = function(file, values) {
-        var xml = window.jax.ajax(file);
+        var xml         = window.jax.ajax(file);
         var optionNames = [];
+        var vals        = {};
         if (xml.options.nodes != undefined) {
             for (var i = 0; i < xml.options.nodes.length; i++) {
                 if ((xml.options.nodes[i] != undefined) && (xml.options.nodes[i].set.name != undefined)) {
@@ -1352,119 +1407,23 @@ jax.extend({
         }
         // If found, construct the values array based on the values found.
         if (optionNames.indexOf(values) != -1) {
-            var vl = [];
             for (var i = 0; i < xml.options.nodes.length; i++) {
                 if ((xml.options.nodes[i] != undefined) && (xml.options.nodes[i].set.name == values)) {
                     for (var j = 0; j < xml.options.nodes[i].set.nodes.length; j++) {
                         if (xml.options.nodes[i].set.nodes[j] != undefined) {
-                            vl.push([xml.options.nodes[i].set.nodes[j].opt.value, xml.options.nodes[i].set.nodes[j].opt.nodeValue]);
+                            vals[xml.options.nodes[i].set.nodes[j].opt.value.toString()] = xml.options.nodes[i].set.nodes[j].opt.nodeValue.toString();
                         }
                     }
                 }
             }
-            // Else, just set the values array to the original parameter passed.
+        // Else, just set the values array to the original parameter passed.
         } else {
-            var vl = values;
+            vals = values;
         }
 
-        return vl;
+        return vals;
     };
 })(window);
-/**
- * append/checkbox.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of checkbox elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {Mixed}   marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendCheckbox : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objValues = [];
-        var objMarked = [];
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'check-box-fieldset');
-
-        // Set the elements' values.
-        if (values.constructor == Array) {
-            for (var i = 0; i < values.length; i++) {
-                objValues.push(values[i]);
-            }
-        } else {
-            objValues.push(values);
-        }
-
-        // Set the elements that are marked/checked.
-        if ((marked != undefined) && (marked != null)) {
-            if (marked.constructor == Array) {
-                for (var i = 0; i < marked.length; i++) {
-                    objMarked.push(marked[i]);
-                }
-            } else {
-                objMarked.push(marked);
-            }
-        }
-
-        // Create the child checkbox elements.
-        for (var i = 0; i < objValues.length; i++) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'checkbox');
-            newElem.setAttribute('class', 'check-box');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    if (attrib == 'tabindex') {
-                        att = att + i;
-                    }
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            var valuesAry = (objValues[i].constructor != Array) ? [objValues[i], objValues[i]] : objValues[i];
-            newElem.setAttribute('value', valuesAry[0]);
-            newElem.checked = (objMarked.indexOf(valuesAry[1]) != -1);
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'check-span');
-            spanElem.innerHTML = valuesAry[1];
-
-            objChild.appendChild(spanElem);
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of checkbox elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependCheckbox : function(values, attribs, marked) {
-        return this.appendCheckbox(values, attribs, marked, true);
-    }
-});
 /**
  * append/input.js
  */
@@ -1563,27 +1522,6 @@ jax.extend({
     }
 });
 /**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
-    }
-});
-/**
  * children/child.js
  */
 jax.extend({
@@ -1676,6 +1614,27 @@ jax.extend({
         } else {
             return undefined;
         }
+    }
+});
+/**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
     }
 });
 /**
@@ -1938,6 +1897,62 @@ jax.extend({
     }
 });
 /**
+ * css/set.js
+ */
+jax.extend({
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle opacity
+                case 'opacity':
+                    obj.style.opacity = properties[prop] / 100;
+                    break;
+                // Handle cssFloat
+                case 'float':
+                    obj.style.cssFloat = properties[prop];
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
+    }
+});
+/**
+ * css/position.js
+ */
+jax.extend({
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
+    }
+});
+/**
  * css/dimensions.js
  */
 jax.extend({
@@ -2057,49 +2072,6 @@ jax.extend({
     }
 });
 /**
- * css/set.js
- */
-jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle opacity
-                case 'opacity':
-                    obj.style.opacity = properties[prop] / 100;
-                    break;
-                // Handle cssFloat
-                case 'float':
-                    obj.style.cssFloat = properties[prop];
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
-    }
-});
-/**
  * css/get.js
  */
 jax.extend({
@@ -2180,19 +2152,6 @@ jax.extend({
         }
 
         return sty;
-    }
-});
-/**
- * css/position.js
- */
-jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2509,43 +2468,47 @@ jax.extend({
 })(window);
 
 /**
- * filter/eq.js
+ * filter/lt.js
  */
 jax.extend({
     /**
-     * Function to reduce the collection to the single element at the index
+     * Function to filter the collection to the elements less than the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
+    lt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i < index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
         }
 
         return this;
     }
 });
 /**
- * filter/has.js
+ * filter/gt.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to elements that only contain the selector passed
+     * Function to filter the collection to the elements greater than the index
      *
-     * @param   {String} selector
+     * @param   {Number} index
      * @returns {jax}
      */
-    has : function(selector) {
+    gt : function(index) {
         var ary = [];
-        var x = window.jax(this.selector + ' ' + selector);
-        for (var i = 0; i < x.length; i++) {
-            for (var j = 0; j < this.length; j++) {
-                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
-                    ary.push(this[j]);
-                }
+        for (var i = 0; i < this.length; i++) {
+            if (i > index) {
+                ary.push(this[i]);
             }
         }
 
@@ -2593,20 +2556,23 @@ jax.extend({
     }
 });
 /**
- * filter/gt.js
+ * filter/has.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements greater than the index
+     * Function to filter the collection to elements that only contain the selector passed
      *
-     * @param   {Number} index
+     * @param   {String} selector
      * @returns {jax}
      */
-    gt : function(index) {
+    has : function(selector) {
         var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i > index) {
-                ary.push(this[i]);
+        var x = window.jax(this.selector + ' ' + selector);
+        for (var i = 0; i < x.length; i++) {
+            for (var j = 0; j < this.length; j++) {
+                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
+                    ary.push(this[j]);
+                }
             }
         }
 
@@ -2620,27 +2586,20 @@ jax.extend({
     }
 });
 /**
- * filter/lt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements less than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    lt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i < index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
         }
 
         return this;
