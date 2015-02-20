@@ -25,6 +25,8 @@ jax.extend({
             if (marked.constructor != Array) {
                 marked = [marked];
             }
+        } else {
+            marked = [];
         }
 
         // Create the child checkbox elements.

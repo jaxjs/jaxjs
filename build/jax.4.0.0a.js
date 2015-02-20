@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 19, 2015 13:59:50
+ * @build      Feb 20, 2015 17:08:58
  */
 (function(window){
     /**
@@ -1240,6 +1240,8 @@ jax.extend({
             if (marked.constructor != Array) {
                 marked = [marked];
             }
+        } else {
+            marked = [];
         }
 
         // Create the child checkbox elements.
