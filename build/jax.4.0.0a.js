@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 20, 2015 17:08:58
+ * @build      Feb 23, 2015 14:27:39
  */
 (function(window){
     /**
@@ -1233,7 +1233,7 @@ jax.extend({
 
         // Set the main child element.
         var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'check-box-fieldset');
+        objChild.setAttribute('class', 'checkbox-fieldset');
 
         // Set the elements that are marked/checked.
         if ((marked != undefined) && (marked != null)) {
@@ -1249,7 +1249,7 @@ jax.extend({
         for (var key in values) {
             var newElem = document.createElement('input');
             newElem.setAttribute('type', 'checkbox');
-            newElem.setAttribute('class', 'check-box');
+            newElem.setAttribute('class', 'checkbox');
 
             // Set any element attributes.
             if ((attribs != undefined) && (attribs != null)) {
@@ -1268,7 +1268,7 @@ jax.extend({
             objChild.appendChild(newElem);
 
             var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'check-span');
+            spanElem.setAttribute('class', 'checkbox-span');
             spanElem.innerHTML = values[key];
 
             objChild.appendChild(spanElem);
@@ -1316,14 +1316,14 @@ jax.extend({
 
         // Set the main child element.
         var objChild  = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-btn-fieldset');
+        objChild.setAttribute('class', 'radio-fieldset');
 
         // Create the child elements.
         var i = 0;
         for (var key in values) {
             var newElem = document.createElement('input');
             newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio-btn');
+            newElem.setAttribute('class', 'radio');
 
             // Set any element attributes.
             if ((attribs != undefined) && (attribs != null)) {

@@ -18,7 +18,7 @@ jax.extend({
 
         // Set the main child element.
         var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'check-box-fieldset');
+        objChild.setAttribute('class', 'checkbox-fieldset');
 
         // Set the elements that are marked/checked.
         if ((marked != undefined) && (marked != null)) {
@@ -34,7 +34,7 @@ jax.extend({
         for (var key in values) {
             var newElem = document.createElement('input');
             newElem.setAttribute('type', 'checkbox');
-            newElem.setAttribute('class', 'check-box');
+            newElem.setAttribute('class', 'checkbox');
 
             // Set any element attributes.
             if ((attribs != undefined) && (attribs != null)) {
@@ -53,7 +53,7 @@ jax.extend({
             objChild.appendChild(newElem);
 
             var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'check-span');
+            spanElem.setAttribute('class', 'checkbox-span');
             spanElem.innerHTML = values[key];
 
             objChild.appendChild(spanElem);

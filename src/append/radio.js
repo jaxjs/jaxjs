@@ -18,14 +18,14 @@ jax.extend({
 
         // Set the main child element.
         var objChild  = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-btn-fieldset');
+        objChild.setAttribute('class', 'radio-fieldset');
 
         // Create the child elements.
         var i = 0;
         for (var key in values) {
             var newElem = document.createElement('input');
             newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio-btn');
+            newElem.setAttribute('class', 'radio');
 
             // Set any element attributes.
             if ((attribs != undefined) && (attribs != null)) {
