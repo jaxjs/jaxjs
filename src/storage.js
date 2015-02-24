@@ -40,11 +40,16 @@
                     value[n] = v;
                 }
             } else {
-                var value = window.localStorage[name];
-                if ((value.indexOf('{') != -1) || (value.indexOf('[') != -1)) {
-                    value = JSON.parse(decodeURIComponent(value));
+                if (window.localStorage[name] != undefined) {
+                    var value = window.localStorage[name];
+                    if ((value.indexOf('{') != -1) || (value.indexOf('[') != -1)) {
+                        value = JSON.parse(decodeURIComponent(value));
+                    }
+                } else {
+                    var value = null;
                 }
             }
+
             return value;
         },
         /**

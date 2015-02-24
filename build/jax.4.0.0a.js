@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 23, 2015 14:27:39
+ * @build      Feb 24, 2015 14:55:51
  */
 (function(window){
     /**
@@ -4803,11 +4803,16 @@ jax.extend({
                     value[n] = v;
                 }
             } else {
-                var value = window.localStorage[name];
-                if ((value.indexOf('{') != -1) || (value.indexOf('[') != -1)) {
-                    value = JSON.parse(decodeURIComponent(value));
+                if (window.localStorage[name] != undefined) {
+                    var value = window.localStorage[name];
+                    if ((value.indexOf('{') != -1) || (value.indexOf('[') != -1)) {
+                        value = JSON.parse(decodeURIComponent(value));
+                    }
+                } else {
+                    var value = null;
                 }
             }
+
             return value;
         },
         /**
