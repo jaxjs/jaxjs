@@ -9,5 +9,5 @@ Release TBD
 OVERVIEW
 --------
 Jax JavaScript Library is a lightweight, robust JavaScript library.
-It is currently in early stages of development. Stay tuned! Test
+It is currently in early stages of development. Stay tuned!
 
