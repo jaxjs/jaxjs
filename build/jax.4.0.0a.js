@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 24, 2015 14:55:51
+ * @build      Apr 20, 2015 22:12:05
  */
 (function(window){
     /**
@@ -255,156 +255,18 @@
 })(window);
 
 /**
- * core/misc.js
+ * core/ready.js
  */
-(function(window){
-    /** Is value defined function */
-    window.jax.isDefined = function(value) {
-        return typeof value != 'undefined';
-    };
-
-    /** Is value undefined function */
-    window.jax.isUndefined = function(value) {
-        return typeof value == 'undefined';
-    };
-
-    /** Is value not null function */
-    window.jax.isNotNull = function(value) {
-        return value != null;
-    };
-
-    /** Is value null function */
-    window.jax.isNull = function(value) {
-        return value == null;
-    };
-
-    /** Is value boolean function */
-    window.jax.isBoolean = function(value) {
-        return typeof value == 'boolean';
-    };
-
-    /** Is value string function */
-    window.jax.isString = function(value) {
-        return typeof value == 'string';
-    };
-
-    /** Is value number function */
-    window.jax.isNumber = function(value) {
-        return typeof value == 'number';
-    };
-
-    /** Is value array function */
-    window.jax.isArray = function(value) {
-        return value.constructor == Array;
-    };
-
-    /** Is value date function */
-    window.jax.isDate = function(value) {
-        return value.constructor == Date;
-    };
-
-    /** Is value object function */
-    window.jax.isObject = function(value) {
-        return value.constructor == Object;
-    };
-
-    /** Is value function function */
-    window.jax.isFunction = function(value) {
-        return typeof value == 'function';
-    };
-
-    /** Is value window function */
-    window.jax.isWindow = function(value) {
-        return ((value != undefined) && (value.document != undefined) && (value.location  != undefined));
-    };
-
-    /** Is value element function */
-    window.jax.isElement = function(value) {
-        return ((value != undefined) && (value.nodeName != undefined));
-    };
-})(window);
-
-/**
- * core/timing.js
- */
-(function(window){
-    window.jax.tO = null;
-    window.jax.iN = null;
-
+jax.extend({
     /**
-     * Global delay function that uses setTimeout
+     * Function to trigger a function when the document object (implied) is loaded & ready.
      *
-     * @param {Number}   ms
      * @param {Function} func
      */
-    window.jax.delay = function(ms, func) {
-        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
-            throw 'You must pass a millisecond value.'
-        }
-        window.jax.tO = setTimeout(func, ms);
-    };
-
-    /**
-     * Global repeat function that uses setInterval
-     *
-     * @param {Number}   ms
-     * @param {Function} func
-     */
-    window.jax.repeat = function(ms, func) {
-        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
-            throw 'You must pass a millisecond value.'
-        }
-        window.jax.iN = setInterval(func, ms);
-    };
-
-    /** Function to clear out the global delay timeout function */
-    window.jax.clearDelay = function() {
-        clearTimeout(window.jax.tO);
-    };
-
-    /** Function to clear out the global repeat interval function */
-    window.jax.clearRepeat = function() {
-        clearInterval(window.jax.iN);
-    };
-})(window);
-/**
- * core/random.js
- */
-(function(window){
-    /**
-     * Function to generate a random number between two numbers
-     *
-     * @param   {Number} num1
-     * @param   {Number} num2
-     * @returns {Number}
-     */
-    window.jax.rand   = null;
-    window.jax.random = function(num1, num2) {
-        var range;
-        var rand;
-
-        if ((num1 < 0) && (num2 < 0)) {
-            range = Math.abs(num1 - num2);
-        } else if ((num1 < 0) && (num2 >= 0)) {
-            range = Math.abs(num2 - num1);
-        } else {
-            range = num2 - num1;
-        }
-
-        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
-            window.jax.rand = [];
-        }
-
-        rand = Math.floor(Math.random() * (range + 1)) + num1;
-        while (window.jax.rand.indexOf(rand) != -1) {
-            rand = Math.floor(Math.random() * (range + 1)) + num1;
-        }
-
-        window.jax.rand.push(rand);
-        return rand;
-    };
-})(window);
-
+    ready : function(func) {
+        document.addEventListener('DOMContentLoaded', func, false);
+    }
+});
 /**
  * core/query.js
  */
@@ -549,40 +411,63 @@
 })(window);
 
 /**
- * core/ready.js
- */
-jax.extend({
-    /**
-     * Function to trigger a function when the document object (implied) is loaded & ready.
-     *
-     * @param {Function} func
-     */
-    ready : function(func) {
-        document.addEventListener('DOMContentLoaded', func, false);
-    }
-});
-/**
- * core/import.js
+ * core/target.js
  */
 (function(window){
-    /** Function to import variables passed into JS files via a query-string */
-    window.jax.importVars = function() {
-        var scripts = document.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].src != undefined) {
-                if (scripts[i].src.indexOf('.js?') != -1) {
-                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
-                    var varsAry = vars.split('&');
-                    for (var j = 0; j < varsAry.length; j++) {
-                        if (varsAry[j].indexOf('=') != -1) {
-                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
-                        }
-                    }
-                }
-            }
+    /**
+     * Function to the target identifier of the document's URI
+     *
+     * @param   {String} u
+     * @returns {String}
+     */
+    window.jax.target = function(u) {
+        var url = (u != null) ? u : location.href;
+        var target = null;
+        if (url.indexOf('#') != -1) {
+            target = url.substring(url.indexOf('#') + 1);
         }
+        return target;
     };
 })(window);
+
+/**
+ * core/random.js
+ */
+(function(window){
+    /**
+     * Function to generate a random number between two numbers
+     *
+     * @param   {Number} num1
+     * @param   {Number} num2
+     * @returns {Number}
+     */
+    window.jax.rand   = null;
+    window.jax.random = function(num1, num2) {
+        var range;
+        var rand;
+
+        if ((num1 < 0) && (num2 < 0)) {
+            range = Math.abs(num1 - num2);
+        } else if ((num1 < 0) && (num2 >= 0)) {
+            range = Math.abs(num2 - num1);
+        } else {
+            range = num2 - num1;
+        }
+
+        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
+            window.jax.rand = [];
+        }
+
+        rand = Math.floor(Math.random() * (range + 1)) + num1;
+        while (window.jax.rand.indexOf(rand) != -1) {
+            rand = Math.floor(Math.random() * (range + 1)) + num1;
+        }
+
+        window.jax.rand.push(rand);
+        return rand;
+    };
+})(window);
+
 /**
  * core/remove.js
  */
@@ -618,25 +503,140 @@ jax.extend({
     }
 });
 /**
- * core/target.js
+ * core/timing.js
  */
 (function(window){
+    window.jax.tO = null;
+    window.jax.iN = null;
+
     /**
-     * Function to the target identifier of the document's URI
+     * Global delay function that uses setTimeout
      *
-     * @param   {String} u
-     * @returns {String}
+     * @param {Number}   ms
+     * @param {Function} func
      */
-    window.jax.target = function(u) {
-        var url = (u != null) ? u : location.href;
-        var target = null;
-        if (url.indexOf('#') != -1) {
-            target = url.substring(url.indexOf('#') + 1);
+    window.jax.delay = function(ms, func) {
+        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
+            throw 'You must pass a millisecond value.'
         }
-        return target;
+        window.jax.tO = setTimeout(func, ms);
+    };
+
+    /**
+     * Global repeat function that uses setInterval
+     *
+     * @param {Number}   ms
+     * @param {Function} func
+     */
+    window.jax.repeat = function(ms, func) {
+        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
+            throw 'You must pass a millisecond value.'
+        }
+        window.jax.iN = setInterval(func, ms);
+    };
+
+    /** Function to clear out the global delay timeout function */
+    window.jax.clearDelay = function() {
+        clearTimeout(window.jax.tO);
+    };
+
+    /** Function to clear out the global repeat interval function */
+    window.jax.clearRepeat = function() {
+        clearInterval(window.jax.iN);
+    };
+})(window);
+/**
+ * core/misc.js
+ */
+(function(window){
+    /** Is value defined function */
+    window.jax.isDefined = function(value) {
+        return typeof value != 'undefined';
+    };
+
+    /** Is value undefined function */
+    window.jax.isUndefined = function(value) {
+        return typeof value == 'undefined';
+    };
+
+    /** Is value not null function */
+    window.jax.isNotNull = function(value) {
+        return value != null;
+    };
+
+    /** Is value null function */
+    window.jax.isNull = function(value) {
+        return value == null;
+    };
+
+    /** Is value boolean function */
+    window.jax.isBoolean = function(value) {
+        return typeof value == 'boolean';
+    };
+
+    /** Is value string function */
+    window.jax.isString = function(value) {
+        return typeof value == 'string';
+    };
+
+    /** Is value number function */
+    window.jax.isNumber = function(value) {
+        return typeof value == 'number';
+    };
+
+    /** Is value array function */
+    window.jax.isArray = function(value) {
+        return value.constructor == Array;
+    };
+
+    /** Is value date function */
+    window.jax.isDate = function(value) {
+        return value.constructor == Date;
+    };
+
+    /** Is value object function */
+    window.jax.isObject = function(value) {
+        return value.constructor == Object;
+    };
+
+    /** Is value function function */
+    window.jax.isFunction = function(value) {
+        return typeof value == 'function';
+    };
+
+    /** Is value window function */
+    window.jax.isWindow = function(value) {
+        return ((value != undefined) && (value.document != undefined) && (value.location  != undefined));
+    };
+
+    /** Is value element function */
+    window.jax.isElement = function(value) {
+        return ((value != undefined) && (value.nodeName != undefined));
     };
 })(window);
 
+/**
+ * core/import.js
+ */
+(function(window){
+    /** Function to import variables passed into JS files via a query-string */
+    window.jax.importVars = function() {
+        var scripts = document.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src != undefined) {
+                if (scripts[i].src.indexOf('.js?') != -1) {
+                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
+                    var varsAry = vars.split('&');
+                    for (var j = 0; j < varsAry.length; j++) {
+                        if (varsAry[j].indexOf('=') != -1) {
+                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
+                        }
+                    }
+                }
+            }
+        }
+    };
+})(window);
 /**
  * ajax.js
  */
@@ -729,6 +729,106 @@ jax.extend({
         } else {
             window.jax.requests[index].send(data);
             return window.jax.parseResponse(window.jax.getResponse(index), fields, type, delim, async, trace);
+        }
+    };
+})(window);
+
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a GET AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.get = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'get'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
+            opts.method = 'get';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+
+/**
+ * ajax/http.js
+ */
+(function(window){
+    window.jax.http = {
+        /**
+         * Function to get the HTTP request status of a URL
+         *
+         * @param   {String} url
+         * @returns {Number}
+         */
+        getStatus : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status;
+        },
+        /**
+         * Function to determine if the HTTP request is successful
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isSuccess : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 3) || (type == 2) || (type == 1));
+        },
+        /**
+         * Function to determine if the HTTP request is a redirect
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isRedirect : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return (type == 3);
+        },
+        /**
+         * Function to determine if the HTTP request is an error
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isError : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 5) || (type == 4));
         }
     };
 })(window);
@@ -1020,106 +1120,6 @@ jax.extend({
 })(window);
 
 /**
- * ajax/http.js
- */
-(function(window){
-    window.jax.http = {
-        /**
-         * Function to get the HTTP request status of a URL
-         *
-         * @param   {String} url
-         * @returns {Number}
-         */
-        getStatus : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            return http.status;
-        },
-        /**
-         * Function to determine if the HTTP request is successful
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isSuccess : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 3) || (type == 2) || (type == 1));
-        },
-        /**
-         * Function to determine if the HTTP request is a redirect
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isRedirect : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return (type == 3);
-        },
-        /**
-         * Function to determine if the HTTP request is an error
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isError : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 5) || (type == 4));
-        }
-    };
-})(window);
-
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a GET AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.get = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'get'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
-            opts.method = 'get';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-
-/**
  * append.js
  */
 jax.extend({
@@ -1185,115 +1185,6 @@ jax.extend({
      */
     prepend : function(type, attribs, value) {
         return this.append(type, attribs, value, true)
-    }
-});
-/**
- * append/textarea.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new textarea element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {String}  value
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendTextarea : function(attribs, value, pre) {
-        return this.append('textarea', attribs, value, pre);
-    },
-    /**
-     * Alias function to prepend a new textarea element to the current element
-     *
-     * @param   {Object} attribs
-     * @param   {String} value
-     * @returns {jax}
-     */
-    prependTextarea : function(attribs, value) {
-        return this.append('textarea', attribs, value, true);
-    }
-});
-/**
- * append/checkbox.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of checkbox elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {Mixed}   marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendCheckbox : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'checkbox-fieldset');
-
-        // Set the elements that are marked/checked.
-        if ((marked != undefined) && (marked != null)) {
-            if (marked.constructor != Array) {
-                marked = [marked];
-            }
-        } else {
-            marked = [];
-        }
-
-        // Create the child checkbox elements.
-        var i = 0;
-        for (var key in values) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'checkbox');
-            newElem.setAttribute('class', 'checkbox');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    if (attrib == 'tabindex') {
-                        att = att + i;
-                    }
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            newElem.setAttribute('value', key);
-            newElem.checked = (marked.indexOf(key) != -1);
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'checkbox-span');
-            spanElem.innerHTML = values[key];
-
-            objChild.appendChild(spanElem);
-            i++;
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of checkbox elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependCheckbox : function(values, attribs, marked) {
-        return this.appendCheckbox(values, attribs, marked, true);
     }
 });
 /**
@@ -1371,6 +1262,32 @@ jax.extend({
      */
     prependRadio : function(values, attribs, marked) {
         return this.appendRadio(values, attribs, marked, true);
+    }
+});
+/**
+ * append/textarea.js
+ */
+jax.extend({
+    /**
+     * Alias function to append a new textarea element to the current element
+     *
+     * @param   {Object}  attribs
+     * @param   {String}  value
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendTextarea : function(attribs, value, pre) {
+        return this.append('textarea', attribs, value, pre);
+    },
+    /**
+     * Alias function to prepend a new textarea element to the current element
+     *
+     * @param   {Object} attribs
+     * @param   {String} value
+     * @returns {jax}
+     */
+    prependTextarea : function(attribs, value) {
+        return this.append('textarea', attribs, value, true);
     }
 });
 /**
@@ -1581,6 +1498,89 @@ jax.extend({
         return vals;
     };
 })(window);
+/**
+ * append/checkbox.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of checkbox elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {Mixed}   marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendCheckbox : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objChild = document.createElement('fieldset');
+        objChild.setAttribute('class', 'checkbox-fieldset');
+
+        // Set the elements that are marked/checked.
+        if ((marked != undefined) && (marked != null)) {
+            if (marked.constructor != Array) {
+                marked = [marked];
+            }
+        } else {
+            marked = [];
+        }
+
+        // Create the child checkbox elements.
+        var i = 0;
+        for (var key in values) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'checkbox');
+            newElem.setAttribute('class', 'checkbox');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            newElem.setAttribute('value', key);
+            newElem.checked = (marked.indexOf(key) != -1);
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'checkbox-span');
+            spanElem.innerHTML = values[key];
+
+            objChild.appendChild(spanElem);
+            i++;
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of checkbox elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependCheckbox : function(values, attribs, marked) {
+        return this.appendCheckbox(values, attribs, marked, true);
+    }
+});
 /**
  * append/input.js
  */
@@ -1847,6 +1847,27 @@ jax.extend({
 })(window);
 
 /**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
+/**
  * children/child.js
  */
 jax.extend({
@@ -1939,27 +1960,6 @@ jax.extend({
         } else {
             return undefined;
         }
-    }
-});
-/**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
     }
 });
 /**
@@ -2222,62 +2222,6 @@ jax.extend({
     }
 });
 /**
- * css/set.js
- */
-jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle opacity
-                case 'opacity':
-                    obj.style.opacity = properties[prop] / 100;
-                    break;
-                // Handle cssFloat
-                case 'float':
-                    obj.style.cssFloat = properties[prop];
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
-    }
-});
-/**
- * css/position.js
- */
-jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
-    }
-});
-/**
  * css/dimensions.js
  */
 jax.extend({
@@ -2397,6 +2341,49 @@ jax.extend({
     }
 });
 /**
+ * css/set.js
+ */
+jax.extend({
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle opacity
+                case 'opacity':
+                    obj.style.opacity = properties[prop] / 100;
+                    break;
+                // Handle cssFloat
+                case 'float':
+                    obj.style.cssFloat = properties[prop];
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
+    }
+});
+/**
  * css/get.js
  */
 jax.extend({
@@ -2477,6 +2464,19 @@ jax.extend({
         }
 
         return sty;
+    }
+});
+/**
+ * css/position.js
+ */
+jax.extend({
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2571,7 +2571,7 @@ jax.extend({
             disp = 'block';
         }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = (this[i].style.display == 'none') ? disp : 'none';
+            this[i].style.display = (window.jax(this[i]).css('display') == 'none') ? disp : 'none';
         }
         return this;
     },
@@ -2583,71 +2583,6 @@ jax.extend({
      */
     delay : function(ms) {
         this.delayTime = ((ms != null) && (typeof ms == 'number') && (!isNaN(ms))) ? ms : 0;
-        return this;
-    }
-});
-/**
- * effects/scroll.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'scrollX'
-     *
-     * @param   {Mixed}  x
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    scrollX : function(x, opts) {
-        if (this.length > 0) {
-            if ((this.delayTime) && (this.delayTime > 0)) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
-            } else {
-                this.animate(['scrollX', {"x" : x}], opts);
-            }
-        }
-        return this;
-    },
-    /**
-     * Alias function to animate selected elements via 'scrollY'
-     *
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    scrollY : function(y, opts) {
-        if (this.length > 0) {
-            if ((this.delayTime) && (this.delayTime > 0)) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['scrollY', {"y" : y}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/slide.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'slide'
-     *
-     * @param   {Mixed}  x
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    slide : function(x, y, opts) {
-        if (this.length > 0) {
-            if ((this.delayTime) && (this.delayTime > 0)) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['slide', {"x" : x, "y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['slide', {"x" : x, "y" : y}], opts);
-            }
-        }
         return this;
     }
 });
@@ -2996,216 +2931,69 @@ jax.extend({
     }
 });
 /**
- * effects/tween.js
+ * effects/fade.js
  */
-(function(window){
+jax.extend({
     /**
-     * Create the tween object and functions under the main jax object.
+     * Alias function to animate selected elements via 'fade'
      *
-     * Tween object and functions, based on Robert Penner's base easing functions (http://www.robertpenner.com/easing/)
-     * and George McGinley's extended easing functions (https://github.com/danro/jquery-easing/blob/master/jquery.easing.js)
+     * @param   {Mixed}  o
+     * @param   {Object} opts
+     * @returns {jax}
      */
-    window.jax.tween = {
-        /** Function to calculate a linear tween step */
-        linear : function(curStep, start, end, totalSteps) {
-            return (end * (curStep / totalSteps)) + start;
-        },
-        /** Tween ease-in object */
-        easein : {
-            /** Function to calculate a quadratic easing-in tween step */
-            quad  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep) + start;
-            },
-            /** Function to calculate a cubic easing-in tween step */
-            cubic : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep * curStep) + start;
-            },
-            /** Function to calculate a quartic easing-in tween step */
-            quart : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep * curStep * curStep) + start;
-            },
-            /** Function to calculate a quintic easing-in tween step */
-            quint : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (end * curStep * curStep * curStep * curStep * curStep) + start;
-            },
-            /** Function to calculate a sinusoidal easing-in tween step */
-            sine  : function(curStep, start, end, totalSteps) {
-                return (-end * Math.cos(curStep / totalSteps * (Math.PI / 2))) + end + start;
-            },
-            /** Function to calculate an exponential easing-in tween step */
-            expo  : function(curStep, start, end, totalSteps) {
-                return (end * Math.pow(2, 10 * (curStep / totalSteps - 1))) + start;
-            },
-            /** Function to calculate a circular easing-in tween step */
-            circ  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (-end * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
-            },
-            /** Function to calculate an elastic easing-in tween step */
-            elastic : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                var p = 0;
-                var a = end;
-                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
-                if (a < Math.abs(end)) { a = end; var s = p / 4; }
-                else var s = p / (2 * Math.PI) * Math.asin(end / a);
-                return -(a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
-            },
-            /** Function to calculate a back easing-in tween step */
-            back : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                return end * (curStep /= totalSteps) * curStep *((s + 1) * curStep - s) + start;
-            },
-            /** Function to calculate a bounce easing-in tween step */
-            bounce : function(curStep, start, end, totalSteps) {
-                return end - window.jax.tween.easeout.bounce((totalSteps - curStep), 0, end, totalSteps) + start;
-            }
-        },
-        /** Tween ease-out object */
-        easeout : {
-            /** Function to calculate a quadratic easing-out tween step */
-            quad  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                return (-end * curStep * (curStep - 2)) + start;
-            },
-            /** Function to calculate a cubic easing-out tween step */
-            cubic : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (end *(curStep * curStep * curStep + 1)) + start;
-            },
-            /** Function to calculate a quartic easing-out tween step */
-            quart : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (-end * (curStep * curStep * curStep * curStep - 1)) + start;
-            },
-            /** Function to calculate a quintic easing-out tween step */
-            quint : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (end * ((curStep * curStep * curStep * curStep * curStep) + 1)) + start;
-            },
-            /** Function to calculate a sinusoidal easing-out tween step */
-            sine  : function(curStep, start, end, totalSteps) {
-                return (end * Math.sin(curStep / totalSteps * (Math.PI / 2))) + start;
-            },
-            /** Function to calculate an exponential easing-out tween step */
-            expo  : function(curStep, start, end, totalSteps) {
-                return (end * (-Math.pow(2, -10 * curStep / totalSteps) + 1)) + start;
-            },
-            /** Function to calculate a circular easing-out tween step */
-            circ  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps;
-                curStep--;
-                return (end * Math.sqrt(1 - (curStep * curStep))) + start;
-            },
-            /** Function to calculate an elastic easing-out tween step */
-            elastic : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                var p = 0;
-                var a = end;
-                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
-                if (a < Math.abs(end)) { a = end; var s = p / 4; }
-                else var s = p / (2 * Math.PI) * Math.asin(end / a);
-                return a * Math.pow(2, -10 * curStep) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) + end + start;
-            },
-            /** Function to calculate a back easing-out tween step */
-            back : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                return end * ((curStep = curStep / totalSteps - 1) * curStep * ((s + 1) * curStep + s) + 1) + start;
-            },
-            /** Function to calculate a bounce easing-out tween step */
-            bounce : function(curStep, start, end, totalSteps) {
-                if ((curStep /= totalSteps) < (1/2.75)) {
-                    return end * (7.5625 * curStep * curStep) + start;
-                } else if (curStep < (2 / 2.75)) {
-                    return end * (7.5625 * (curStep -= (1.5/2.75)) * curStep + .75) + start;
-                } else if (curStep < (2.5/2.75)) {
-                    return end * (7.5625 * (curStep -= (2.25/2.75)) * curStep + .9375) + start;
-                } else {
-                    return end * (7.5625 * (curStep -= (2.625/2.75)) * curStep + .984375) + start;
-                }
-            }
-        },
-        /** Tween ease-in-out object */
-        easeinout : {
-            /** Function to calculate a quadratic easing-in-out tween step */
-            quad  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep) + start;
-                curStep--;
-                return (-end / 2 * (curStep * (curStep - 2) - 1)) + start;
-            },
-            /** Function to calculate a cubic easing-in-out tween step */
-            cubic : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep) + start;
-                curStep -= 2;
-                return ((end / 2) * (curStep * curStep * curStep + 2)) + start;
-            },
-            /** Function to calculate a quartic easing-in-out tween step */
-            quart : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep) + start;
-                curStep -= 2;
-                return ((-end / 2) * (curStep * curStep * curStep * curStep - 2)) + start;
-            },
-            /** Function to calculate a quintic easing-in-out tween step */
-            quint : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep * curStep) + start;
-                curStep -= 2;
-                return ((end / 2) * ((curStep * curStep * curStep * curStep * curStep) + 2)) + start;
-            },
-            /** Function to calculate a sinusoidal easing-in-out tween step */
-            sine  : function(curStep, start, end, totalSteps) {
-                return ((-end / 2) * (Math.cos(Math.PI * curStep / totalSteps) - 1)) + start;
-            },
-            /** Function to calculate an exponential easing-in-out tween step */
-            expo  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((end / 2) * Math.pow(2, 10 * (curStep - 1))) + start;
-                curStep--;
-                return ((end / 2) * (-Math.pow(2, -10 * curStep) + 2)) + start;
-            },
-            /** Function to calculate a circular easing-in-out tween step */
-            circ  : function(curStep, start, end, totalSteps) {
-                curStep /= totalSteps / 2;
-                if (curStep < 1) return ((-end / 2) * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
-                curStep -= 2;
-                return ((end / 2) * (Math.sqrt(1 - (curStep * curStep)) + 1)) + start;
-            },
-            /** Function to calculate an elastic easing-in-out tween step */
-            elastic  : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                var p = 0;
-                var a = end;
-                if (curStep == 0) return start;  if ((curStep /= totalSteps / 2) == 2) return start + end;  if (!p) p = totalSteps * (.3 * 1.5);
-                if (a < Math.abs(end)) { a = end; var s = p/4; }
-                else var s = p / (2 * Math.PI) * Math.asin(end / a);
-                if (curStep < 1) return -.5 * (a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
-                return a * Math.pow(2, -10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) * .5 + end + start;
-            },
-            /** Function to calculate a back easing-in-out tween step */
-            back : function(curStep, start, end, totalSteps) {
-                var s = 1.70158;
-                if ((curStep /= totalSteps / 2) < 1) return end / 2 * (curStep * curStep * (((s *= (1.525)) + 1) * curStep - s)) + start;
-                return end / 2 * ((curStep -= 2) * curStep * (((s *= (1.525)) + 1) * curStep + s) + 2) + start;
-            },
-            /** Function to calculate a bounce easing-in-out tween step */
-            bounce : function(curStep, start, end, totalSteps) {
-                if (curStep < totalSteps / 2) return window.jax.tween.easeout.bounce((curStep * 2), 0, end, totalSteps) * .5 + start;
-                return window.jax.tween.easeout.bounce(((curStep * 2) - totalSteps), 0, end, totalSteps) * .5 + end * .5 + start;
+    fade : function(o, opts) {
+        if (this.length > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
+            } else {
+                this.animate(['fade', {"o" : o}], opts);
             }
         }
-    };
-})(window);
-
+        return this;
+    }
+});
+/**
+ * effects/scroll.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'scrollX'
+     *
+     * @param   {Mixed}  x
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    scrollX : function(x, opts) {
+        if (this.length > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['scrollX', {"x" : x}], opts);}, this.delayTime);
+            } else {
+                this.animate(['scrollX', {"x" : x}], opts);
+            }
+        }
+        return this;
+    },
+    /**
+     * Alias function to animate selected elements via 'scrollY'
+     *
+     * @param   {Mixed}  y
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    scrollY : function(y, opts) {
+        if (this.length > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['scrollY', {"y" : y}], opts);}, this.delayTime);
+            } else {
+                this.animate(['scrollY', {"y" : y}], opts);
+            }
+        }
+        return this;
+    }
+});
 /**
  * effects/animate.js
  */
@@ -3528,28 +3316,240 @@ jax.extend({
     }
 });
 /**
- * effects/fade.js
+ * effects/slide.js
  */
 jax.extend({
     /**
-     * Alias function to animate selected elements via 'fade'
+     * Alias function to animate selected elements via 'slide'
      *
-     * @param   {Mixed}  o
+     * @param   {Mixed}  x
+     * @param   {Mixed}  y
      * @param   {Object} opts
      * @returns {jax}
      */
-    fade : function(o, opts) {
+    slide : function(x, y, opts) {
         if (this.length > 0) {
             if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
-                var tO = setTimeout(function() {self.animate(['fade', {"o" : o}], opts);}, this.delayTime);
+                var tO = setTimeout(function() {self.animate(['slide', {"x" : x, "y" : y}], opts);}, this.delayTime);
             } else {
-                this.animate(['fade', {"o" : o}], opts);
+                this.animate(['slide', {"x" : x, "y" : y}], opts);
             }
         }
         return this;
     }
 });
+/**
+ * effects/tween.js
+ */
+(function(window){
+    /**
+     * Create the tween object and functions under the main jax object.
+     *
+     * Tween object and functions, based on Robert Penner's base easing functions (http://www.robertpenner.com/easing/)
+     * and George McGinley's extended easing functions (https://github.com/danro/jquery-easing/blob/master/jquery.easing.js)
+     */
+    window.jax.tween = {
+        /** Function to calculate a linear tween step */
+        linear : function(curStep, start, end, totalSteps) {
+            return (end * (curStep / totalSteps)) + start;
+        },
+        /** Tween ease-in object */
+        easein : {
+            /** Function to calculate a quadratic easing-in tween step */
+            quad  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep) + start;
+            },
+            /** Function to calculate a cubic easing-in tween step */
+            cubic : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep * curStep) + start;
+            },
+            /** Function to calculate a quartic easing-in tween step */
+            quart : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep * curStep * curStep) + start;
+            },
+            /** Function to calculate a quintic easing-in tween step */
+            quint : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (end * curStep * curStep * curStep * curStep * curStep) + start;
+            },
+            /** Function to calculate a sinusoidal easing-in tween step */
+            sine  : function(curStep, start, end, totalSteps) {
+                return (-end * Math.cos(curStep / totalSteps * (Math.PI / 2))) + end + start;
+            },
+            /** Function to calculate an exponential easing-in tween step */
+            expo  : function(curStep, start, end, totalSteps) {
+                return (end * Math.pow(2, 10 * (curStep / totalSteps - 1))) + start;
+            },
+            /** Function to calculate a circular easing-in tween step */
+            circ  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (-end * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
+            },
+            /** Function to calculate an elastic easing-in tween step */
+            elastic : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                var p = 0;
+                var a = end;
+                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
+                if (a < Math.abs(end)) { a = end; var s = p / 4; }
+                else var s = p / (2 * Math.PI) * Math.asin(end / a);
+                return -(a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
+            },
+            /** Function to calculate a back easing-in tween step */
+            back : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                return end * (curStep /= totalSteps) * curStep *((s + 1) * curStep - s) + start;
+            },
+            /** Function to calculate a bounce easing-in tween step */
+            bounce : function(curStep, start, end, totalSteps) {
+                return end - window.jax.tween.easeout.bounce((totalSteps - curStep), 0, end, totalSteps) + start;
+            }
+        },
+        /** Tween ease-out object */
+        easeout : {
+            /** Function to calculate a quadratic easing-out tween step */
+            quad  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                return (-end * curStep * (curStep - 2)) + start;
+            },
+            /** Function to calculate a cubic easing-out tween step */
+            cubic : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (end *(curStep * curStep * curStep + 1)) + start;
+            },
+            /** Function to calculate a quartic easing-out tween step */
+            quart : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (-end * (curStep * curStep * curStep * curStep - 1)) + start;
+            },
+            /** Function to calculate a quintic easing-out tween step */
+            quint : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (end * ((curStep * curStep * curStep * curStep * curStep) + 1)) + start;
+            },
+            /** Function to calculate a sinusoidal easing-out tween step */
+            sine  : function(curStep, start, end, totalSteps) {
+                return (end * Math.sin(curStep / totalSteps * (Math.PI / 2))) + start;
+            },
+            /** Function to calculate an exponential easing-out tween step */
+            expo  : function(curStep, start, end, totalSteps) {
+                return (end * (-Math.pow(2, -10 * curStep / totalSteps) + 1)) + start;
+            },
+            /** Function to calculate a circular easing-out tween step */
+            circ  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps;
+                curStep--;
+                return (end * Math.sqrt(1 - (curStep * curStep))) + start;
+            },
+            /** Function to calculate an elastic easing-out tween step */
+            elastic : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                var p = 0;
+                var a = end;
+                if (curStep == 0) return start;  if ((curStep /= totalSteps) == 1) return start + end;  if (!p) p = totalSteps * .3;
+                if (a < Math.abs(end)) { a = end; var s = p / 4; }
+                else var s = p / (2 * Math.PI) * Math.asin(end / a);
+                return a * Math.pow(2, -10 * curStep) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) + end + start;
+            },
+            /** Function to calculate a back easing-out tween step */
+            back : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                return end * ((curStep = curStep / totalSteps - 1) * curStep * ((s + 1) * curStep + s) + 1) + start;
+            },
+            /** Function to calculate a bounce easing-out tween step */
+            bounce : function(curStep, start, end, totalSteps) {
+                if ((curStep /= totalSteps) < (1/2.75)) {
+                    return end * (7.5625 * curStep * curStep) + start;
+                } else if (curStep < (2 / 2.75)) {
+                    return end * (7.5625 * (curStep -= (1.5/2.75)) * curStep + .75) + start;
+                } else if (curStep < (2.5/2.75)) {
+                    return end * (7.5625 * (curStep -= (2.25/2.75)) * curStep + .9375) + start;
+                } else {
+                    return end * (7.5625 * (curStep -= (2.625/2.75)) * curStep + .984375) + start;
+                }
+            }
+        },
+        /** Tween ease-in-out object */
+        easeinout : {
+            /** Function to calculate a quadratic easing-in-out tween step */
+            quad  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep) + start;
+                curStep--;
+                return (-end / 2 * (curStep * (curStep - 2) - 1)) + start;
+            },
+            /** Function to calculate a cubic easing-in-out tween step */
+            cubic : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep) + start;
+                curStep -= 2;
+                return ((end / 2) * (curStep * curStep * curStep + 2)) + start;
+            },
+            /** Function to calculate a quartic easing-in-out tween step */
+            quart : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep) + start;
+                curStep -= 2;
+                return ((-end / 2) * (curStep * curStep * curStep * curStep - 2)) + start;
+            },
+            /** Function to calculate a quintic easing-in-out tween step */
+            quint : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * curStep * curStep * curStep * curStep * curStep) + start;
+                curStep -= 2;
+                return ((end / 2) * ((curStep * curStep * curStep * curStep * curStep) + 2)) + start;
+            },
+            /** Function to calculate a sinusoidal easing-in-out tween step */
+            sine  : function(curStep, start, end, totalSteps) {
+                return ((-end / 2) * (Math.cos(Math.PI * curStep / totalSteps) - 1)) + start;
+            },
+            /** Function to calculate an exponential easing-in-out tween step */
+            expo  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((end / 2) * Math.pow(2, 10 * (curStep - 1))) + start;
+                curStep--;
+                return ((end / 2) * (-Math.pow(2, -10 * curStep) + 2)) + start;
+            },
+            /** Function to calculate a circular easing-in-out tween step */
+            circ  : function(curStep, start, end, totalSteps) {
+                curStep /= totalSteps / 2;
+                if (curStep < 1) return ((-end / 2) * (Math.sqrt(1 - (curStep * curStep)) - 1)) + start;
+                curStep -= 2;
+                return ((end / 2) * (Math.sqrt(1 - (curStep * curStep)) + 1)) + start;
+            },
+            /** Function to calculate an elastic easing-in-out tween step */
+            elastic  : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                var p = 0;
+                var a = end;
+                if (curStep == 0) return start;  if ((curStep /= totalSteps / 2) == 2) return start + end;  if (!p) p = totalSteps * (.3 * 1.5);
+                if (a < Math.abs(end)) { a = end; var s = p/4; }
+                else var s = p / (2 * Math.PI) * Math.asin(end / a);
+                if (curStep < 1) return -.5 * (a * Math.pow(2, 10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p)) + start;
+                return a * Math.pow(2, -10 * (curStep -= 1)) * Math.sin((curStep * totalSteps - s) * (2 * Math.PI) / p) * .5 + end + start;
+            },
+            /** Function to calculate a back easing-in-out tween step */
+            back : function(curStep, start, end, totalSteps) {
+                var s = 1.70158;
+                if ((curStep /= totalSteps / 2) < 1) return end / 2 * (curStep * curStep * (((s *= (1.525)) + 1) * curStep - s)) + start;
+                return end / 2 * ((curStep -= 2) * curStep * (((s *= (1.525)) + 1) * curStep + s) + 2) + start;
+            },
+            /** Function to calculate a bounce easing-in-out tween step */
+            bounce : function(curStep, start, end, totalSteps) {
+                if (curStep < totalSteps / 2) return window.jax.tween.easeout.bounce((curStep * 2), 0, end, totalSteps) * .5 + start;
+                return window.jax.tween.easeout.bounce(((curStep * 2) - totalSteps), 0, end, totalSteps) * .5 + end * .5 + start;
+            }
+        }
+    };
+})(window);
+
 /**
  * event.js
  */
@@ -3628,176 +3628,6 @@ jax.extend({
     }
 });
 /**
- * event/scroll.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onscroll of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    scroll : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onscroll = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/submit.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onsubmit of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    submit : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onsubmit = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/focus.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onfocus of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    focus : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onfocus = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/touch.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the touchcancel of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchcancel : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchcancel', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchend of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchend : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchend', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchenter', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchleave of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchleave : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchleave', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchmove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchmove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchmove', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchstart of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchstart : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchstart', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
  * event/key.js
  */
 jax.extend({
@@ -3845,160 +3675,19 @@ jax.extend({
     }
 });
 /**
- * event/blur.js
+ * event/focus.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onblur of an object
+     * Function to attach a event to the onfocus of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    blur : function(func) {
+    focus : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onblur = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/mouse.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onmousedown of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mousedown : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmousedown = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseenter = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseleave of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseleave : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseleave = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmousemove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mousemove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmousemove = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseout of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseout : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseout = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseover of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseover : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseover = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseup of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseup : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseup = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/change.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onchange of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    change : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onchange = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/select.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onselect of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    select : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onselect = func;
+                this[i].onfocus = func;
             }
         }
         return this;
@@ -4214,6 +3903,241 @@ jax.extend({
     }
 });
 /**
+ * event/select.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onselect of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    select : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onselect = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/touch.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the touchcancel of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchcancel : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchcancel', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchend of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchend : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchend', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchenter', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchleave of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchleave : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchleave', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchmove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchmove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchmove', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchstart of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchstart : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchstart', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouse.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmousedown of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mousedown : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmousedown = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseenter = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseleave of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseleave : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseleave = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmousemove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mousemove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmousemove = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseout of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseout : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseout = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseover of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseover : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseover = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseup of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseup : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseup = func;
+            }
+        }
+        return this;
+    }
+});
+/**
  * event/click.js
  */
 jax.extend({
@@ -4227,6 +4151,63 @@ jax.extend({
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
                 this[i].onclick = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/scroll.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onscroll of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    scroll : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onscroll = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/change.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onchange of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    change : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onchange = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/blur.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onblur of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    blur : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onblur = func;
             }
         }
         return this;
@@ -4248,6 +4229,25 @@ jax.extend({
             for (var i = 0; i < this.length; i++) {
                 this[i].onmouseover = func1;
                 this[i].onmouseout  = func2;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/submit.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onsubmit of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    submit : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onsubmit = func;
             }
         }
         return this;
@@ -4383,47 +4383,43 @@ jax.extend({
 })(window);
 
 /**
- * filter/lt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements less than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    lt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i < index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
         }
 
         return this;
     }
 });
 /**
- * filter/gt.js
+ * filter/has.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements greater than the index
+     * Function to filter the collection to elements that only contain the selector passed
      *
-     * @param   {Number} index
+     * @param   {String} selector
      * @returns {jax}
      */
-    gt : function(index) {
+    has : function(selector) {
         var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i > index) {
-                ary.push(this[i]);
+        var x = window.jax(this.selector + ' ' + selector);
+        for (var i = 0; i < x.length; i++) {
+            for (var j = 0; j < this.length; j++) {
+                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
+                    ary.push(this[j]);
+                }
             }
         }
 
@@ -4471,23 +4467,20 @@ jax.extend({
     }
 });
 /**
- * filter/has.js
+ * filter/gt.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to elements that only contain the selector passed
+     * Function to filter the collection to the elements greater than the index
      *
-     * @param   {String} selector
+     * @param   {Number} index
      * @returns {jax}
      */
-    has : function(selector) {
+    gt : function(index) {
         var ary = [];
-        var x = window.jax(this.selector + ' ' + selector);
-        for (var i = 0; i < x.length; i++) {
-            for (var j = 0; j < this.length; j++) {
-                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
-                    ary.push(this[j]);
-                }
+        for (var i = 0; i < this.length; i++) {
+            if (i > index) {
+                ary.push(this[i]);
             }
         }
 
@@ -4501,20 +4494,27 @@ jax.extend({
     }
 });
 /**
- * filter/eq.js
+ * filter/lt.js
  */
 jax.extend({
     /**
-     * Function to reduce the collection to the single element at the index
+     * Function to filter the collection to the elements less than the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
+    lt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i < index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
         }
 
         return this;
@@ -4574,27 +4574,6 @@ jax.extend({
     }
 });
 /**
- * load/beforeunload.js
- */
-(function(window){
-    window.jax.beforeunload = function(func) {
-        // Get old beforeunload function(s), if they exist.
-        var oldBeforeUnLoad = window.onbeforeunload;
-
-        if (typeof window.onbeforeunload != 'function') {
-            window.onbeforeunload = func;
-        } else {
-            window.onbeforeunload = function() {
-                if (oldBeforeUnLoad) {
-                    oldBeforeUnLoad();
-                }
-                func();
-            };
-        }
-    };
-})(window);
-
-/**
  * load/unload.js
  */
 jax.extend({
@@ -4622,6 +4601,27 @@ jax.extend({
         }
     }
 });
+/**
+ * load/beforeunload.js
+ */
+(function(window){
+    window.jax.beforeunload = function(func) {
+        // Get old beforeunload function(s), if they exist.
+        var oldBeforeUnLoad = window.onbeforeunload;
+
+        if (typeof window.onbeforeunload != 'function') {
+            window.onbeforeunload = func;
+        } else {
+            window.onbeforeunload = function() {
+                if (oldBeforeUnLoad) {
+                    oldBeforeUnLoad();
+                }
+                func();
+            };
+        }
+    };
+})(window);
+
 /**
  * mouse/y.js
  */
@@ -4841,122 +4841,6 @@ jax.extend({
 })(window);
 
 /**
- * string/clean.js
- */
-(function(window){
-    /**
-     * Function to clean any common MS Word-based characters.
-     *
-     * @param   {Boolean} html
-     * @returns {String}
-     */
-    window.jax.String.prototype.clean = function(html) {
-        if (html != null) {
-            var apos = "&#39;";
-            var quot = "&#34;";
-            var dash = "&#150;";
-        } else {
-            var apos = "'";
-            var quot = '"';
-            var dash = "-";
-        }
-
-        var str = this;
-        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
-        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
-
-        return str;
-    };
-})(window);
-
-/**
- * string/case.js
- */
-(function(window){
-    /**
-     * Function to convert string from under_score or hyphenated to camelCase.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toCamelcase = function() {
-        var str = this;
-        var delim = (str.indexOf('_') != -1) ? '_' : '-';
-
-        var strAry = str.split(delim);
-        var camelCase = '';
-        for (var i = 0; i < strAry.length; i++) {
-            if (i == 0) {
-                camelCase += strAry[i];
-            } else {
-                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
-            }
-        }
-
-        return camelCase;
-    };
-
-    /**
-     * Function to convert string from hyphenated or camelCase to under_score.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toUnderscore = function() {
-        var str = this;
-        var under_score = '';
-
-        if (str.indexOf('-') != -1) {
-            under_score = str.replace('-', '_').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    under_score += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        under_score += ('_' + str[i].toLowerCase());
-                    } else {
-                        under_score += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return under_score;
-    };
-
-    /**
-     * Function to convert string from under_score or camelCase to hyphenated.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toHyphen = function() {
-        var str = this;
-        var hyphen = '';
-
-        if (str.indexOf('_') != -1) {
-            hyphen = str.replace('_', '-').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    hyphen += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        hyphen += ('-' + str[i].toLowerCase());
-                    } else {
-                        hyphen += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return hyphen;
-    };
-})(window);
-
-/**
  * string/money.js
  */
 (function(window){
@@ -5005,27 +4889,43 @@ jax.extend({
 })(window);
 
 /**
- * string/random.js
+ * string/slug.js
  */
 (function(window){
     /**
-     * Function to generate random alphanumeric string of a predefined length.
+     * Function to convert a string to an SEO-friendly slug.
      *
-     * @param   {Number} len
-     * @param   {Boolean} caps
+     * @param   {String} sep
      * @returns {String}
      */
-    window.jax.String.random = function(len, caps) {
-        // Array of alphanumeric characters. The O, 0, I, 1 and l have been removed to eliminate confusion.
-        var str = '';
-        var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-
-        for (var i = 0; i < len; i++) {
-            var num = (Math.floor(Math.random() * chars.length));
-            str += (caps != null) ? chars.charAt(num).toUpperCase() : chars.charAt(num);
+    window.jax.String.prototype.slug = function(sep) {
+        var slg = '';
+        var tmpSlg = '';
+        if (this.length > 0) {
+            if (sep != null) {
+                var slgAry = [];
+                var urlAry = this.split(sep);
+                for (var i = 0; i < urlAry.length; i++) {
+                    tmpSlg = urlAry[i].toLowerCase();
+                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                        .replace(/ /g, '-').replace(/-*-/g, '-');
+                    slgAry.push(tmpSlg);
+                }
+                tmpSlg = slgAry.join('/');
+                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
+                slg += tmpSlg;
+            } else {
+                tmpSlg = this.toLowerCase();
+                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                    .replace(/ /g, '-').replace(/-*-/g, '-');
+                slg += tmpSlg;
+                slg = slg.replace(/\/-/g, '/');
+            }
+            if (slg.lastIndexOf('-') == (slg.length - 1)) {
+                slg = slg.substring(0, slg.lastIndexOf('-'));
+            }
         }
-
-        return str;
+        return slg;
     };
 })(window);
 
@@ -5127,43 +5027,74 @@ jax.extend({
 })(window);
 
 /**
- * string/slug.js
+ * string/trim.js
+ */
+(function(window){
+    /** Function to trim the whitespace from the left of the string */
+    window.jax.String.prototype.trimLeft = function() {
+        return this.replace(/^\s+/, '');
+    };
+
+    /** Function to trim the whitespace from the right of the string */
+    window.jax.String.prototype.trimRight = function() {
+        return this.replace(/\s+$/, '');
+    };
+})(window);
+/**
+ * string/random.js
  */
 (function(window){
     /**
-     * Function to convert a string to an SEO-friendly slug.
+     * Function to generate random alphanumeric string of a predefined length.
      *
-     * @param   {String} sep
+     * @param   {Number} len
+     * @param   {Boolean} caps
      * @returns {String}
      */
-    window.jax.String.prototype.slug = function(sep) {
-        var slg = '';
-        var tmpSlg = '';
-        if (this.length > 0) {
-            if (sep != null) {
-                var slgAry = [];
-                var urlAry = this.split(sep);
-                for (var i = 0; i < urlAry.length; i++) {
-                    tmpSlg = urlAry[i].toLowerCase();
-                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                        .replace(/ /g, '-').replace(/-*-/g, '-');
-                    slgAry.push(tmpSlg);
-                }
-                tmpSlg = slgAry.join('/');
-                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
-                slg += tmpSlg;
-            } else {
-                tmpSlg = this.toLowerCase();
-                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                    .replace(/ /g, '-').replace(/-*-/g, '-');
-                slg += tmpSlg;
-                slg = slg.replace(/\/-/g, '/');
-            }
-            if (slg.lastIndexOf('-') == (slg.length - 1)) {
-                slg = slg.substring(0, slg.lastIndexOf('-'));
-            }
+    window.jax.String.random = function(len, caps) {
+        // Array of alphanumeric characters. The O, 0, I, 1 and l have been removed to eliminate confusion.
+        var str = '';
+        var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+        for (var i = 0; i < len; i++) {
+            var num = (Math.floor(Math.random() * chars.length));
+            str += (caps != null) ? chars.charAt(num).toUpperCase() : chars.charAt(num);
         }
-        return slg;
+
+        return str;
+    };
+})(window);
+
+/**
+ * string/clean.js
+ */
+(function(window){
+    /**
+     * Function to clean any common MS Word-based characters.
+     *
+     * @param   {Boolean} html
+     * @returns {String}
+     */
+    window.jax.String.prototype.clean = function(html) {
+        if (html != null) {
+            var apos = "&#39;";
+            var quot = "&#34;";
+            var dash = "&#150;";
+        } else {
+            var apos = "'";
+            var quot = '"';
+            var dash = "-";
+        }
+
+        var str = this;
+        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
+        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
+        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
+        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
+        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
+        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
+
+        return str;
     };
 })(window);
 
@@ -5209,19 +5140,88 @@ jax.extend({
 })(window);
 
 /**
- * string/trim.js
+ * string/case.js
  */
 (function(window){
-    /** Function to trim the whitespace from the left of the string */
-    window.jax.String.prototype.trimLeft = function() {
-        return this.replace(/^\s+/, '');
+    /**
+     * Function to convert string from under_score or hyphenated to camelCase.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toCamelcase = function() {
+        var str = this;
+        var delim = (str.indexOf('_') != -1) ? '_' : '-';
+
+        var strAry = str.split(delim);
+        var camelCase = '';
+        for (var i = 0; i < strAry.length; i++) {
+            if (i == 0) {
+                camelCase += strAry[i];
+            } else {
+                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
+            }
+        }
+
+        return camelCase;
     };
 
-    /** Function to trim the whitespace from the right of the string */
-    window.jax.String.prototype.trimRight = function() {
-        return this.replace(/\s+$/, '');
+    /**
+     * Function to convert string from hyphenated or camelCase to under_score.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toUnderscore = function() {
+        var str = this;
+        var under_score = '';
+
+        if (str.indexOf('-') != -1) {
+            under_score = str.replace('-', '_').toLowerCase();
+        } else {
+            for (var i = 0; i < str.length; i++) {
+                if (i == 0) {
+                    under_score += str[i].toLowerCase();
+                } else {
+                    if (str[i] == str[i].toUpperCase()) {
+                        under_score += ('_' + str[i].toLowerCase());
+                    } else {
+                        under_score += str[i].toLowerCase();
+                    }
+                }
+            }
+        }
+
+        return under_score;
+    };
+
+    /**
+     * Function to convert string from under_score or camelCase to hyphenated.
+     *
+     * @returns {String}
+     */
+    window.jax.String.prototype.toHyphen = function() {
+        var str = this;
+        var hyphen = '';
+
+        if (str.indexOf('_') != -1) {
+            hyphen = str.replace('_', '-').toLowerCase();
+        } else {
+            for (var i = 0; i < str.length; i++) {
+                if (i == 0) {
+                    hyphen += str[i].toLowerCase();
+                } else {
+                    if (str[i] == str[i].toUpperCase()) {
+                        hyphen += ('-' + str[i].toLowerCase());
+                    } else {
+                        hyphen += str[i].toLowerCase();
+                    }
+                }
+            }
+        }
+
+        return hyphen;
     };
 })(window);
+
 /**
  * val.js
  */

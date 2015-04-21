@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0a
- * @build      Feb 24, 2015 14:55:49
+ * @build      Apr 20, 2015 22:12:14
  */
 (function(window){
     /**
@@ -579,6 +579,106 @@ jax.extend({
 })(window);
 
 /**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a GET AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.get = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'get'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
+            opts.method = 'get';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+
+/**
+ * ajax/http.js
+ */
+(function(window){
+    window.jax.http = {
+        /**
+         * Function to get the HTTP request status of a URL
+         *
+         * @param   {String} url
+         * @returns {Number}
+         */
+        getStatus : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status;
+        },
+        /**
+         * Function to determine if the HTTP request is successful
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isSuccess : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 3) || (type == 2) || (type == 1));
+        },
+        /**
+         * Function to determine if the HTTP request is a redirect
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isRedirect : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return (type == 3);
+        },
+        /**
+         * Function to determine if the HTTP request is an error
+         *
+         * @param   {String} url
+         * @returns {boolean}
+         */
+        isError : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 5) || (type == 4));
+        }
+    };
+})(window);
+
+/**
  * ajax/response.js
  */
 (function(window){
@@ -865,106 +965,6 @@ jax.extend({
 })(window);
 
 /**
- * ajax/http.js
- */
-(function(window){
-    window.jax.http = {
-        /**
-         * Function to get the HTTP request status of a URL
-         *
-         * @param   {String} url
-         * @returns {Number}
-         */
-        getStatus : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            return http.status;
-        },
-        /**
-         * Function to determine if the HTTP request is successful
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isSuccess : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 3) || (type == 2) || (type == 1));
-        },
-        /**
-         * Function to determine if the HTTP request is a redirect
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isRedirect : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return (type == 3);
-        },
-        /**
-         * Function to determine if the HTTP request is an error
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
-        isError : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 5) || (type == 4));
-        }
-    };
-})(window);
-
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a GET AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.get = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'get'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
-            opts.method = 'get';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-
-/**
  * append.js
  */
 jax.extend({
@@ -1030,115 +1030,6 @@ jax.extend({
      */
     prepend : function(type, attribs, value) {
         return this.append(type, attribs, value, true)
-    }
-});
-/**
- * append/textarea.js
- */
-jax.extend({
-    /**
-     * Alias function to append a new textarea element to the current element
-     *
-     * @param   {Object}  attribs
-     * @param   {String}  value
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendTextarea : function(attribs, value, pre) {
-        return this.append('textarea', attribs, value, pre);
-    },
-    /**
-     * Alias function to prepend a new textarea element to the current element
-     *
-     * @param   {Object} attribs
-     * @param   {String} value
-     * @returns {jax}
-     */
-    prependTextarea : function(attribs, value) {
-        return this.append('textarea', attribs, value, true);
-    }
-});
-/**
- * append/checkbox.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of checkbox elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {Mixed}   marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendCheckbox : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objChild = document.createElement('fieldset');
-        objChild.setAttribute('class', 'checkbox-fieldset');
-
-        // Set the elements that are marked/checked.
-        if ((marked != undefined) && (marked != null)) {
-            if (marked.constructor != Array) {
-                marked = [marked];
-            }
-        } else {
-            marked = [];
-        }
-
-        // Create the child checkbox elements.
-        var i = 0;
-        for (var key in values) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'checkbox');
-            newElem.setAttribute('class', 'checkbox');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    if (attrib == 'tabindex') {
-                        att = att + i;
-                    }
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            newElem.setAttribute('value', key);
-            newElem.checked = (marked.indexOf(key) != -1);
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'checkbox-span');
-            spanElem.innerHTML = values[key];
-
-            objChild.appendChild(spanElem);
-            i++;
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of checkbox elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependCheckbox : function(values, attribs, marked) {
-        return this.appendCheckbox(values, attribs, marked, true);
     }
 });
 /**
@@ -1216,6 +1107,32 @@ jax.extend({
      */
     prependRadio : function(values, attribs, marked) {
         return this.appendRadio(values, attribs, marked, true);
+    }
+});
+/**
+ * append/textarea.js
+ */
+jax.extend({
+    /**
+     * Alias function to append a new textarea element to the current element
+     *
+     * @param   {Object}  attribs
+     * @param   {String}  value
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendTextarea : function(attribs, value, pre) {
+        return this.append('textarea', attribs, value, pre);
+    },
+    /**
+     * Alias function to prepend a new textarea element to the current element
+     *
+     * @param   {Object} attribs
+     * @param   {String} value
+     * @returns {jax}
+     */
+    prependTextarea : function(attribs, value) {
+        return this.append('textarea', attribs, value, true);
     }
 });
 /**
@@ -1427,6 +1344,89 @@ jax.extend({
     };
 })(window);
 /**
+ * append/checkbox.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of checkbox elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {Mixed}   marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendCheckbox : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objChild = document.createElement('fieldset');
+        objChild.setAttribute('class', 'checkbox-fieldset');
+
+        // Set the elements that are marked/checked.
+        if ((marked != undefined) && (marked != null)) {
+            if (marked.constructor != Array) {
+                marked = [marked];
+            }
+        } else {
+            marked = [];
+        }
+
+        // Create the child checkbox elements.
+        var i = 0;
+        for (var key in values) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'checkbox');
+            newElem.setAttribute('class', 'checkbox');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            newElem.setAttribute('value', key);
+            newElem.checked = (marked.indexOf(key) != -1);
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'checkbox-span');
+            spanElem.innerHTML = values[key];
+
+            objChild.appendChild(spanElem);
+            i++;
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of checkbox elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependCheckbox : function(values, attribs, marked) {
+        return this.appendCheckbox(values, attribs, marked, true);
+    }
+});
+/**
  * append/input.js
  */
 jax.extend({
@@ -1524,6 +1524,27 @@ jax.extend({
     }
 });
 /**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
+/**
  * children/child.js
  */
 jax.extend({
@@ -1616,27 +1637,6 @@ jax.extend({
         } else {
             return undefined;
         }
-    }
-});
-/**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
     }
 });
 /**
@@ -1899,62 +1899,6 @@ jax.extend({
     }
 });
 /**
- * css/set.js
- */
-jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle opacity
-                case 'opacity':
-                    obj.style.opacity = properties[prop] / 100;
-                    break;
-                // Handle cssFloat
-                case 'float':
-                    obj.style.cssFloat = properties[prop];
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
-    }
-});
-/**
- * css/position.js
- */
-jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
-    }
-});
-/**
  * css/dimensions.js
  */
 jax.extend({
@@ -2074,6 +2018,49 @@ jax.extend({
     }
 });
 /**
+ * css/set.js
+ */
+jax.extend({
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle opacity
+                case 'opacity':
+                    obj.style.opacity = properties[prop] / 100;
+                    break;
+                // Handle cssFloat
+                case 'float':
+                    obj.style.cssFloat = properties[prop];
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
+    }
+});
+/**
  * css/get.js
  */
 jax.extend({
@@ -2154,6 +2141,19 @@ jax.extend({
         }
 
         return sty;
+    }
+});
+/**
+ * css/position.js
+ */
+jax.extend({
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2248,7 +2248,7 @@ jax.extend({
             disp = 'block';
         }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = (this[i].style.display == 'none') ? disp : 'none';
+            this[i].style.display = (window.jax(this[i]).css('display') == 'none') ? disp : 'none';
         }
         return this;
     },
@@ -2470,47 +2470,43 @@ jax.extend({
 })(window);
 
 /**
- * filter/lt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements less than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    lt : function(index) {
-        var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i < index) {
-                ary.push(this[i]);
-            }
-        }
-
-        this.clear();
-
-        for (var i = 0; i < ary.length; i++) {
-            this.push(ary[i]);
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
         }
 
         return this;
     }
 });
 /**
- * filter/gt.js
+ * filter/has.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements greater than the index
+     * Function to filter the collection to elements that only contain the selector passed
      *
-     * @param   {Number} index
+     * @param   {String} selector
      * @returns {jax}
      */
-    gt : function(index) {
+    has : function(selector) {
         var ary = [];
-        for (var i = 0; i < this.length; i++) {
-            if (i > index) {
-                ary.push(this[i]);
+        var x = window.jax(this.selector + ' ' + selector);
+        for (var i = 0; i < x.length; i++) {
+            for (var j = 0; j < this.length; j++) {
+                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
+                    ary.push(this[j]);
+                }
             }
         }
 
@@ -2558,23 +2554,20 @@ jax.extend({
     }
 });
 /**
- * filter/has.js
+ * filter/gt.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to elements that only contain the selector passed
+     * Function to filter the collection to the elements greater than the index
      *
-     * @param   {String} selector
+     * @param   {Number} index
      * @returns {jax}
      */
-    has : function(selector) {
+    gt : function(index) {
         var ary = [];
-        var x = window.jax(this.selector + ' ' + selector);
-        for (var i = 0; i < x.length; i++) {
-            for (var j = 0; j < this.length; j++) {
-                if ((window.jax.contains(this[j], x[i])) && (ary.indexOf(this[j]) == -1)) {
-                    ary.push(this[j]);
-                }
+        for (var i = 0; i < this.length; i++) {
+            if (i > index) {
+                ary.push(this[i]);
             }
         }
 
@@ -2588,20 +2581,27 @@ jax.extend({
     }
 });
 /**
- * filter/eq.js
+ * filter/lt.js
  */
 jax.extend({
     /**
-     * Function to reduce the collection to the single element at the index
+     * Function to filter the collection to the elements less than the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
+    lt : function(index) {
+        var ary = [];
+        for (var i = 0; i < this.length; i++) {
+            if (i < index) {
+                ary.push(this[i]);
+            }
+        }
+
+        this.clear();
+
+        for (var i = 0; i < ary.length; i++) {
+            this.push(ary[i]);
         }
 
         return this;
