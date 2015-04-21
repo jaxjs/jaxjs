@@ -36,7 +36,7 @@ jax.extend({
             disp = 'block';
         }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = (this[i].style.display == 'none') ? disp : 'none';
+            this[i].style.display = (window.jax(this[i]).css('display') == 'none') ? disp : 'none';
         }
         return this;
     },
