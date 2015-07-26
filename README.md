@@ -13,12 +13,12 @@ that follows a set of standards and practices set and adhered to by
 other similar JavaScript libraries. It provides a set of built-in
 tools to create, select and manipulate various DOM elements. It
 also provides the functionality to handle various other dynamic
-DOM features:
+DOM features as well:
 
 * AJAX requests
 * Attributes
 * Cookies
-* CSS manipulation
+* CSS
 * Effects
 * Events
 * Storage
@@ -55,7 +55,7 @@ for (var i = 0; i < li.length; i++) {
 ##### Creating and appending new elements
 
 You can easily append some new elements to the DOM as well. Let's append a new
-LI element to that UL element:
+`li` element to that `ul` element:
 
 ```js
 $('#my-list').append('li', {"class" : "new-li"}, 'Some Inner HTML.');
@@ -120,7 +120,7 @@ selected element instead of appending them.
 ##### Cloning elements
 
 You can also easily clone existing elements and append them to another element.
-You ca pass some overriding attributes to be applied to the new element as well:
+You can pass some overriding attributes to be applied to the new element as well:
 
 ```js
 $('#existing-element').clone({"id" : "new-element"}).appendTo('#my-div');
@@ -135,7 +135,9 @@ individually or you can set many at once in a group:
 
 ```js
 $('#my-div').css('background-color', '#fff');
+```
 
+```js
 $('#my-div').css({
     "margin"  : "10px",
     "padding" : "10px",
@@ -144,7 +146,7 @@ $('#my-div').css({
 });
 ```
 
-Of course, you can retrieve css values like this:
+Of course, you can retrieve CSS values like this:
 
 ```js
 var divHeight = $('#my-div').css('height');
@@ -158,14 +160,14 @@ Effects bring a lot of fun and dynamic content alive in the DOM world.
 In the effect component within Jax, you can control a number of properties
 for animations:
 
-* Tween: the number of steps or frames calculated between the beginning and
+* __Tween__: the number of steps or frames calculated between the beginning and
   ending of an animation
-* Speed: the number of seconds to execute the entire animation over
-* Easing: which easing function to use to calculate the frames to give the
+* __Speed__: the number of seconds to execute the entire animation over
+* __Easing__: which easing function to use to calculate the frames to give the
   illusion of "easing" animation. The most basic easing function is the
   `$.tween.linear` function. The other built-in easing functions are:
 
-| Ease In                | Ease-Out                | Ease-In-Out Functions     |
+| Ease In                | Ease Out                | Ease In/Out               |
 |------------------------|-------------------------|---------------------------|
 | $.tween.easein.back    | $.tween.easeout.back    | $.tween.easeinout.back    |
 | $.tween.easein.bounce  | $.tween.easeout.bounce  | $.tween.easeinout.bounce  |
@@ -179,7 +181,7 @@ for animations:
 | $.tween.easein.sine    | $.tween.easeout.sine    | $.tween.easeinout.sine    |
 
 
-The built-in animate methods are:
+The built-in animation methods are:
 
 * move
 * resize
@@ -213,8 +215,8 @@ $('#mydiv').move('+=100', '+=100', {
 
 ### Events
 
-Events are typically handled by select an element or elements and attaching
-and event and callback to them. There are shorthand methods for this as well:
+Events are typically handled by selecting an element or elements and attaching
+and event and callback to them.
 
 ```php
 $('#my-link').on('click', function(){
@@ -230,7 +232,7 @@ $('#my-link').click(function(){
 });
 ```
 
-And you can trigger any event whenever you need to like:
+And you can trigger any event whenever you need to:
 
 ```php
 $('#my-link').trigger('click');
@@ -240,12 +242,88 @@ $('#my-link').trigger('click');
 
 ### AJAX
 
+The Jax JavaScript handles AJAX requests as well. It even provides auto-detection
+of content types to try and make handling data easier for you. The common content-types
+that are supported for auto-detection are JSON, CSV and XML. Furthermore, you can
+assign handlers for what happens based on status codes.
+
+##### GET request
+
+But first, let's start with a simple example where we grab some content from a text file:
+
+```js
+$.get('./test.txt', {
+    "status" : {
+        200 : function(response) {
+            $('#response').val(response.text);
+        },
+        404 : function(response) {
+            $('#response').val('The requested resource was not found.');
+        },
+        "error" : function(response) {
+            $('#response').val('There was an unknown error.');
+        }
+    }
+});
+```
+
+In the above example, we perform a GET request to the `test.txt` URL and we set a callback
+function to set the `#response` element's contents to the text content from the response.
+We also set a specific 404 status callback should the URL not be found as well a generic
+error callback in case something unknown goes wrong.
+
+##### POST request with a form object
+
+```js
+$.post('./process/form.php', {
+    "status" : {
+        200 : function(response) {
+            $('#result').val(response.text);
+        },
+        "error" : function(response) {
+            $('#response').val('There was an unknown error.');
+        }
+    },
+    "data" : $('#user-form')[0]
+});
+```
+
+In the above example, we are sending a POST request and directly attaching a form element
+that is in the DOM. You can also attach an array or an object of data as well. It will
+auto-detect and correctly build the query to be sent over. 
+
+##### Content-type detection
+ 
+Jax will auto-detect and parse any response content that comes back over from the request.
+This makes is very convenient to access the data:
+
+###### JSON
+
+```js
+var json = $.ajax('file.json');
+console.log(json.user_name);
+```
+
+###### CSV
+
+```js
+var csv = $.ajax('file.csv');
+console.log(csv[0].user_name);
+```
+
+###### XML
+
+```js
+var xml = $.ajax('file.xml');
+console.log(xml.test.nodes[0].user.user_name);
+```
+
 [Top](#basic-usage)
 
 ### No-conflict
 
 Of course, if you intend on using Jax with other JS libraries, you can
-declare the `noConflict()` method to guard against any namespace clashed:
+declare the `noConflict()` method to guard against any namespace clashes:
 
 ```js
 var jax = jax.noConflict();
