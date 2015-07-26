@@ -35,8 +35,8 @@ Here are some common use cases and examples:
 
 * [DOM selection and manipulation](#dom-selection-and-manipulation)
 * [CSS manipulation](#css-manipulation)
-* [Events](#events)
 * [Effects](#effects)
+* [Events](#events)
 * [AJAX](#ajax)
 * [No-conflict](#no-conflict)
 
@@ -148,6 +148,107 @@ Of course, you can retrieve css values like this:
 
 ```js
 var divHeight = $('#my-div').css('height');
+```
+
+[Top](#basic-usage)
+
+### Effects
+
+Effects bring a lot of fun and dynamic content alive in the DOM world.
+In the effect component within Jax, you can control a number of properties
+for animations:
+
+* Tween: the number of steps or frames calculated between the beginning and
+  ending of an animation
+* Speed: the number of seconds to execute the entire animation over
+* Easing: which easing function to use to calculate the frames to give the
+  illusion of "easing" animation. The most basic easing function is the
+  `$.tween.linear` function. The other built-in easing functions are:
+
+| Ease In                | Ease-Out                | Ease-In-Out Functions     |
+|------------------------|-------------------------|---------------------------|
+| $.tween.easein.back    | $.tween.easeout.back    | $.tween.easeinout.back    |
+| $.tween.easein.bounce  | $.tween.easeout.bounce  | $.tween.easeinout.bounce  |
+| $.tween.easein.circ    | $.tween.easeout.circ    | $.tween.easeinout.circ    |
+| $.tween.easein.cubic   | $.tween.easeout.cubic   | $.tween.easeinout.cubic   |
+| $.tween.easein.elastic | $.tween.easeout.elastic | $.tween.easeinout.elastic |
+| $.tween.easein.expo    | $.tween.easeout.expo    | $.tween.easeinout.expo    |
+| $.tween.easein.quad    | $.tween.easeout.quad    | $.tween.easeinout.quad    |
+| $.tween.easein.quart   | $.tween.easeout.quart   | $.tween.easeinout.quart   |
+| $.tween.easein.quint   | $.tween.easeout.quint   | $.tween.easeinout.quint   |
+| $.tween.easein.sine    | $.tween.easeout.sine    | $.tween.easeinout.sine    |
+
+
+The built-in animate methods are:
+
+* move
+* resize
+* fade
+* scroll
+* slide
+* wipe
+* color
+
+You can give it directly values to animate to, like:
+
+```js
+$('#mydiv').move(50, 400, {
+    tween  : 25,
+    speed  : 100,
+    easing : $.tween.easein.quad
+});
+```
+
+Or, you can animate it incrementally as well:
+
+```js
+$('#mydiv').move('+=100', '+=100', {
+    tween  : 25,
+    speed  : 100,
+    easing : $.tween.easein.quad
+});
+```
+
+[Top](#basic-usage)
+
+### Events
+
+Events are typically handled by select an element or elements and attaching
+and event and callback to them. There are shorthand methods for this as well:
+
+```php
+$('#my-link').on('click', function(){
+    console.log('You clicked me!');
+});
+```
+
+There are shorthand methods for a number of events as well:
+
+```php
+$('#my-link').click(function(){
+    console.log('You clicked me!');
+});
+```
+
+And you can trigger any event whenever you need to like:
+
+```php
+$('#my-link').trigger('click');
+```
+
+[Top](#basic-usage)
+
+### AJAX
+
+[Top](#basic-usage)
+
+### No-conflict
+
+Of course, if you intend on using Jax with other JS libraries, you can
+declare the `noConflict()` method to guard against any namespace clashed:
+
+```js
+var jax = jax.noConflict();
 ```
 
 [Top](#basic-usage)
