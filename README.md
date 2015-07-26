@@ -191,7 +191,7 @@ The built-in animation methods are:
 * wipe
 * color
 
-You can give it directly values to animate to, like:
+You can give it direct values in which to animate, such as:
 
 ```js
 $('#mydiv').move(50, 400, {
@@ -242,14 +242,14 @@ $('#my-link').trigger('click');
 
 ### AJAX
 
-The Jax JavaScript handles AJAX requests as well. It even provides auto-detection
+The Jax JavaScript Library handles AJAX requests as well. It even provides auto-detection
 of content types to try and make handling data easier for you. The common content-types
 that are supported for auto-detection are JSON, CSV and XML. Furthermore, you can
-assign handlers for what happens based on status codes.
+assign handlers for what happens based on response status codes.
 
 ##### GET request
 
-But first, let's start with a simple example where we grab some content from a text file:
+First, let's start with a simple example where we grab some content from a text file:
 
 ```js
 $.get('./test.txt', {
@@ -269,7 +269,7 @@ $.get('./test.txt', {
 
 In the above example, we perform a GET request to the `test.txt` URL and we set a callback
 function to set the `#response` element's contents to the text content from the response.
-We also set a specific 404 status callback should the URL not be found as well a generic
+We also set a specific 404 status callback should the URL not be found, as well a generic
 error callback in case something unknown goes wrong.
 
 ##### POST request with a form object
@@ -294,8 +294,8 @@ auto-detect and correctly build the query to be sent over.
 
 ##### Content-type detection
  
-Jax will auto-detect and parse any response content that comes back over from the request.
-This makes is very convenient to access the data:
+Jax will make an attempt to auto-detect and parse any response content that comes back
+over from the request. This makes is very convenient to access the data:
 
 ###### JSON
 
