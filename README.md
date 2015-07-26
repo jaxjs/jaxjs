@@ -10,11 +10,10 @@ OVERVIEW
 --------
 Jax JavaScript Library is a lightweight, robust JavaScript library
 that follows a set of standards and practices set and adhered to by
-other similar JavaScript libraries.
-
-It provides a set of built-in tools to create, select and manipulate
-various DOM elements. It also provides the functionality to handle
-various other dynamic DOM features:
+other similar JavaScript libraries. It provides a set of built-in
+tools to create, select and manipulate various DOM elements. It
+also provides the functionality to handle various other dynamic
+DOM features:
 
 * AJAX requests
 * Attributes
@@ -27,7 +26,8 @@ various other dynamic DOM features:
 INSTALL
 -------
 
-Installation is as easy as including it in your web project's source code.
+Installation is as easy as downloading it and including it in
+your web project's source code.
 
 ## BASIC USAGE
 
@@ -58,7 +58,7 @@ You can easily append some new elements to the DOM as well. Let's append a new
 LI element to that UL element:
 
 ```js
-$('#my-list').append('li', {"class" : "new-li"}, 'Some Inner HTML for the new LI element.');
+$('#my-list').append('li', {"class" : "new-li"}, 'Some Inner HTML.');
 ```
 
 Or we could prepend it as well:
@@ -120,10 +120,10 @@ selected element instead of appending them.
 ##### Cloning elements
 
 You can also easily clone existing elements and append them to another element.
-You pass some overriding attributes to be applied to the new element as well:
+You ca pass some overriding attributes to be applied to the new element as well:
 
 ```js
-$('#existing-element').clone({'id' : 'new-element'}).appendTo('#my-div');
+$('#existing-element').clone({"id" : "new-element"}).appendTo('#my-div');
 ```
 
 [Top](#basic-usage)
@@ -131,7 +131,7 @@ $('#existing-element').clone({'id' : 'new-element'}).appendTo('#my-div');
 ### CSS manipulation
 
 CSS manipulation is another common core feature set. You can set CSS rules
-individually or in a group:
+individually or you can set many at once in a group:
 
 ```js
 $('#my-div').css('background-color', '#fff');
@@ -144,7 +144,7 @@ $('#my-div').css({
 });
 ```
 
-And then retrieve css values like this:
+Of course, you can retrieve css values like this:
 
 ```js
 var divHeight = $('#my-div').css('height');
