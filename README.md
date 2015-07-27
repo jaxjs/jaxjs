@@ -23,6 +23,9 @@ DOM features as well:
 * Events
 * Storage
 
+Jax also allows you to write your own components and extensions and
+easily include your code by extending the library. 
+
 INSTALL
 -------
 
@@ -45,6 +48,7 @@ Here are some common use cases and examples:
 * [Events](#events)
 * [AJAX](#ajax)
 * [No-conflict](#no-conflict)
+* [Extending Jax](#extending-jax)
 
 ### DOM selection and manipulation
 
@@ -334,5 +338,59 @@ declare the `noConflict()` method to guard against any namespace clashes:
 ```js
 var jax = jax.noConflict();
 ```
+
+[Top](#basic-usage)
+
+### Extending Jax
+
+Jax provides a way to extend its functionality by writing and injecting your
+own code via the `extend` method:
+
+##### Extending within the instance
+
+The main way to extend Jax is within the instance, which will expose the new
+functionality and make it available on the instance level. That means you'll
+be able to utilize your new functionality with whatever elements are currently
+selected with the Jax instance:
+
+```js
+jax.extend({
+    myNewProperty : null; 
+    myNewFeature  : function() {
+        // Apply feature to the instance's selected elements
+        this.myNewProperty = 1;
+    }
+});
+```
+
+Then you would use the new functionality like this:
+
+```js
+$('#my-list > li').myNewFeature();
+```
+
+##### Extending statically
+
+Extending Jax statically is a nice way to attach functionality that serves
+a more global purpose and isn't as dependant on the Jax instance or any
+elements it may have selected.
+
+```js
+(function(window){
+    window.jax.myNewStaticFeature = function() {
+        // Do some global functionality 
+    };
+})(window);
+```
+
+You would then call the new static functionality like this:
+
+```js
+$.myNewStaticFeature();
+```
+
+Extending Jax in either of these ways also helps keep the namespace under
+control and minimize any possible collisions. This way, everything is kept
+neatly under the Jax namespace and object.
 
 [Top](#basic-usage)
