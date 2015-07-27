@@ -344,7 +344,7 @@ var jax = jax.noConflict();
 ### Extending Jax
 
 Jax provides a way to extend its functionality by writing and implementing
-your own code.:
+your own code.
 
 ##### Extending within the instance
 
