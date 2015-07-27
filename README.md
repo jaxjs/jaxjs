@@ -28,12 +28,12 @@ INSTALL
 
 Installation is as easy as downloading it and including it in
 your web project's source code. In this repo, there is a `build/`
-folder with 4 JS files in it:
+folder with four main JS source files in it:
 
-    build/jax.4.0.0.js
-    build/jax.4.0.0.lite.js
-    build/jax.4.0.0.lite.min.js
-    build/jax.4.0.0.min.js
+    build/jax.4.0.0.js           // Full version, uncompressed
+    build/jax.4.0.0.lite.js      // Lite version, uncompressed
+    build/jax.4.0.0.lite.min.js  // Lite version, compressed
+    build/jax.4.0.0.min.js       // Full version, compressed
 
 ## BASIC USAGE
 
