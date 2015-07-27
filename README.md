@@ -343,15 +343,15 @@ var jax = jax.noConflict();
 
 ### Extending Jax
 
-Jax provides a way to extend its functionality by writing and injecting your
-own code via the `extend` method:
+Jax provides a way to extend its functionality by writing and implementing
+your own code.:
 
 ##### Extending within the instance
 
-The main way to extend Jax is within the instance, which will expose the new
-functionality and make it available on the instance level. That means you'll
-be able to utilize your new functionality with whatever elements are currently
-selected with the Jax instance:
+The main way to extend Jax is within the instance using the `extend` method.
+This way will expose the new functionality and make it available on the
+instance level. That means you'll be able to utilize your new functionality
+with whatever elements are currently selected with the Jax instance:
 
 ```js
 jax.extend({
@@ -373,7 +373,9 @@ $('#my-list > li').myNewFeature();
 
 Extending Jax statically is a nice way to attach functionality that serves
 a more global purpose and isn't as dependant on the Jax instance or any
-elements it may have selected.
+elements it may have selected. The cleanest and easiest way to do this is
+by writing an anonymous function and appending your new functionality
+directly to the Jax object:
 
 ```js
 (function(window){
