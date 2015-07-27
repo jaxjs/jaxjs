@@ -162,9 +162,9 @@ for animations:
 
 * __Tween__: the number of steps or frames calculated between the beginning and
   ending of an animation
-* __Speed__: the number of seconds to execute the entire animation over
-* __Easing__: which easing function to use to calculate the frames to give the
-  illusion of "easing" animation. The most basic easing function is the
+* __Speed__: the number of seconds over which to execute the entire animation
+* __Easing__: the easing function to use to calculate the frames to give the
+  illusion of "easing" the animation. The most basic easing function is the
   `$.tween.linear` function. The other built-in easing functions are:
 
 | Ease In                | Ease Out                | Ease In/Out               |
