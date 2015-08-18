@@ -22,6 +22,15 @@
          * @param {Object} opts
          */
         open : function(url, name, opts) {
+            if (url == undefined) {
+                throw "You must pass a url value.";
+            }
+            if (name == undefined) {
+                name = 'jax-window';
+            }
+            if (opts == undefined) {
+                opts = {};
+            }
             var wid  = (opts.width != undefined)    ? opts.width    : 640;
             var hgt  = (opts.height != undefined)   ? opts.height   : 480;
             var scr  = (opts.scroll != undefined)   ? opts.scroll   : 'no';
@@ -41,28 +50,40 @@
         /**
          * Function to route browser to a specific device
          *
-         * @param {Object} opts
+         * @param {Object} options
          */
         route : function(options) {
             if (options == undefined) {
-                throw 'The options were not defined.';
-            } else if (options.mobile == undefined) {
-                throw 'The mobile URL was not defined.';
+                throw 'The route options were not defined.';
             }
-            var mobile  = options.mobile;
-            var desktop = (options.desktop != undefined) ? options.desktop : location.href;
+
+            if (options.desktop == undefined) {
+                options.desktop = location.href;
+            }
 
             // Route based on force property
             if (options.force != undefined) {
-                if ((options.force.toLowerCase() == 'desktop') && (location.href.indexOf(desktop) == -1)) {
-                    window.location = desktop;
-                } else if ((options.force.toLowerCase() == 'mobile') && (location.href.indexOf(mobile) == -1)) {
-                    window.location = mobile;
+                if ((options.force.toLowerCase() == this.device) && (options[this.device] != undefined) &&
+                    (location.href.indexOf(options[this.device]) == -1)) {
+                    window.location = options[this.device];
+                } else if ((options.force.toLowerCase() == 'desktop') && (options.desktop != undefined) &&
+                    (location.href.indexOf(options.desktop) == -1)) {
+                    window.location = options.desktop;
+                } else if ((options.force.toLowerCase() == 'tablet') && (options.tablet != undefined) &&
+                    (location.href.indexOf(tablet) == -1)) {
+                    window.location = options.tablet;
+                } else if ((options.force.toLowerCase() == 'mobile') && (options.mobile != undefined) &&
+                    (location.href.indexOf(mobile) == -1)) {
+                    window.location = options.mobile;
                 }
-                // Else, just route to mobile, if mobile
+            // Else, just route normally
             } else {
-                if ((this.mobile) && (location.href.indexOf(mobile) == -1)) {
-                    window.location = mobile;
+                if ((this.device != null) && (options[this.device] != undefined) && (location.href.indexOf(options[this.device]) == -1)) {
+                    window.location = options[this.device];
+                } else if ((this.tablet) && (options.tablet != undefined) && (location.href.indexOf(options.tablet) == -1)) {
+                    window.location = options.tablet;
+                } else if ((this.mobile) && (options.mobile != undefined) && (location.href.indexOf(options.mobile) == -1)) {
+                    window.location = options.mobile;
                 }
             }
         }

@@ -338,7 +338,13 @@ Of course, if you intend on using Jax with other JS libraries, you can
 declare the `noConflict()` method to guard against any namespace clashes:
 
 ```js
-var jax = jax.noConflict();
+jax.noConflict();
+var div = jax('#my-div');
+```
+
+```js
+var myCustomJaxName = jax.noConflict();
+var div = myCustomJaxName('#my-div');
 ```
 
 [Top](#basic-usage)
