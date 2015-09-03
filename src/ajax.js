@@ -37,9 +37,15 @@
         } else if (method == 'post') {
             // Set and send the request, setting the function to execute on the return of a response.
             window.jax.requests[index].open('POST', url, async);
-            window.jax.requests[index].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            window.jax.requests[index].setRequestHeader('Content-Length', data.length.toString());
-            window.jax.requests[index].setRequestHeader('Connection', 'close');
+            if (data != null) {
+                if (data.constructor != FormData) {
+                    window.jax.requests[index].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                    if (data.length != undefined) {
+                        window.jax.requests[index].setRequestHeader('Content-Length', data.length.toString());
+                    }
+                    window.jax.requests[index].setRequestHeader('Connection', 'close');
+                }
+            }
         }
 
         // If additional headers are set, send them

@@ -20,7 +20,9 @@
         if (type == null) {
             // Try from response object content type header
             if ((response.headers != undefined) && (response.headers['Content-Type'] != undefined)) {
-                if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
+                if (response.headers['Content-Type'].toLowerCase().indexOf('text/plain') != -1) {
+                    type = 'txt';
+                } else if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
                     type = 'json';
                 } else if (response.headers['Content-Type'].toLowerCase().indexOf('xml') != -1) {
                     type = 'xml';
@@ -64,6 +66,10 @@
         }
 
         switch (type) {
+            // Parse TXT response
+            case 'txt':
+                obj = response.text.toString();
+                break;
             // Parse JSON response
             case 'json':
                 obj = JSON.parse(decodeURIComponent(response.text));
