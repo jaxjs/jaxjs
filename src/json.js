@@ -10,7 +10,17 @@
          * @returns {Object}
          */
         parse : function(json) {
-            return(json.indexOf('{') != -1) ? JSON.parse(decodeURIComponent(json)) : window.jax.ajax(json);
+            var obj;
+            if (json.indexOf('{') != -1) {
+                try {
+                    obj = JSON.parse(decodeURIComponent(json));
+                } catch (e) {
+                    obj = JSON.parse(json);
+                }
+            } else {
+                obj = window.jax.ajax(json);
+            }
+            return obj;
         },
         /**
          * Function to turn an object into a JSON string

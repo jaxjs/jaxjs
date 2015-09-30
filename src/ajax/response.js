@@ -72,7 +72,11 @@
                 break;
             // Parse JSON response
             case 'json':
-                obj = JSON.parse(decodeURIComponent(response.text));
+                try {
+                    obj = JSON.parse(decodeURIComponent(response.text));
+                } catch (e) {
+                    obj = JSON.parse(response.text);
+                }
                 break;
 
             // Parse XML response
