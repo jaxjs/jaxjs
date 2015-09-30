@@ -20,6 +20,7 @@ jax.extend({
         var complete = ((opts != undefined) && (opts.complete != undefined)) ? opts.complete : null;
         var easingX  = null;
         var easingY  = null;
+        var percent  = false;
 
         if ((opts != undefined) && (opts.easing != undefined)) {
             easingX = opts.easing;
@@ -64,7 +65,7 @@ jax.extend({
                             params[e][1][m][1].x,
                             params[e][1][m][1].y,
                             parseInt(window.jax(elem).css('left')),
-                            parseInt(window.jax(elem).css('top')), tween, easingX,  easingY
+                            parseInt(window.jax(elem).css('top')), tween, easingX, easingY
                         );
                         break;
                     case 'slide':
@@ -73,6 +74,21 @@ jax.extend({
                             backPos = backPos.split(' ');
                             var orgX = parseInt(backPos[0]);
                             var orgY = parseInt(backPos[1]);
+                        } else {
+                            var orgX = 0;
+                            var orgY = 0;
+                        }
+                        steps = this.calcSteps(params[e][1][m][1].x, params[e][1][m][1].y, orgX, orgY, tween, easingX,  easingY);
+                        break;
+                    case 'size':
+                        var backSize = window.jax(elem).css('background-size');
+                        if ((backSize != null) && ((backSize.toString().indexOf('px') != -1) || (backSize.toString().indexOf('%') != -1))) {
+                            if (backSize.toString().indexOf('%') != -1) {
+                                percent = true;
+                            }
+                            backSize = backSize.split(' ');
+                            var orgX = parseInt(backSize[0]);
+                            var orgY = parseInt(backSize[1]);
                         } else {
                             var orgX = 0;
                             var orgY = 0;
@@ -190,6 +206,15 @@ jax.extend({
                                 var x = elms[q][1][n][1][c][0];
                                 var y = elms[q][1][n][1][c][1];
                                 window.jax(e).css('background-position', x + 'px ' + y + 'px');
+                                break;
+                            case 'size':
+                                var x = elms[q][1][n][1][c][0];
+                                var y = elms[q][1][n][1][c][1];
+                                if (percent) {
+                                    window.jax(e).css('background-size', x + '% ' + y + '%');
+                                } else {
+                                    window.jax(e).css('background-size', x + 'px ' + y + 'px');
+                                }
                                 break;
                             case 'blendColor':
                                 var x = elms[q][1][n][1][c];
