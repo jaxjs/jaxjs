@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2015 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0
- * @build      Sep 30, 2015 17:30:40
+ * @build      Feb 18, 2016 10:50:55
  */
 (function(window){
     /**
@@ -2238,22 +2238,30 @@ jax.extend({
     /**
      * Function to show all current elements
      *
+     * @param   {String} disp
      * @returns {jax}
      */
-    show : function() {
+    show : function(disp) {
+        if (disp == null) {
+            disp = 'block';
+        }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = 'block';
+            this[i].style.display = disp;
         }
         return this;
     },
     /**
      * Function to hide all current elements
      *
+     * @param   {String} disp
      * @returns {jax}
      */
-    hide : function() {
+    hide : function(disp) {
+        if (disp == null) {
+            disp = 'none';
+        }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = 'none';
+            this[i].style.display = disp;
         }
         return this;
     },

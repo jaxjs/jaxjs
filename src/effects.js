@@ -6,22 +6,30 @@ jax.extend({
     /**
      * Function to show all current elements
      *
+     * @param   {String} disp
      * @returns {jax}
      */
-    show : function() {
+    show : function(disp) {
+        if (disp == null) {
+            disp = 'block';
+        }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = 'block';
+            this[i].style.display = disp;
         }
         return this;
     },
     /**
      * Function to hide all current elements
      *
+     * @param   {String} disp
      * @returns {jax}
      */
-    hide : function() {
+    hide : function(disp) {
+        if (disp == null) {
+            disp = 'none';
+        }
         for (var i = 0; i < this.length; i++) {
-            this[i].style.display = 'none';
+            this[i].style.display = disp;
         }
         return this;
     },
