@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0
- * @build      Mar 22, 2016 13:10:46
+ * @build      Mar 26, 2016 16:10:43
  */
 (function(window){
     /**
@@ -885,6 +885,26 @@ jax.extend({
 })(window);
 
 /**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
  * ajax/http.js
  */
 (function(window){
@@ -943,26 +963,6 @@ jax.extend({
     };
 })(window);
 
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
 /**
  * ajax/get.js
  */
@@ -1050,6 +1050,83 @@ jax.extend({
      */
     prepend : function(type, attribs, value) {
         return this.append(type, attribs, value, true)
+    }
+});
+/**
+ * append/radio.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of radio elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {String}  marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendRadio : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objChild  = document.createElement('fieldset');
+        objChild.setAttribute('class', 'radio-fieldset');
+
+        // Create the child elements.
+        var i = 0;
+        for (var key in values) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'radio');
+            newElem.setAttribute('class', 'radio');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            newElem.setAttribute('value', key);
+
+            if (marked != null) {
+                newElem.checked = (marked == key);
+            }
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'radio-span');
+            spanElem.innerHTML = values[key];
+
+            objChild.appendChild(spanElem);
+            i++;
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of radio elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependRadio : function(values, attribs, marked) {
+        return this.appendRadio(values, attribs, marked, true);
     }
 });
 /**
@@ -1159,83 +1236,6 @@ jax.extend({
      */
     prependCheckbox : function(values, attribs, marked) {
         return this.appendCheckbox(values, attribs, marked, true);
-    }
-});
-/**
- * append/radio.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of radio elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {String}  marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendRadio : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objChild  = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-fieldset');
-
-        // Create the child elements.
-        var i = 0;
-        for (var key in values) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    if (attrib == 'tabindex') {
-                        att = att + i;
-                    }
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            newElem.setAttribute('value', key);
-
-            if (marked != null) {
-                newElem.checked = (marked == key);
-            }
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = values[key];
-
-            objChild.appendChild(spanElem);
-            i++;
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of radio elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependRadio : function(values, attribs, marked) {
-        return this.appendRadio(values, attribs, marked, true);
     }
 });
 /**
@@ -1544,6 +1544,27 @@ jax.extend({
     }
 });
 /**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
+/**
  * children/child.js
  */
 jax.extend({
@@ -1636,27 +1657,6 @@ jax.extend({
         } else {
             return undefined;
         }
-    }
-});
-/**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
     }
 });
 /**
@@ -1919,62 +1919,6 @@ jax.extend({
     }
 });
 /**
- * css/set.js
- */
-jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle opacity
-                case 'opacity':
-                    obj.style.opacity = properties[prop] / 100;
-                    break;
-                // Handle cssFloat
-                case 'float':
-                    obj.style.cssFloat = properties[prop];
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
-    }
-});
-/**
- * css/position.js
- */
-jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
-    }
-});
-/**
  * css/dimensions.js
  */
 jax.extend({
@@ -2094,6 +2038,49 @@ jax.extend({
     }
 });
 /**
+ * css/set.js
+ */
+jax.extend({
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle opacity
+                case 'opacity':
+                    obj.style.opacity = properties[prop] / 100;
+                    break;
+                // Handle cssFloat
+                case 'float':
+                    obj.style.cssFloat = properties[prop];
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
+    }
+});
+/**
  * css/get.js
  */
 jax.extend({
@@ -2174,6 +2161,19 @@ jax.extend({
         }
 
         return sty;
+    }
+});
+/**
+ * css/position.js
+ */
+jax.extend({
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2498,19 +2498,46 @@ jax.extend({
 })(window);
 
 /**
- * filter/lt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements less than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    lt : function(index) {
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/not.js
+ */
+jax.extend({
+    /**
+     * Function to negate the collection based on the negative selection
+     *
+     * @param   {Mixed} selector
+     * @returns {jax}
+     */
+    not : function(selector) {
+        var x = window.jax(selector);
         var ary = [];
         for (var i = 0; i < this.length; i++) {
-            if (i < index) {
+            var neq = true;
+            for (var j = 0; j < x.length; j++) {
+                if (this[i] === x[j]) {
+                    neq = false
+                }
+            }
+            if (neq) {
                 ary.push(this[i]);
             }
         }
@@ -2552,26 +2579,19 @@ jax.extend({
     }
 });
 /**
- * filter/not.js
+ * filter/lt.js
  */
 jax.extend({
     /**
-     * Function to negate the collection based on the negative selection
+     * Function to filter the collection to the elements less than the index
      *
-     * @param   {Mixed} selector
+     * @param   {Number} index
      * @returns {jax}
      */
-    not : function(selector) {
-        var x = window.jax(selector);
+    lt : function(index) {
         var ary = [];
         for (var i = 0; i < this.length; i++) {
-            var neq = true;
-            for (var j = 0; j < x.length; j++) {
-                if (this[i] === x[j]) {
-                    neq = false
-                }
-            }
-            if (neq) {
+            if (i < index) {
                 ary.push(this[i]);
             }
         }
@@ -2610,26 +2630,6 @@ jax.extend({
 
         for (var i = 0; i < ary.length; i++) {
             this.push(ary[i]);
-        }
-
-        return this;
-    }
-});
-/**
- * filter/eq.js
- */
-jax.extend({
-    /**
-     * Function to reduce the collection to the single element at the index
-     *
-     * @param   {Number} index
-     * @returns {jax}
-     */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
         }
 
         return this;

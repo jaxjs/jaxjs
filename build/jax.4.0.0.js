@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0
- * @build      Mar 22, 2016 13:10:41
+ * @build      Mar 26, 2016 16:10:39
  */
 (function(window){
     /**
@@ -255,6 +255,44 @@
 })(window);
 
 /**
+ * core/random.js
+ */
+(function(window){
+    /**
+     * Function to generate a random number between two numbers
+     *
+     * @param   {Number} num1
+     * @param   {Number} num2
+     * @returns {Number}
+     */
+    window.jax.rand   = null;
+    window.jax.random = function(num1, num2) {
+        var range;
+        var rand;
+
+        if ((num1 < 0) && (num2 < 0)) {
+            range = Math.abs(num1 - num2);
+        } else if ((num1 < 0) && (num2 >= 0)) {
+            range = Math.abs(num2 - num1);
+        } else {
+            range = num2 - num1;
+        }
+
+        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
+            window.jax.rand = [];
+        }
+
+        rand = Math.floor(Math.random() * (range + 1)) + num1;
+        while (window.jax.rand.indexOf(rand) != -1) {
+            rand = Math.floor(Math.random() * (range + 1)) + num1;
+        }
+
+        window.jax.rand.push(rand);
+        return rand;
+    };
+})(window);
+
+/**
  * core/misc.js
  */
 (function(window){
@@ -321,87 +359,6 @@
     /** Is value element function */
     window.jax.isElement = function(value) {
         return ((value != undefined) && (value.nodeName != undefined));
-    };
-})(window);
-
-/**
- * core/timing.js
- */
-(function(window){
-    window.jax.tO = null;
-    window.jax.iN = null;
-
-    /**
-     * Global delay function that uses setTimeout
-     *
-     * @param {Number}   ms
-     * @param {Function} func
-     */
-    window.jax.delay = function(ms, func) {
-        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
-            throw 'You must pass a millisecond value.'
-        }
-        window.jax.tO = setTimeout(func, ms);
-    };
-
-    /**
-     * Global repeat function that uses setInterval
-     *
-     * @param {Number}   ms
-     * @param {Function} func
-     */
-    window.jax.repeat = function(ms, func) {
-        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
-            throw 'You must pass a millisecond value.'
-        }
-        window.jax.iN = setInterval(func, ms);
-    };
-
-    /** Function to clear out the global delay timeout function */
-    window.jax.clearDelay = function() {
-        clearTimeout(window.jax.tO);
-    };
-
-    /** Function to clear out the global repeat interval function */
-    window.jax.clearRepeat = function() {
-        clearInterval(window.jax.iN);
-    };
-})(window);
-/**
- * core/random.js
- */
-(function(window){
-    /**
-     * Function to generate a random number between two numbers
-     *
-     * @param   {Number} num1
-     * @param   {Number} num2
-     * @returns {Number}
-     */
-    window.jax.rand   = null;
-    window.jax.random = function(num1, num2) {
-        var range;
-        var rand;
-
-        if ((num1 < 0) && (num2 < 0)) {
-            range = Math.abs(num1 - num2);
-        } else if ((num1 < 0) && (num2 >= 0)) {
-            range = Math.abs(num2 - num1);
-        } else {
-            range = num2 - num1;
-        }
-
-        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
-            window.jax.rand = [];
-        }
-
-        rand = Math.floor(Math.random() * (range + 1)) + num1;
-        while (window.jax.rand.indexOf(rand) != -1) {
-            rand = Math.floor(Math.random() * (range + 1)) + num1;
-        }
-
-        window.jax.rand.push(rand);
-        return rand;
     };
 })(window);
 
@@ -553,41 +510,6 @@
 })(window);
 
 /**
- * core/ready.js
- */
-jax.extend({
-    /**
-     * Function to trigger a function when the document object (implied) is loaded & ready.
-     *
-     * @param {Function} func
-     */
-    ready : function(func) {
-        document.addEventListener('DOMContentLoaded', func, false);
-    }
-});
-/**
- * core/import.js
- */
-(function(window){
-    /** Function to import variables passed into JS files via a query-string */
-    window.jax.importVars = function() {
-        var scripts = document.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].src != undefined) {
-                if (scripts[i].src.indexOf('.js?') != -1) {
-                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
-                    var varsAry = vars.split('&');
-                    for (var j = 0; j < varsAry.length; j++) {
-                        if (varsAry[j].indexOf('=') != -1) {
-                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
-                        }
-                    }
-                }
-            }
-        }
-    };
-})(window);
-/**
  * core/remove.js
  */
 jax.extend({
@@ -622,6 +544,62 @@ jax.extend({
     }
 });
 /**
+ * core/ready.js
+ */
+jax.extend({
+    /**
+     * Function to trigger a function when the document object (implied) is loaded & ready.
+     *
+     * @param {Function} func
+     */
+    ready : function(func) {
+        document.addEventListener('DOMContentLoaded', func, false);
+    }
+});
+/**
+ * core/timing.js
+ */
+(function(window){
+    window.jax.tO = null;
+    window.jax.iN = null;
+
+    /**
+     * Global delay function that uses setTimeout
+     *
+     * @param {Number}   ms
+     * @param {Function} func
+     */
+    window.jax.delay = function(ms, func) {
+        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
+            throw 'You must pass a millisecond value.'
+        }
+        window.jax.tO = setTimeout(func, ms);
+    };
+
+    /**
+     * Global repeat function that uses setInterval
+     *
+     * @param {Number}   ms
+     * @param {Function} func
+     */
+    window.jax.repeat = function(ms, func) {
+        if ((ms == null) || (typeof ms != 'number') || (isNaN(ms))) {
+            throw 'You must pass a millisecond value.'
+        }
+        window.jax.iN = setInterval(func, ms);
+    };
+
+    /** Function to clear out the global delay timeout function */
+    window.jax.clearDelay = function() {
+        clearTimeout(window.jax.tO);
+    };
+
+    /** Function to clear out the global repeat interval function */
+    window.jax.clearRepeat = function() {
+        clearInterval(window.jax.iN);
+    };
+})(window);
+/**
  * core/target.js
  */
 (function(window){
@@ -641,6 +619,28 @@ jax.extend({
     };
 })(window);
 
+/**
+ * core/import.js
+ */
+(function(window){
+    /** Function to import variables passed into JS files via a query-string */
+    window.jax.importVars = function() {
+        var scripts = document.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src != undefined) {
+                if (scripts[i].src.indexOf('.js?') != -1) {
+                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
+                    var varsAry = vars.split('&');
+                    for (var j = 0; j < varsAry.length; j++) {
+                        if (varsAry[j].indexOf('=') != -1) {
+                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
+                        }
+                    }
+                }
+            }
+        }
+    };
+})(window);
 /**
  * ajax.js
  */
@@ -1040,6 +1040,26 @@ jax.extend({
 })(window);
 
 /**
+ * ajax/get.js
+ */
+(function(window){
+    /**
+     * Alias function to perform a POST AJAX request
+     *
+     * @param   {String} url
+     * @param   {Object} opts
+     * @returns {Mixed}
+     */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
  * ajax/http.js
  */
 (function(window){
@@ -1098,26 +1118,6 @@ jax.extend({
     };
 })(window);
 
-/**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
 /**
  * ajax/get.js
  */
@@ -1205,6 +1205,83 @@ jax.extend({
      */
     prepend : function(type, attribs, value) {
         return this.append(type, attribs, value, true)
+    }
+});
+/**
+ * append/radio.js
+ */
+jax.extend({
+    /**
+     * Function to append a new set of radio elements to the current element
+     *
+     * @param   {Array}   values
+     * @param   {Object}  attribs
+     * @param   {String}  marked
+     * @param   {Boolean} pre
+     * @returns {jax}
+     */
+    appendRadio : function(values, attribs, marked, pre) {
+        if (this[0] == undefined) {
+            throw 'An object must be selected in which to append.';
+        }
+
+        // Set the main child element.
+        var objChild  = document.createElement('fieldset');
+        objChild.setAttribute('class', 'radio-fieldset');
+
+        // Create the child elements.
+        var i = 0;
+        for (var key in values) {
+            var newElem = document.createElement('input');
+            newElem.setAttribute('type', 'radio');
+            newElem.setAttribute('class', 'radio');
+
+            // Set any element attributes.
+            if ((attribs != undefined) && (attribs != null)) {
+                for (var attrib in attribs) {
+                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
+                    if (attrib == 'tabindex') {
+                        att = att + i;
+                    }
+                    newElem.setAttribute(attrib, att);
+                }
+            }
+
+            // Set elements' values and append them to the parent element.
+            newElem.setAttribute('value', key);
+
+            if (marked != null) {
+                newElem.checked = (marked == key);
+            }
+            objChild.appendChild(newElem);
+
+            var spanElem = document.createElement('span');
+            spanElem.setAttribute('class', 'radio-span');
+            spanElem.innerHTML = values[key];
+
+            objChild.appendChild(spanElem);
+            i++;
+        }
+
+        // Prepend or append the child element to the parent element.
+        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
+            this[0].insertBefore(objChild, this[0].childNodes[0]);
+        } else {
+            this[0].appendChild(objChild);
+        }
+
+        return this;
+    },
+    /**
+     * Alias function to prepend a new set of radio elements to the current element
+     *
+     * @param   {Array}  values
+     * @param   {Object} attribs
+     * @param   {Mixed}  marked
+     * @returns {jax}
+     */
+    prependRadio : function(values, attribs, marked) {
+        return this.appendRadio(values, attribs, marked, true);
     }
 });
 /**
@@ -1314,83 +1391,6 @@ jax.extend({
      */
     prependCheckbox : function(values, attribs, marked) {
         return this.appendCheckbox(values, attribs, marked, true);
-    }
-});
-/**
- * append/radio.js
- */
-jax.extend({
-    /**
-     * Function to append a new set of radio elements to the current element
-     *
-     * @param   {Array}   values
-     * @param   {Object}  attribs
-     * @param   {String}  marked
-     * @param   {Boolean} pre
-     * @returns {jax}
-     */
-    appendRadio : function(values, attribs, marked, pre) {
-        if (this[0] == undefined) {
-            throw 'An object must be selected in which to append.';
-        }
-
-        // Set the main child element.
-        var objChild  = document.createElement('fieldset');
-        objChild.setAttribute('class', 'radio-fieldset');
-
-        // Create the child elements.
-        var i = 0;
-        for (var key in values) {
-            var newElem = document.createElement('input');
-            newElem.setAttribute('type', 'radio');
-            newElem.setAttribute('class', 'radio');
-
-            // Set any element attributes.
-            if ((attribs != undefined) && (attribs != null)) {
-                for (var attrib in attribs) {
-                    var att = ((attrib == 'id') && (i > 0)) ? attribs[attrib] + i : attribs[attrib];
-                    if (attrib == 'tabindex') {
-                        att = att + i;
-                    }
-                    newElem.setAttribute(attrib, att);
-                }
-            }
-
-            // Set elements' values and append them to the parent element.
-            newElem.setAttribute('value', key);
-
-            if (marked != null) {
-                newElem.checked = (marked == key);
-            }
-            objChild.appendChild(newElem);
-
-            var spanElem = document.createElement('span');
-            spanElem.setAttribute('class', 'radio-span');
-            spanElem.innerHTML = values[key];
-
-            objChild.appendChild(spanElem);
-            i++;
-        }
-
-        // Prepend or append the child element to the parent element.
-        if ((pre != undefined) && (pre) && (this[0].childNodes[0] != undefined)) {
-            this[0].insertBefore(objChild, this[0].childNodes[0]);
-        } else {
-            this[0].appendChild(objChild);
-        }
-
-        return this;
-    },
-    /**
-     * Alias function to prepend a new set of radio elements to the current element
-     *
-     * @param   {Array}  values
-     * @param   {Object} attribs
-     * @param   {Mixed}  marked
-     * @returns {jax}
-     */
-    prependRadio : function(values, attribs, marked) {
-        return this.appendRadio(values, attribs, marked, true);
     }
 });
 /**
@@ -1888,6 +1888,27 @@ jax.extend({
 })(window);
 
 /**
+ * children/parent.js
+ */
+jax.extend({
+    /**
+     * Function to determine if there is a parent node
+     *
+     * @returns {Boolean}
+     */
+    hasParent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined));
+    },
+    /**
+     * Function to get the parent element of the current element
+     *
+     * @returns {Mixed}
+     */
+    parent : function() {
+        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
+    }
+});
+/**
  * children/child.js
  */
 jax.extend({
@@ -1980,27 +2001,6 @@ jax.extend({
         } else {
             return undefined;
         }
-    }
-});
-/**
- * children/parent.js
- */
-jax.extend({
-    /**
-     * Function to determine if there is a parent node
-     *
-     * @returns {Boolean}
-     */
-    hasParent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined));
-    },
-    /**
-     * Function to get the parent element of the current element
-     *
-     * @returns {Mixed}
-     */
-    parent : function() {
-        return ((this[0] != undefined) && (this[0].parentNode != undefined)) ? this[0].parentNode : undefined;
     }
 });
 /**
@@ -2263,62 +2263,6 @@ jax.extend({
     }
 });
 /**
- * css/set.js
- */
-jax.extend({
-    /**
-     * Function to set the CSS properties of the object passed.
-     *
-     * @param {Object} obj
-     * @param {Mixed}  props
-     * @param {Mixed}  val
-     */
-    setCss : function(obj, props, val) {
-        if ((props.constructor == String) && (val != null)) {
-            var properties = {};
-            properties[props] = val;
-        } else {
-            var properties = props;
-        }
-
-        for (var prop in properties) {
-            switch(prop) {
-                // Handle opacity
-                case 'opacity':
-                    obj.style.opacity = properties[prop] / 100;
-                    break;
-                // Handle cssFloat
-                case 'float':
-                    obj.style.cssFloat = properties[prop];
-                    break;
-                // Handle all other CSS properties.
-                default:
-                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
-                    if (prop.indexOf('-') != -1) {
-                        var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
-                    } else {
-                        var prp = prop;
-                    }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
-            }
-        }
-    }
-});
-/**
- * css/position.js
- */
-jax.extend({
-    /** Function to get the element's offset top position */
-    top : function() {
-        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
-    },
-    /** Function to get the element's offset left position */
-    left : function() {
-        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
-    }
-});
-/**
  * css/dimensions.js
  */
 jax.extend({
@@ -2438,6 +2382,49 @@ jax.extend({
     }
 });
 /**
+ * css/set.js
+ */
+jax.extend({
+    /**
+     * Function to set the CSS properties of the object passed.
+     *
+     * @param {Object} obj
+     * @param {Mixed}  props
+     * @param {Mixed}  val
+     */
+    setCss : function(obj, props, val) {
+        if ((props.constructor == String) && (val != null)) {
+            var properties = {};
+            properties[props] = val;
+        } else {
+            var properties = props;
+        }
+
+        for (var prop in properties) {
+            switch(prop) {
+                // Handle opacity
+                case 'opacity':
+                    obj.style.opacity = properties[prop] / 100;
+                    break;
+                // Handle cssFloat
+                case 'float':
+                    obj.style.cssFloat = properties[prop];
+                    break;
+                // Handle all other CSS properties.
+                default:
+                    // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
+                    if (prop.indexOf('-') != -1) {
+                        var propAry = prop.split('-');
+                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                    } else {
+                        var prp = prop;
+                    }
+                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+            }
+        }
+    }
+});
+/**
  * css/get.js
  */
 jax.extend({
@@ -2518,6 +2505,19 @@ jax.extend({
         }
 
         return sty;
+    }
+});
+/**
+ * css/position.js
+ */
+jax.extend({
+    /** Function to get the element's offset top position */
+    top : function() {
+        return ((this[0] != undefined) && (this[0].offsetTop != undefined)) ? this[0].offsetTop : undefined;
+    },
+    /** Function to get the element's offset left position */
+    left : function() {
+        return ((this[0] != undefined) && (this[0].offsetLeft != undefined)) ? this[0].offsetLeft : undefined;
     }
 });
 /**
@@ -2677,54 +2677,6 @@ jax.extend({
     }
 });
 /**
- * effects/slide.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'slide'
-     *
-     * @param   {Mixed}  x
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    slide : function(x, y, opts) {
-        if (this.length > 0) {
-            if ((this.delayTime) && (this.delayTime > 0)) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['slide', {"x" : x, "y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['slide', {"x" : x, "y" : y}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/move.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'move'
-     *
-     * @param   {Mixed}  x
-     * @param   {Mixed}  y
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    move : function(x, y, opts) {
-        if (this.length > 0) {
-            if ((this.delayTime) && (this.delayTime > 0)) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['move', {"x" : x, "y" : y}], opts);}, this.delayTime);
-            } else {
-                this.animate(['move', {"x" : x, "y" : y}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
  * effects/wipe.js
  */
 jax.extend({
@@ -2760,6 +2712,30 @@ jax.extend({
                 var tO = setTimeout(function() {self.animate(['wipeUp', {"h" : h}], opts);}, this.delayTime);
             } else {
                 this.animate(['wipeUp', {"h" : h}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * effects/resize.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'resize'
+     *
+     * @param   {Mixed}  w
+     * @param   {Mixed}  h
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    resize : function(w, h, opts) {
+        if (this.length > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['resize', {"w" : w, "h" : h}], opts);}, this.delayTime);
+            } else {
+                this.animate(['resize', {"w" : w, "h" : h}], opts);
             }
         }
         return this;
@@ -3021,48 +2997,24 @@ jax.extend({
     };
 })(window);
 /**
- * effects/slide.js
+ * effects/move.js
  */
 jax.extend({
     /**
-     * Alias function to animate selected elements via 'size'
+     * Alias function to animate selected elements via 'move'
      *
      * @param   {Mixed}  x
      * @param   {Mixed}  y
      * @param   {Object} opts
      * @returns {jax}
      */
-    size : function(x, y, opts) {
+    move : function(x, y, opts) {
         if (this.length > 0) {
             if ((this.delayTime) && (this.delayTime > 0)) {
                 var self = this;
-                var tO = setTimeout(function() {self.animate(['size', {"x" : x, "y" : y}], opts);}, this.delayTime);
+                var tO = setTimeout(function() {self.animate(['move', {"x" : x, "y" : y}], opts);}, this.delayTime);
             } else {
-                this.animate(['size', {"x" : x, "y" : y}], opts);
-            }
-        }
-        return this;
-    }
-});
-/**
- * effects/resize.js
- */
-jax.extend({
-    /**
-     * Alias function to animate selected elements via 'resize'
-     *
-     * @param   {Mixed}  w
-     * @param   {Mixed}  h
-     * @param   {Object} opts
-     * @returns {jax}
-     */
-    resize : function(w, h, opts) {
-        if (this.length > 0) {
-            if ((this.delayTime) && (this.delayTime > 0)) {
-                var self = this;
-                var tO = setTimeout(function() {self.animate(['resize', {"w" : w, "h" : h}], opts);}, this.delayTime);
-            } else {
-                this.animate(['resize', {"w" : w, "h" : h}], opts);
+                this.animate(['move', {"x" : x, "y" : y}], opts);
             }
         }
         return this;
@@ -3279,6 +3231,30 @@ jax.extend({
     };
 })(window);
 
+/**
+ * effects/slide.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'size'
+     *
+     * @param   {Mixed}  x
+     * @param   {Mixed}  y
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    size : function(x, y, opts) {
+        if (this.length > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['size', {"x" : x, "y" : y}], opts);}, this.delayTime);
+            } else {
+                this.animate(['size', {"x" : x, "y" : y}], opts);
+            }
+        }
+        return this;
+    }
+});
 /**
  * effects/animate.js
  */
@@ -3626,6 +3602,30 @@ jax.extend({
     }
 });
 /**
+ * effects/slide.js
+ */
+jax.extend({
+    /**
+     * Alias function to animate selected elements via 'slide'
+     *
+     * @param   {Mixed}  x
+     * @param   {Mixed}  y
+     * @param   {Object} opts
+     * @returns {jax}
+     */
+    slide : function(x, y, opts) {
+        if (this.length > 0) {
+            if ((this.delayTime) && (this.delayTime > 0)) {
+                var self = this;
+                var tO = setTimeout(function() {self.animate(['slide', {"x" : x, "y" : y}], opts);}, this.delayTime);
+            } else {
+                this.animate(['slide', {"x" : x, "y" : y}], opts);
+            }
+        }
+        return this;
+    }
+});
+/**
  * effects/fade.js
  */
 jax.extend({
@@ -3726,176 +3726,6 @@ jax.extend({
     }
 });
 /**
- * event/scroll.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onscroll of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    scroll : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onscroll = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/submit.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onsubmit of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    submit : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onsubmit = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/focus.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onfocus of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    focus : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onfocus = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/touch.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the touchcancel of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchcancel : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchcancel', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchend of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchend : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchend', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchenter', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchleave of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchleave : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchleave', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchmove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchmove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchmove', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the touchstart of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    touchstart : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].addEventListener('touchstart', function(event) {
-                    func(event);
-                    event.stopPropagation();
-                    event.preventDefault();
-                }, true);
-            }
-        }
-        return this;
-    }
-});
-/**
  * event/key.js
  */
 jax.extend({
@@ -3943,160 +3773,40 @@ jax.extend({
     }
 });
 /**
- * event/blur.js
+ * event/scroll.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onblur of an object
+     * Function to attach a event to the onscroll of an object
      *
      * @param   {Function} func
      * @returns {jax}
      */
-    blur : function(func) {
+    scroll : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onblur = func;
+                this[i].onscroll = func;
             }
         }
         return this;
     }
 });
 /**
- * event/mouse.js
+ * event/hover.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmousedown of an object
+     * Function to attach a event to the onmouseenter and onmouseleave (hover) of an object
      *
-     * @param   {Function} func
+     * @param   {Function} func1
+     * @param   {Function} func2
      * @returns {jax}
      */
-    mousedown : function(func) {
+    hover : function(func1, func2) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmousedown = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseenter of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseenter : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseenter = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseleave of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseleave : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseleave = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmousemove of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mousemove : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmousemove = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseout of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseout : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseout = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseover of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseover : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseover = func;
-            }
-        }
-        return this;
-    },
-    /**
-     * Function to attach a event to the onmouseup of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    mouseup : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onmouseup = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/change.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onchange of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    change : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onchange = func;
-            }
-        }
-        return this;
-    }
-});
-/**
- * event/select.js
- */
-jax.extend({
-    /**
-     * Function to attach a event to the onselect of an object
-     *
-     * @param   {Function} func
-     * @returns {jax}
-     */
-    select : function(func) {
-        if (this.length > 0) {
-            for (var i = 0; i < this.length; i++) {
-                this[i].onselect = func;
+                this[i].onmouseenter = func1;
+                this[i].onmouseleave = func2;
             }
         }
         return this;
@@ -4135,7 +3845,7 @@ jax.extend({
             var boundBottom = null;
             var onDragFunc  = null;
 
-            var dev    = browser.ua.toLowerCase().match(/(android|blackberry|windows ce|windows phone|opera mini|pre|presto|ipod|iphone|ipad|nokia|symbian|palm|treo|hiptop|avantgo|plucker|xiino|blazer|elaine|teleca|up.browser|up.link|mmp|smartphone|midp|wap|vodafone|o2|pocket|kindle|mobile|pda|psp)/i);
+            var dev    = navigator.userAgent.toLowerCase().match(/(android|blackberry|windows ce|windows phone|opera mini|pre|presto|ipod|iphone|ipad|nokia|symbian|palm|treo|hiptop|avantgo|plucker|xiino|blazer|elaine|teleca|up.browser|up.link|mmp|smartphone|midp|wap|vodafone|o2|pocket|kindle|mobile|pda|psp)/i);
             var mobile = ((dev != null) && (dev[0] != undefined));
 
             for (var i = 0; i < this.length; i++) {
@@ -4312,6 +4022,25 @@ jax.extend({
     }
 });
 /**
+ * event/submit.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onsubmit of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    submit : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onsubmit = func;
+            }
+        }
+        return this;
+    }
+});
+/**
  * event/click.js
  */
 jax.extend({
@@ -4331,21 +4060,292 @@ jax.extend({
     }
 });
 /**
- * event/hover.js
+ * event/blur.js
  */
 jax.extend({
     /**
-     * Function to attach a event to the onmouseenter and onmouseleave (hover) of an object
+     * Function to attach a event to the onblur of an object
      *
-     * @param   {Function} func1
-     * @param   {Function} func2
+     * @param   {Function} func
      * @returns {jax}
      */
-    hover : function(func1, func2) {
+    blur : function(func) {
         if (this.length > 0) {
             for (var i = 0; i < this.length; i++) {
-                this[i].onmouseenter = func1;
-                this[i].onmouseleave = func2;
+                this[i].onblur = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/select.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onselect of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    select : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onselect = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/touch.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the touchcancel of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchcancel : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchcancel', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchend of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchend : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchend', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchenter', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchleave of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchleave : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchleave', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchmove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchmove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchmove', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the touchstart of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    touchstart : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].addEventListener('touchstart', function(event) {
+                    func(event);
+                    event.stopPropagation();
+                    event.preventDefault();
+                }, true);
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/change.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onchange of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    change : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onchange = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/focus.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onfocus of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    focus : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onfocus = func;
+            }
+        }
+        return this;
+    }
+});
+/**
+ * event/mouse.js
+ */
+jax.extend({
+    /**
+     * Function to attach a event to the onmousedown of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mousedown : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmousedown = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseenter of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseenter : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseenter = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseleave of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseleave : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseleave = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmousemove of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mousemove : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmousemove = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseout of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseout : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseout = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseover of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseover : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseover = func;
+            }
+        }
+        return this;
+    },
+    /**
+     * Function to attach a event to the onmouseup of an object
+     *
+     * @param   {Function} func
+     * @returns {jax}
+     */
+    mouseup : function(func) {
+        if (this.length > 0) {
+            for (var i = 0; i < this.length; i++) {
+                this[i].onmouseup = func;
             }
         }
         return this;
@@ -4481,19 +4481,46 @@ jax.extend({
 })(window);
 
 /**
- * filter/lt.js
+ * filter/eq.js
  */
 jax.extend({
     /**
-     * Function to filter the collection to the elements less than the index
+     * Function to reduce the collection to the single element at the index
      *
      * @param   {Number} index
      * @returns {jax}
      */
-    lt : function(index) {
+    eq : function(index) {
+        if (this[index] != undefined) {
+            var elem = this[index];
+            this.clear();
+            this.push(elem);
+        }
+
+        return this;
+    }
+});
+/**
+ * filter/not.js
+ */
+jax.extend({
+    /**
+     * Function to negate the collection based on the negative selection
+     *
+     * @param   {Mixed} selector
+     * @returns {jax}
+     */
+    not : function(selector) {
+        var x = window.jax(selector);
         var ary = [];
         for (var i = 0; i < this.length; i++) {
-            if (i < index) {
+            var neq = true;
+            for (var j = 0; j < x.length; j++) {
+                if (this[i] === x[j]) {
+                    neq = false
+                }
+            }
+            if (neq) {
                 ary.push(this[i]);
             }
         }
@@ -4535,26 +4562,19 @@ jax.extend({
     }
 });
 /**
- * filter/not.js
+ * filter/lt.js
  */
 jax.extend({
     /**
-     * Function to negate the collection based on the negative selection
+     * Function to filter the collection to the elements less than the index
      *
-     * @param   {Mixed} selector
+     * @param   {Number} index
      * @returns {jax}
      */
-    not : function(selector) {
-        var x = window.jax(selector);
+    lt : function(index) {
         var ary = [];
         for (var i = 0; i < this.length; i++) {
-            var neq = true;
-            for (var j = 0; j < x.length; j++) {
-                if (this[i] === x[j]) {
-                    neq = false
-                }
-            }
-            if (neq) {
+            if (i < index) {
                 ary.push(this[i]);
             }
         }
@@ -4599,26 +4619,6 @@ jax.extend({
     }
 });
 /**
- * filter/eq.js
- */
-jax.extend({
-    /**
-     * Function to reduce the collection to the single element at the index
-     *
-     * @param   {Number} index
-     * @returns {jax}
-     */
-    eq : function(index) {
-        if (this[index] != undefined) {
-            var elem = this[index];
-            this.clear();
-            this.push(elem);
-        }
-
-        return this;
-    }
-});
-/**
  * json.js
  */
 (function(window){
@@ -4653,6 +4653,34 @@ jax.extend({
         }
     };
 })(window);
+/**
+ * load/unload.js
+ */
+jax.extend({
+    /**
+     * Function to add a function to the unload stack.
+     *
+     * @param {Function} func
+     */
+    unload : function(func) {
+        var objs = (this.length > 0) ? this.toArray() : [window];
+        for (var i = 0; i < objs.length; i++) {
+            // Get old unload function(s), if they exist.
+            var oldUnLoad = objs[i].onunload;
+
+            if (typeof objs[i].onunload != 'function') {
+                objs[i].onunload = func;
+            } else {
+                objs[i].onunload = function() {
+                    if (oldUnLoad) {
+                        oldUnLoad();
+                    }
+                    func();
+                };
+            }
+        }
+    }
+});
 /**
  * load/load.js
  */
@@ -4702,34 +4730,6 @@ jax.extend({
     };
 })(window);
 
-/**
- * load/unload.js
- */
-jax.extend({
-    /**
-     * Function to add a function to the unload stack.
-     *
-     * @param {Function} func
-     */
-    unload : function(func) {
-        var objs = (this.length > 0) ? this.toArray() : [window];
-        for (var i = 0; i < objs.length; i++) {
-            // Get old unload function(s), if they exist.
-            var oldUnLoad = objs[i].onunload;
-
-            if (typeof objs[i].onunload != 'function') {
-                objs[i].onunload = func;
-            } else {
-                objs[i].onunload = function() {
-                    if (oldUnLoad) {
-                        oldUnLoad();
-                    }
-                    func();
-                };
-            }
-        }
-    }
-});
 /**
  * mouse/y.js
  */
@@ -4949,6 +4949,31 @@ jax.extend({
 })(window);
 
 /**
+ * string/random.js
+ */
+(function(window){
+    /**
+     * Function to generate random alphanumeric string of a predefined length.
+     *
+     * @param   {Number} len
+     * @param   {Boolean} caps
+     * @returns {String}
+     */
+    window.jax.String.random = function(len, caps) {
+        // Array of alphanumeric characters. The O, 0, I, 1 and l have been removed to eliminate confusion.
+        var str = '';
+        var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+
+        for (var i = 0; i < len; i++) {
+            var num = (Math.floor(Math.random() * chars.length));
+            str += (caps != null) ? chars.charAt(num).toUpperCase() : chars.charAt(num);
+        }
+
+        return str;
+    };
+})(window);
+
+/**
  * string/clean.js
  */
 (function(window){
@@ -5065,6 +5090,20 @@ jax.extend({
 })(window);
 
 /**
+ * string/trim.js
+ */
+(function(window){
+    /** Function to trim the whitespace from the left of the string */
+    window.jax.String.prototype.trimLeft = function() {
+        return this.replace(/^\s+/, '');
+    };
+
+    /** Function to trim the whitespace from the right of the string */
+    window.jax.String.prototype.trimRight = function() {
+        return this.replace(/\s+$/, '');
+    };
+})(window);
+/**
  * string/money.js
  */
 (function(window){
@@ -5113,27 +5152,84 @@ jax.extend({
 })(window);
 
 /**
- * string/random.js
+ * string/slashes.js
  */
 (function(window){
     /**
-     * Function to generate random alphanumeric string of a predefined length.
+     * Function to add slashes to a string.
      *
-     * @param   {Number} len
-     * @param   {Boolean} caps
+     * @param   {Boolean} quot
      * @returns {String}
      */
-    window.jax.String.random = function(len, caps) {
-        // Array of alphanumeric characters. The O, 0, I, 1 and l have been removed to eliminate confusion.
-        var str = '';
-        var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-
-        for (var i = 0; i < len; i++) {
-            var num = (Math.floor(Math.random() * chars.length));
-            str += (caps != null) ? chars.charAt(num).toUpperCase() : chars.charAt(num);
+    window.jax.String.prototype.addslashes = function(quot) {
+        var str = this.replace(/\\/g, '\\\\');
+        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
+            str = str.replace(/\'/g, "\\'");
+        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
+            str = str.replace(/\"/g, '\\"');
+        } else {
+            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
         }
-
         return str;
+    };
+
+    /**
+     * Function to strip slashes from a string.
+     *
+     * @param   {Boolean} quot
+     * @returns {String}
+     */
+    window.jax.String.prototype.stripslashes = function(quot) {
+        var str = this.replace(/\\\\/g, '\\');
+        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
+            str = str.replace(/\\'/g, "'");
+        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
+            str = str.replace(/\\"/g, '"');
+        } else {
+            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
+        }
+        return str;
+    };
+})(window);
+
+/**
+ * string/slug.js
+ */
+(function(window){
+    /**
+     * Function to convert a string to an SEO-friendly slug.
+     *
+     * @param   {String} sep
+     * @returns {String}
+     */
+    window.jax.String.prototype.slug = function(sep) {
+        var slg = '';
+        var tmpSlg = '';
+        if (this.length > 0) {
+            if (sep != null) {
+                var slgAry = [];
+                var urlAry = this.split(sep);
+                for (var i = 0; i < urlAry.length; i++) {
+                    tmpSlg = urlAry[i].toLowerCase();
+                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                        .replace(/ /g, '-').replace(/-*-/g, '-');
+                    slgAry.push(tmpSlg);
+                }
+                tmpSlg = slgAry.join('/');
+                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
+                slg += tmpSlg;
+            } else {
+                tmpSlg = this.toLowerCase();
+                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
+                    .replace(/ /g, '-').replace(/-*-/g, '-');
+                slg += tmpSlg;
+                slg = slg.replace(/\/-/g, '/');
+            }
+            if (slg.lastIndexOf('-') == (slg.length - 1)) {
+                slg = slg.substring(0, slg.lastIndexOf('-'));
+            }
+        }
+        return slg;
     };
 })(window);
 
@@ -5234,102 +5330,6 @@ jax.extend({
     };
 })(window);
 
-/**
- * string/slug.js
- */
-(function(window){
-    /**
-     * Function to convert a string to an SEO-friendly slug.
-     *
-     * @param   {String} sep
-     * @returns {String}
-     */
-    window.jax.String.prototype.slug = function(sep) {
-        var slg = '';
-        var tmpSlg = '';
-        if (this.length > 0) {
-            if (sep != null) {
-                var slgAry = [];
-                var urlAry = this.split(sep);
-                for (var i = 0; i < urlAry.length; i++) {
-                    tmpSlg = urlAry[i].toLowerCase();
-                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                        .replace(/ /g, '-').replace(/-*-/g, '-');
-                    slgAry.push(tmpSlg);
-                }
-                tmpSlg = slgAry.join('/');
-                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
-                slg += tmpSlg;
-            } else {
-                tmpSlg = this.toLowerCase();
-                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                    .replace(/ /g, '-').replace(/-*-/g, '-');
-                slg += tmpSlg;
-                slg = slg.replace(/\/-/g, '/');
-            }
-            if (slg.lastIndexOf('-') == (slg.length - 1)) {
-                slg = slg.substring(0, slg.lastIndexOf('-'));
-            }
-        }
-        return slg;
-    };
-})(window);
-
-/**
- * string/slashes.js
- */
-(function(window){
-    /**
-     * Function to add slashes to a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.addslashes = function(quot) {
-        var str = this.replace(/\\/g, '\\\\');
-        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
-            str = str.replace(/\'/g, "\\'");
-        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
-            str = str.replace(/\"/g, '\\"');
-        } else {
-            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
-        }
-        return str;
-    };
-
-    /**
-     * Function to strip slashes from a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.stripslashes = function(quot) {
-        var str = this.replace(/\\\\/g, '\\');
-        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
-            str = str.replace(/\\'/g, "'");
-        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
-            str = str.replace(/\\"/g, '"');
-        } else {
-            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
-        }
-        return str;
-    };
-})(window);
-
-/**
- * string/trim.js
- */
-(function(window){
-    /** Function to trim the whitespace from the left of the string */
-    window.jax.String.prototype.trimLeft = function() {
-        return this.replace(/^\s+/, '');
-    };
-
-    /** Function to trim the whitespace from the right of the string */
-    window.jax.String.prototype.trimRight = function() {
-        return this.replace(/\s+$/, '');
-    };
-})(window);
 /**
  * val.js
  */
