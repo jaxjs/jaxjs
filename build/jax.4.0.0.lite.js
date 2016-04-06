@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    4.0.0
- * @build      Mar 26, 2016 16:10:43
+ * @build      Apr 5, 2016 19:10:10
  */
 (function(window){
     /**
@@ -2071,11 +2071,27 @@ jax.extend({
                     // Create properly formatted property, converting a dashed property to a camelCase property if applicable.
                     if (prop.indexOf('-') != -1) {
                         var propAry = prop.split('-');
-                        var prp = propAry[0].toLowerCase() + propAry[1].substring(0, 1).toUpperCase() + propAry[1].substring(1);
+                        var prp = propAry[0].toLowerCase();
+                        for (var i = 1; i < propAry.length; i++) {
+                            prp = prp + propAry[i].substring(0, 1).toUpperCase() + propAry[i].substring(1);
+                        }
                     } else {
                         var prp = prop;
                     }
-                    eval("obj.style." + prp + " = '" + properties[prop] + "';");
+
+                    if ((prp == 'backgroundPositionX') || (prp == 'backgroundPositionY')) {
+                        var bgPos = this.css('background-position');
+                        if (bgPos.indexOf(' ') != -1) {
+                            var bgPosAry = bgPos.split(' ');
+                            if (prp == 'backgroundPositionX') {
+                                eval("obj.style.backgroundPosition = '" + properties[prop] + " " + bgPosAry[1] + "';");
+                            } else {
+                                eval("obj.style.backgroundPosition = '" + bgPosAry[0] + " " + properties[prop] + "';");
+                            }
+                        }
+                    } else {
+                        eval("obj.style." + prp + " = '" + properties[prop] + "';");
+                    }
             }
         }
     }
@@ -2094,6 +2110,7 @@ jax.extend({
         var sty           = null;
         var opac          = false;
         var formattedProp = null;
+        var bgPos         = null;
 
         if (this[0] != undefined) {
             switch(props) {
@@ -2120,6 +2137,15 @@ jax.extend({
                     }
             }
 
+            if ((formattedProp == 'backgroundPositionX') || (formattedProp == 'backgroundPositionY')) {
+                bgPos         = (formattedProp == 'backgroundPositionX') ? 'x' : 'y';
+                formattedProp = 'backgroundPosition';
+            }
+            if ((props == 'background-position-x') || (props == 'background-position-y')) {
+                bgPos = (props == 'background-position-x') ? 'x' : 'y';
+                props = 'background-position';
+            }
+
             // Attempt to get the style if assigned via JavaScript, else attempt to get the style is computed/rendered via CSS.
             var assignedStyle = eval("this[0].style." + formattedProp + ";");
             var computedStyle = (window.getComputedStyle) ? window.getComputedStyle(this[0], null).getPropertyValue(props) :
@@ -2134,6 +2160,11 @@ jax.extend({
                 if (sty.toString() == '') {
                     sty = (window.jax(this[0]).css('display') != 'none') ? 100 : 0;
                 }
+            }
+
+            if ((bgPos != null) && (sty.indexOf(' ') != -1)) {
+                var styAry = sty.split(' ');
+                sty = (bgPos == 'x') ? styAry[0] : styAry[1];
             }
 
             if ((sty == undefined) || (sty == 'auto') || ((sty.constructor == String) && (sty.indexOf('%') != -1))) {

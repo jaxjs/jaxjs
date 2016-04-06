@@ -12,6 +12,7 @@ jax.extend({
         var sty           = null;
         var opac          = false;
         var formattedProp = null;
+        var bgPos         = null;
 
         if (this[0] != undefined) {
             switch(props) {
@@ -38,6 +39,15 @@ jax.extend({
                     }
             }
 
+            if ((formattedProp == 'backgroundPositionX') || (formattedProp == 'backgroundPositionY')) {
+                bgPos         = (formattedProp == 'backgroundPositionX') ? 'x' : 'y';
+                formattedProp = 'backgroundPosition';
+            }
+            if ((props == 'background-position-x') || (props == 'background-position-y')) {
+                bgPos = (props == 'background-position-x') ? 'x' : 'y';
+                props = 'background-position';
+            }
+
             // Attempt to get the style if assigned via JavaScript, else attempt to get the style is computed/rendered via CSS.
             var assignedStyle = eval("this[0].style." + formattedProp + ";");
             var computedStyle = (window.getComputedStyle) ? window.getComputedStyle(this[0], null).getPropertyValue(props) :
@@ -52,6 +62,11 @@ jax.extend({
                 if (sty.toString() == '') {
                     sty = (window.jax(this[0]).css('display') != 'none') ? 100 : 0;
                 }
+            }
+
+            if ((bgPos != null) && (sty.indexOf(' ') != -1)) {
+                var styAry = sty.split(' ');
+                sty = (bgPos == 'x') ? styAry[0] : styAry[1];
             }
 
             if ((sty == undefined) || (sty == 'auto') || ((sty.constructor == String) && (sty.indexOf('%') != -1))) {
