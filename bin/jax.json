@@ -1,33 +1,16 @@
 {
-    "version" : "4.0.0",
+    "version" : "5.0.0",
     "include" : [
         "core.js",
         "core",
         "ajax.js",
         "ajax",
-        "append.js",
-        "append",
-        "attrib.js",
         "browser.js",
-        "children",
-        "clone.js",
         "cookie.js",
-        "css.js",
-        "css",
-        "each.js",
-        "effects.js",
-        "effects",
-        "event.js",
-        "event",
-        "filter.js",
-        "filter",
         "json.js",
         "load",
-        "mouse",
-        "scroll.js",
         "storage.js",
         "string.js",
-        "string",
-        "val.js"
+        "string"
     ]
 }

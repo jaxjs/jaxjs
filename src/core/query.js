@@ -66,7 +66,7 @@
                                 }
                                 if (data.elements[i].type == 'checkbox') {
                                     query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' +
-                                    encodeURIComponent(data.elements[i].value);
+                                        encodeURIComponent(data.elements[i].value);
                                 } else {
                                     query += encodeURIComponent(name) + '=' + encodeURIComponent(data.elements[i].value);
                                 }
@@ -84,7 +84,7 @@
                                         query += '&';
                                     }
                                     query += encodeURIComponent(name + '[' + chkCount[name] + ']') + '=' +
-                                    encodeURIComponent(data.elements[i].options[j].value);
+                                        encodeURIComponent(data.elements[i].options[j].value);
                                 }
                             }
                             // Else a normal element
@@ -142,5 +142,38 @@
         }
 
         return query;
+    };
+    
+    /** Function to import variables passed into JS files via a query-string */
+    window.jax.importVars = function() {
+        var scripts = document.getElementsByTagName('script');
+        for (var i = 0; i < scripts.length; i++) {
+            if (scripts[i].src != undefined) {
+                if (scripts[i].src.indexOf('.js?') != -1) {
+                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
+                    var varsAry = vars.split('&');
+                    for (var j = 0; j < varsAry.length; j++) {
+                        if (varsAry[j].indexOf('=') != -1) {
+                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
+                        }
+                    }
+                }
+            }
+        }
+    };
+
+    /**
+     * Function to the target identifier of the document's URI
+     *
+     * @param   {String} u
+     * @returns {String}
+     */
+    window.jax.target = function(u) {
+        var url = (u != null) ? u : location.href;
+        var target = null;
+        if (url.indexOf('#') != -1) {
+            target = url.substring(url.indexOf('#') + 1);
+        }
+        return target;
     };
 })(window);
