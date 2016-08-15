@@ -44,16 +44,16 @@ assign handlers for what happens based on response status codes.
 First, let's start with a simple example where we grab some content from a text file:
 
 ```js
-$.get('./test.txt', {
+jax.get('./test.txt', {
     "status" : {
         200 : function(response) {
-            $('#response').val(response.text);
+            console.log(response.text);
         },
         404 : function(response) {
-            $('#response').val('The requested resource was not found.');
+            console.log('The requested resource was not found.');
         },
         "error" : function(response) {
-            $('#response').val('There was an unknown error.');
+            console.log('There was an unknown error.');
         }
     }
 });
@@ -67,16 +67,16 @@ error callback in case something unknown goes wrong.
 ##### POST request with a form object
 
 ```js
-$.post('./process/form.php', {
+jax.post('./process/form.php', {
     "status" : {
         200 : function(response) {
-            $('#result').val(response.text);
+            console.log(response.text);
         },
         "error" : function(response) {
-            $('#response').val('There was an unknown error.');
+            console.log('There was an unknown error.');
         }
     },
-    "data" : $('#user-form')[0]
+    "data" : jQuery('#user-form')[0]
 });
 ```
 
@@ -92,21 +92,20 @@ over from the request. This makes is very convenient to access the data:
 ###### JSON
 
 ```js
-var json = $.ajax('file.json');
+var json = jax.ajax('file.json');
 console.log(json.user_name);
 ```
 
 ###### CSV
 
 ```js
-var csv = $.ajax('file.csv');
+var csv = jax.ajax('file.csv');
 console.log(csv[0].user_name);
 ```
 
 ###### XML
 
 ```js
-var xml = $.ajax('file.xml');
+var xml = jax.ajax('file.xml');
 console.log(xml.test.nodes[0].user.user_name);
 ```
-
