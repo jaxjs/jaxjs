@@ -29,8 +29,8 @@ Installation is as easy as downloading it and including it in
 your web project's source code. In this repo, there is a `build/`
 folder with the main JS source files in it:
 
-    build/jax.5.0.0.js           // Uncompressed
-    build/jax.5.0.0.min.js       // Compressed
+    build/jax.5.5.0.js           // Uncompressed
+    build/jax.5.5.0.min.js       // Compressed
 
 DOCUMENTATION
 -------------
