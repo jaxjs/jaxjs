@@ -7,11 +7,38 @@
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    5.5.0
- * @build      Feb 27, 2017 15:05:45
+ * @build      Feb 27, 2017 16:15:44
  */
 (function(window){
     window.jax = {
         version : '5.5.0'  
+    };
+    window.jax.rand = null;
+
+    /** Function to generate a unique random number */
+    window.jax.random = function(num1, num2) {
+        var range;
+        var rand;
+
+        if ((num1 < 0) && (num2 < 0)) {
+            range = Math.abs(num1 - num2);
+        } else if ((num1 < 0) && (num2 >= 0)) {
+            range = Math.abs(num2 - num1);
+        } else {
+            range = num2 - num1;
+        }
+
+        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
+            window.jax.rand = [];
+        }
+
+        rand = Math.floor(Math.random() * (range + 1)) + num1;
+        while (window.jax.rand.indexOf(rand) != -1) {
+            rand = Math.floor(Math.random() * (range + 1)) + num1;
+        }
+
+        window.jax.rand.push(rand);
+        return rand;
     };
 
     /** Function to get a variable or variables from the query string */
