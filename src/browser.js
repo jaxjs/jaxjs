@@ -14,13 +14,8 @@
         android    : false, apple      : false, windows    : false,
         blackberry : false, pre        : false, device     : null,
         geo        : false,
-        /**
-         * Function to open a browser window
-         *
-         * @param {String} url
-         * @param {String} name
-         * @param {Object} opts
-         */
+
+        /** Function to open a browser window */
         open : function(url, name, opts) {
             if (url == undefined) {
                 throw "You must pass a url value.";
@@ -47,11 +42,8 @@
                 ',left=' + x + ',top=' + y;
             window.open(url, name, windowOpts);
         },
-        /**
-         * Function to route browser to a specific device
-         *
-         * @param {Object} options
-         */
+
+        /** Function to route browser to a specific device */
         route : function(options) {
             if (options == undefined) {
                 throw 'The route options were not defined.';

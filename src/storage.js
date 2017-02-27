@@ -4,13 +4,8 @@
 (function(window){
     window.jax.storage = {
         length : 0,
-        /**
-         * Function to save a value to local storage
-         *
-         * @param   {String} name
-         * @param   {Mixed}  value
-         * @returns {Object}
-         */
+
+        /** Function to save a value to local storage */
         save   : function(name, value) {
             if (typeof value != 'string') {
                 if (typeof value == 'number') {
@@ -23,12 +18,8 @@
             this.length = window.localStorage.length;
             return this;
         },
-        /**
-         * Function to get a value from local storage
-         *
-         * @param   {String} name
-         * @returns {Mixed}
-         */
+
+        /** Function to get a value from local storage */
         load : function(name) {
             if (name == null) {
                 var value = {};
@@ -52,12 +43,8 @@
 
             return value;
         },
-        /**
-         * Function to remove a value or all values from local storage
-         *
-         * @param   {String} name
-         * @returns {Object}
-         */
+
+        /** Function to remove a value or all values from local storage */
         remove : function(name) {
             if (name == null) {
                 window.localStorage.clear();

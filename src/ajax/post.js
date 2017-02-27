@@ -2,13 +2,7 @@
  * ajax/get.js
  */
 (function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
+    /** Alias function to perform a POST AJAX request */
     window.jax.post = function(url, opts) {
         if (opts == undefined) {
             opts = {method : 'post'};

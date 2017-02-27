@@ -4,13 +4,7 @@
 (function(window){
     window.jax.requests = [];
 
-    /**
-     * Function to perform AJAX requests
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
+    /** Function to perform AJAX requests */
     window.jax.ajax = function(url, opts) {
         // Create a new request object.
         var index = window.jax.random(100000, 999999);

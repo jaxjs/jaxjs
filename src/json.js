@@ -3,12 +3,7 @@
  */
 (function(window){
     window.jax.json = {
-        /**
-         * Function to parse either JSON string or a file that contains a JSON string
-         *
-         * @param   {String} json
-         * @returns {Object}
-         */
+        /** Function to parse either JSON string or a file that contains a JSON string */
         parse : function(json) {
             var obj;
             if (json.indexOf('{') != -1) {
@@ -22,12 +17,8 @@
             }
             return obj;
         },
-        /**
-         * Function to turn an object into a JSON string
-         *
-         * @param   {Object} obj
-         * @returns {String}
-         */
+
+        /** Function to turn an object into a JSON string */
         toString : function(obj) {
             return JSON.stringify(obj);
         }

@@ -2,17 +2,7 @@
  * ajax/response.js
  */
 (function(window){
-    /**
-     * Function to parse a response
-     *
-     * @param   {Object}   response
-     * @param   {Boolean}  fields
-     * @param   {String}   type
-     * @param   {String}   delim
-     * @param   {Boolean}  async
-     * @param   {Function} trace
-     * @returns {Object}
-     */
+    /** Function to parse a response */
     window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
         var obj;
 
@@ -253,12 +243,7 @@
         return obj;
     };
 
-    /**
-     * Function to get a response
-     *
-     * @param   {Number} index
-     * @returns {Object}
-     */
+    /** Function to get a response */
     window.jax.getResponse = function(index) {
         var response = {};
 

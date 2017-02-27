@@ -3,14 +3,7 @@
  */
 (function(window){
     window.jax.cookie = {
-        /**
-         * Function to save a cookie
-         *
-         * @param   {String} name
-         * @param   {String} value
-         * @param   {Object} options
-         * @returns {Object}
-         */
+        /** Function to save a cookie */
         save : function(name, value, options) {
             if (typeof value != 'string') {
                 if (typeof value == 'number') {
@@ -37,12 +30,8 @@
 
             return this;
         },
-        /**
-         * Function to load a cookie value
-         *
-         * @param   {String} name
-         * @returns {Mixed}
-         */
+
+        /** Function to load a cookie value */
         load : function(name) {
             var value = '';
 
@@ -80,12 +69,8 @@
 
             return value;
         },
-        /**
-         * Function to remove a cookie or all cookies
-         *
-         * @param   {String} name
-         * @returns {Object}
-         */
+
+        /** Function to remove a cookie or all cookies */
         remove : function(name) {
             if (name == null) {
                 var c = this.load();

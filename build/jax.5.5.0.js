@@ -6,26 +6,15 @@
  * @author     Nick Sagona, III <dev@nolainteractive.com>
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
- * @version    5.0.0
- * @build      Jul 17, 2016 17:41:41
+ * @version    5.5.0
+ * @build      Feb 27, 2017 15:05:45
  */
 (function(window){
     window.jax = {
-        version : '5.0.0'  
+        version : '5.5.0'  
     };
-})(window);
 
-/**
- * core/query.js
- */
-(function(window){
-    /**
-     * Function to get a variable or variables from the query string
-     *
-     * @param   {String} key
-     * @param   {String} u
-     * @returns {Mixed}
-     */
+    /** Function to get a variable or variables from the query string */
     window.jax.query = function(key, u) {
         var vars = [];
         var url = (u != null) ? u : location.href;
@@ -51,12 +40,7 @@
         }
     };
 
-    /**
-     * Function to build a query
-     *
-     * @param   {Mixed} data
-     * @returns {String}
-     */
+    /** Function to build a query */
     window.jax.buildQuery = function(data) {
         if (data.constructor != FormData) {
             var query = '';
@@ -160,31 +144,8 @@
 
         return query;
     };
-    
-    /** Function to import variables passed into JS files via a query-string */
-    window.jax.importVars = function() {
-        var scripts = document.getElementsByTagName('script');
-        for (var i = 0; i < scripts.length; i++) {
-            if (scripts[i].src != undefined) {
-                if (scripts[i].src.indexOf('.js?') != -1) {
-                    var vars = scripts[i].src.substring(scripts[i].src.indexOf('.js?') + 4);
-                    var varsAry = vars.split('&');
-                    for (var j = 0; j < varsAry.length; j++) {
-                        if (varsAry[j].indexOf('=') != -1) {
-                            eval('window.' + varsAry[j].replace('=', ' = "') + '"');
-                        }
-                    }
-                }
-            }
-        }
-    };
 
-    /**
-     * Function to the target identifier of the document's URI
-     *
-     * @param   {String} u
-     * @returns {String}
-     */
+    /** Function to return the target identifier of the document's URI */
     window.jax.target = function(u) {
         var url = (u != null) ? u : location.href;
         var target = null;
@@ -193,43 +154,22 @@
         }
         return target;
     };
-})(window);
 
-/**
- * core/random.js
- */
-(function(window){
-    /**
-     * Function to generate a random number between two numbers
-     *
-     * @param   {Number} num1
-     * @param   {Number} num2
-     * @returns {Number}
-     */
-    window.jax.rand   = null;
-    window.jax.random = function(num1, num2) {
-        var range;
-        var rand;
+    /** Function to fire before window is unloaded */
+    window.jax.beforeunload = function(func) {
+        // Get old beforeunload function(s), if they exist.
+        var oldBeforeUnLoad = window.onbeforeunload;
 
-        if ((num1 < 0) && (num2 < 0)) {
-            range = Math.abs(num1 - num2);
-        } else if ((num1 < 0) && (num2 >= 0)) {
-            range = Math.abs(num2 - num1);
+        if (typeof window.onbeforeunload != 'function') {
+            window.onbeforeunload = func;
         } else {
-            range = num2 - num1;
+            window.onbeforeunload = function() {
+                if (oldBeforeUnLoad) {
+                    oldBeforeUnLoad();
+                }
+                func();
+            };
         }
-
-        if ((window.jax.rand == undefined) || (window.jax.rand.length > range)) {
-            window.jax.rand = [];
-        }
-
-        rand = Math.floor(Math.random() * (range + 1)) + num1;
-        while (window.jax.rand.indexOf(rand) != -1) {
-            rand = Math.floor(Math.random() * (range + 1)) + num1;
-        }
-
-        window.jax.rand.push(rand);
-        return rand;
     };
 })(window);
 
@@ -239,13 +179,7 @@
 (function(window){
     window.jax.requests = [];
 
-    /**
-     * Function to perform AJAX requests
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
+    /** Function to perform AJAX requests */
     window.jax.ajax = function(url, opts) {
         // Create a new request object.
         var index = window.jax.random(100000, 999999);
@@ -339,17 +273,7 @@
  * ajax/response.js
  */
 (function(window){
-    /**
-     * Function to parse a response
-     *
-     * @param   {Object}   response
-     * @param   {Boolean}  fields
-     * @param   {String}   type
-     * @param   {String}   delim
-     * @param   {Boolean}  async
-     * @param   {Function} trace
-     * @returns {Object}
-     */
+    /** Function to parse a response */
     window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
         var obj;
 
@@ -590,12 +514,7 @@
         return obj;
     };
 
-    /**
-     * Function to get a response
-     *
-     * @param   {Number} index
-     * @returns {Object}
-     */
+    /** Function to get a response */
     window.jax.getResponse = function(index) {
         var response = {};
 
@@ -632,48 +551,19 @@
 })(window);
 
 /**
- * ajax/get.js
- */
-(function(window){
-    /**
-     * Alias function to perform a POST AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
  * ajax/http.js
  */
 (function(window){
     window.jax.http = {
-        /**
-         * Function to get the HTTP request status of a URL
-         *
-         * @param   {String} url
-         * @returns {Number}
-         */
+        /** Function to get the HTTP request status of a URL */
         getStatus : function(url) {
             var http = new XMLHttpRequest();
             http.open('HEAD', url, false);
             http.send();
             return http.status;
         },
-        /**
-         * Function to determine if the HTTP request is successful
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
+
+        /** Function to determine if the HTTP request is successful */
         isSuccess : function(url) {
             var http = new XMLHttpRequest();
             http.open('HEAD', url, false);
@@ -681,12 +571,8 @@
             var type = Math.floor(http.status / 100);
             return ((type == 3) || (type == 2) || (type == 1));
         },
-        /**
-         * Function to determine if the HTTP request is a redirect
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
+
+        /** Function to determine if the HTTP request is a redirect */
         isRedirect : function(url) {
             var http = new XMLHttpRequest();
             http.open('HEAD', url, false);
@@ -694,12 +580,8 @@
             var type = Math.floor(http.status / 100);
             return (type == 3);
         },
-        /**
-         * Function to determine if the HTTP request is an error
-         *
-         * @param   {String} url
-         * @returns {boolean}
-         */
+
+        /** Function to determine if the HTTP request is an error */
         isError : function(url) {
             var http = new XMLHttpRequest();
             http.open('HEAD', url, false);
@@ -714,13 +596,21 @@
  * ajax/get.js
  */
 (function(window){
-    /**
-     * Alias function to perform a GET AJAX request
-     *
-     * @param   {String} url
-     * @param   {Object} opts
-     * @returns {Mixed}
-     */
+    /** Alias function to perform a POST AJAX request */
+    window.jax.post = function(url, opts) {
+        if (opts == undefined) {
+            opts = {method : 'post'};
+        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
+            opts.method = 'post';
+        }
+        return window.jax.ajax(url, opts);
+    };
+})(window);
+/**
+ * ajax/get.js
+ */
+(function(window){
+    /** Alias function to perform a GET AJAX request */
     window.jax.get = function(url, opts) {
         if (opts == undefined) {
             opts = {method : 'get'};
@@ -747,13 +637,8 @@
         android    : false, apple      : false, windows    : false,
         blackberry : false, pre        : false, device     : null,
         geo        : false,
-        /**
-         * Function to open a browser window
-         *
-         * @param {String} url
-         * @param {String} name
-         * @param {Object} opts
-         */
+
+        /** Function to open a browser window */
         open : function(url, name, opts) {
             if (url == undefined) {
                 throw "You must pass a url value.";
@@ -780,11 +665,8 @@
                 ',left=' + x + ',top=' + y;
             window.open(url, name, windowOpts);
         },
-        /**
-         * Function to route browser to a specific device
-         *
-         * @param {Object} options
-         */
+
+        /** Function to route browser to a specific device */
         route : function(options) {
             if (options == undefined) {
                 throw 'The route options were not defined.';
@@ -925,14 +807,7 @@
  */
 (function(window){
     window.jax.cookie = {
-        /**
-         * Function to save a cookie
-         *
-         * @param   {String} name
-         * @param   {String} value
-         * @param   {Object} options
-         * @returns {Object}
-         */
+        /** Function to save a cookie */
         save : function(name, value, options) {
             if (typeof value != 'string') {
                 if (typeof value == 'number') {
@@ -959,12 +834,8 @@
 
             return this;
         },
-        /**
-         * Function to load a cookie value
-         *
-         * @param   {String} name
-         * @returns {Mixed}
-         */
+
+        /** Function to load a cookie value */
         load : function(name) {
             var value = '';
 
@@ -1002,12 +873,8 @@
 
             return value;
         },
-        /**
-         * Function to remove a cookie or all cookies
-         *
-         * @param   {String} name
-         * @returns {Object}
-         */
+
+        /** Function to remove a cookie or all cookies */
         remove : function(name) {
             if (name == null) {
                 var c = this.load();
@@ -1028,12 +895,7 @@
  */
 (function(window){
     window.jax.json = {
-        /**
-         * Function to parse either JSON string or a file that contains a JSON string
-         *
-         * @param   {String} json
-         * @returns {Object}
-         */
+        /** Function to parse either JSON string or a file that contains a JSON string */
         parse : function(json) {
             var obj;
             if (json.indexOf('{') != -1) {
@@ -1047,51 +909,21 @@
             }
             return obj;
         },
-        /**
-         * Function to turn an object into a JSON string
-         *
-         * @param   {Object} obj
-         * @returns {String}
-         */
+
+        /** Function to turn an object into a JSON string */
         toString : function(obj) {
             return JSON.stringify(obj);
         }
     };
 })(window);
 /**
- * load/beforeunload.js
- */
-(function(window){
-    window.jax.beforeunload = function(func) {
-        // Get old beforeunload function(s), if they exist.
-        var oldBeforeUnLoad = window.onbeforeunload;
-
-        if (typeof window.onbeforeunload != 'function') {
-            window.onbeforeunload = func;
-        } else {
-            window.onbeforeunload = function() {
-                if (oldBeforeUnLoad) {
-                    oldBeforeUnLoad();
-                }
-                func();
-            };
-        }
-    };
-})(window);
-
-/**
  * storage.js
  */
 (function(window){
     window.jax.storage = {
         length : 0,
-        /**
-         * Function to save a value to local storage
-         *
-         * @param   {String} name
-         * @param   {Mixed}  value
-         * @returns {Object}
-         */
+
+        /** Function to save a value to local storage */
         save   : function(name, value) {
             if (typeof value != 'string') {
                 if (typeof value == 'number') {
@@ -1104,12 +936,8 @@
             this.length = window.localStorage.length;
             return this;
         },
-        /**
-         * Function to get a value from local storage
-         *
-         * @param   {String} name
-         * @returns {Mixed}
-         */
+
+        /** Function to get a value from local storage */
         load : function(name) {
             if (name == null) {
                 var value = {};
@@ -1133,12 +961,8 @@
 
             return value;
         },
-        /**
-         * Function to remove a value or all values from local storage
-         *
-         * @param   {String} name
-         * @returns {Object}
-         */
+
+        /** Function to remove a value or all values from local storage */
         remove : function(name) {
             if (name == null) {
                 window.localStorage.clear();
@@ -1150,393 +974,3 @@
         }
     };
 })(window);
-/**
- * string.js
- */
-(function(window){
-    /** Copy and extend the native String class to the main jax object */
-    window.jax.String = String;
-})(window);
-
-/**
- * string/case.js
- */
-(function(window){
-    /**
-     * Function to convert string from under_score or hyphenated to camelCase.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toCamelcase = function() {
-        var str = this;
-        var delim = (str.indexOf('_') != -1) ? '_' : '-';
-
-        var strAry = str.split(delim);
-        var camelCase = '';
-        for (var i = 0; i < strAry.length; i++) {
-            if (i == 0) {
-                camelCase += strAry[i];
-            } else {
-                camelCase += strAry[i].substring(0, 1).toUpperCase() + strAry[i].substring(1);
-            }
-        }
-
-        return camelCase;
-    };
-
-    /**
-     * Function to convert string from hyphenated or camelCase to under_score.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toUnderscore = function() {
-        var str = this;
-        var under_score = '';
-
-        if (str.indexOf('-') != -1) {
-            under_score = str.replace('-', '_').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    under_score += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        under_score += ('_' + str[i].toLowerCase());
-                    } else {
-                        under_score += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return under_score;
-    };
-
-    /**
-     * Function to convert string from under_score or camelCase to hyphenated.
-     *
-     * @returns {String}
-     */
-    window.jax.String.prototype.toHyphen = function() {
-        var str = this;
-        var hyphen = '';
-
-        if (str.indexOf('_') != -1) {
-            hyphen = str.replace('_', '-').toLowerCase();
-        } else {
-            for (var i = 0; i < str.length; i++) {
-                if (i == 0) {
-                    hyphen += str[i].toLowerCase();
-                } else {
-                    if (str[i] == str[i].toUpperCase()) {
-                        hyphen += ('-' + str[i].toLowerCase());
-                    } else {
-                        hyphen += str[i].toLowerCase();
-                    }
-                }
-            }
-        }
-
-        return hyphen;
-    };
-})(window);
-
-/**
- * string/clean.js
- */
-(function(window){
-    /**
-     * Function to clean any common MS Word-based characters.
-     *
-     * @param   {Boolean} html
-     * @returns {String}
-     */
-    window.jax.String.prototype.clean = function(html) {
-        if (html != null) {
-            var apos = "&#39;";
-            var quot = "&#34;";
-            var dash = "&#150;";
-        } else {
-            var apos = "'";
-            var quot = '"';
-            var dash = "-";
-        }
-
-        var str = this;
-        str = str.replace(new RegExp(String.fromCharCode(8217), 'g'), apos);
-        str = str.replace(new RegExp(String.fromCharCode(8220), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8221), 'g'), quot);
-        str = str.replace(new RegExp(String.fromCharCode(8211), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(45), 'g'), dash);
-        str = str.replace(new RegExp(String.fromCharCode(8230), 'g'), "...");
-
-        return str;
-    };
-})(window);
-
-/**
- * string/trim.js
- */
-(function(window){
-    /** Function to trim the whitespace from the left of the string */
-    window.jax.String.prototype.trimLeft = function() {
-        return this.replace(/^\s+/, '');
-    };
-
-    /** Function to trim the whitespace from the right of the string */
-    window.jax.String.prototype.trimRight = function() {
-        return this.replace(/\s+$/, '');
-    };
-})(window);
-/**
- * string/random.js
- */
-(function(window){
-    /**
-     * Function to generate random alphanumeric string of a predefined length.
-     *
-     * @param   {Number} len
-     * @param   {Boolean} caps
-     * @returns {String}
-     */
-    window.jax.String.random = function(len, caps) {
-        // Array of alphanumeric characters. The O, 0, I, 1 and l have been removed to eliminate confusion.
-        var str = '';
-        var chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-
-        for (var i = 0; i < len; i++) {
-            var num = (Math.floor(Math.random() * chars.length));
-            str += (caps != null) ? chars.charAt(num).toUpperCase() : chars.charAt(num);
-        }
-
-        return str;
-    };
-})(window);
-
-/**
- * string/money.js
- */
-(function(window){
-    /**
-     * Function to convert a number to currency-formatted string
-     *
-     * @param   {String} cur
-     * @param   {Number} dec
-     * @returns {String}
-     */
-    window.jax.String.prototype.money = function(cur, dec) {
-        var num = this;
-        var decimal = '';
-
-        if (cur == null) {
-            cur = '$';
-        }
-        if (dec == null) {
-            dec = 2;
-        }
-
-        if (num.indexOf('.') != -1) {
-            var numAry = num.split('.');
-            var intgr = parseInt(numAry[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','));
-            if (dec > 0) {
-                decimal = Number('.' + numAry[1]).toFixed(dec);
-            } else {
-                decimal = '';
-            }
-        } else {
-            var intgr = parseInt(num.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
-            if (dec > 0) {
-                decimal = '.';
-                for (var i = 0; i < dec; i++) {
-                    decimal += '0';
-                }
-            } else {
-                decimal = '';
-            }
-        }
-
-        decimal = parseFloat(decimal);
-
-        return cur + new Number(intgr + decimal).toFixed(dec);
-    };
-})(window);
-
-/**
- * string/html.js
- */
-(function(window){
-    /**
-     * Function to convert certain HTML characters to HTML entities.
-     *
-     * @param   {Boolean} quot
-     * @param   {Boolean} strict
-     * @returns {String}
-     */
-    window.jax.String.prototype.html = function(quot, strict) {
-        var str = this.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        if ((quot != undefined) && (quot != null)) {
-            str = str.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        }
-        if ((strict != undefined) && (strict != null)) {
-            str = str.replace(/\(/g, '&#40;').replace(/\)/g, '&#41;').replace(/\//g, '&#47;')
-                     .replace(/:/g, '&#58;').replace(/\[/g, '&#91;').replace(/\]/g, '&#93;')
-                     .replace(/\\/g, '&#92;').replace(/{/g, '&#123;').replace(/}/g, '&#125;');
-        }
-        return str;
-    };
-
-    /**
-     * Function to convert certain HTML entities back to HTML characters.
-     *
-     * @param   {Boolean} quot
-     * @param   {Boolean} strict
-     * @returns {String}
-     */
-    window.jax.String.prototype.dehtml = function(quot, strict) {
-        var str = this.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-        if (quot != undefined) {
-            str = str.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-        }
-        if (strict != undefined) {
-            str = str.replace(/&#40;/g, '(').replace(/&#41;/g, ')').replace(/&#47;/g, '/')
-                .replace(/&#58;/g, ':').replace(/&#91;/g, '[').replace(/&#93;/g, ']')
-                .replace(/&#92;/g, '\\').replace(/&#123;/g, '{').replace(/&#125;/g, '}');
-        }
-        return str;
-    };
-
-    /**
-     * Function to convert any links in the string to clickable HTML links.
-     *
-     * @param   {Boolean} tar
-     * @returns {String}
-     */
-    window.jax.String.prototype.links = function(tar) {
-        var str     = this;
-        var matches = [];
-        var targ    = (tar != null) ? ' target="_blank"' : '';
-
-        var protocolMatches = this.match(/[f|ht]+tp:\/\/[^\s]*/g);
-        var linkMatches     = this.match(/\s[\w]+[a-zA-Z0-9\.\-\_]+(\.[a-zA-Z]{2,4})/g);
-        var mailMatches     = this.match(/[a-zA-Z0-9\.\-\_+%]+@[a-zA-Z0-9\-\_\.]+\.[a-zA-Z]{2,4}/g);
-
-        if (protocolMatches[0] != undefined) {
-            for (var i = 0; i < protocolMatches.length; i++) {
-                matches.push([protocolMatches[i], '<a href="' + protocolMatches[i].trim() + '"' + targ + '>' +
-                    protocolMatches[i].trim() + '</a>']);
-            }
-        }
-
-        if (linkMatches[0] != undefined) {
-            for (var i = 0; i < linkMatches.length; i++) {
-                var lnk = linkMatches[i].trim();
-                if (lnk.substring(0, 4) == 'ftp.') {
-                    lnk = 'ftp://' + lnk;
-                } else if (lnk.substring(0, 4) == 'www.') {
-                    lnk = 'http://' + lnk;
-                } else if (lnk.substring(0, 4) != 'http') {
-                    lnk = 'http://' + lnk;
-                }
-                matches.push([linkMatches[i], ' <a href="' + lnk + '"' + targ + '>' + linkMatches[i].trim() + '</a>']);
-            }
-        }
-
-        if (mailMatches[0] != undefined) {
-            for (var i = 0; i < mailMatches.length; i++) {
-                matches.push([mailMatches[i], '<a href="mailto:' + mailMatches[i].trim() + '"' + targ + '>' +
-                    mailMatches[i].trim() + '</a>']);
-            }
-        }
-
-        if (matches[0] != undefined) {
-            for (var i = 0; i < matches.length; i++) {
-                str = str.replace(matches[i][0], matches[i][1]);
-            }
-        }
-
-        return str;
-    };
-})(window);
-
-/**
- * string/slug.js
- */
-(function(window){
-    /**
-     * Function to convert a string to an SEO-friendly slug.
-     *
-     * @param   {String} sep
-     * @returns {String}
-     */
-    window.jax.String.prototype.slug = function(sep) {
-        var slg = '';
-        var tmpSlg = '';
-        if (this.length > 0) {
-            if (sep != null) {
-                var slgAry = [];
-                var urlAry = this.split(sep);
-                for (var i = 0; i < urlAry.length; i++) {
-                    tmpSlg = urlAry[i].toLowerCase();
-                    tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                        .replace(/ /g, '-').replace(/-*-/g, '-');
-                    slgAry.push(tmpSlg);
-                }
-                tmpSlg = slgAry.join('/');
-                tmpSlg = tmpSlg.replace(/-\/-/g, '/').replace(/\/-/g, '/').replace(/-\//g, '/');
-                slg += tmpSlg;
-            } else {
-                tmpSlg = this.toLowerCase();
-                tmpSlg = tmpSlg.replace(/\&/g, 'and').replace(/([^a-zA-Z0-9 \-\/])/g, '')
-                    .replace(/ /g, '-').replace(/-*-/g, '-');
-                slg += tmpSlg;
-                slg = slg.replace(/\/-/g, '/');
-            }
-            if (slg.lastIndexOf('-') == (slg.length - 1)) {
-                slg = slg.substring(0, slg.lastIndexOf('-'));
-            }
-        }
-        return slg;
-    };
-})(window);
-
-/**
- * string/slashes.js
- */
-(function(window){
-    /**
-     * Function to add slashes to a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.addslashes = function(quot) {
-        var str = this.replace(/\\/g, '\\\\');
-        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
-            str = str.replace(/\'/g, "\\'");
-        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
-            str = str.replace(/\"/g, '\\"');
-        } else {
-            str = str.replace(/\"/g, '\\"').replace(/\'/g, "\\'");
-        }
-        return str;
-    };
-
-    /**
-     * Function to strip slashes from a string.
-     *
-     * @param   {Boolean} quot
-     * @returns {String}
-     */
-    window.jax.String.prototype.stripslashes = function(quot) {
-        var str = this.replace(/\\\\/g, '\\');
-        if ((quot != undefined) && (quot.toLowerCase() == 'single')) {
-            str = str.replace(/\\'/g, "'");
-        } else if ((quot != undefined) && (quot.toLowerCase() == 'double')) {
-            str = str.replace(/\\"/g, '"');
-        } else {
-            str = str.replace(/\\'/g, "'").replace(/\\"/g, '"');
-        }
-        return str;
-    };
-})(window);
-

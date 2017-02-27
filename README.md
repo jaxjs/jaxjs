@@ -5,8 +5,8 @@ Jax JavaScript Library
 
 RELEASE INFORMATION
 -------------------
-Jax JavaScript Library 5.0.0  
-Released July 18, 2016
+Jax JavaScript Library 5.5.0  
+Released February 27, 2017
 
 OVERVIEW
 --------
@@ -32,80 +32,8 @@ folder with the main JS source files in it:
     build/jax.5.0.0.js           // Uncompressed
     build/jax.5.0.0.min.js       // Compressed
 
-## USING AJAX
+DOCUMENTATION
+-------------
 
-The Jax JavaScript Library handles AJAX requests as well. It even provides auto-detection
-of content types to try and make handling data easier for you. The common content-types
-that are supported for auto-detection are JSON, CSV and XML. Furthermore, you can
-assign handlers for what happens based on response status codes.
-
-##### GET request
-
-First, let's start with a simple example where we grab some content from a text file:
-
-```js
-jax.get('./test.txt', {
-    "status" : {
-        200 : function(response) {
-            console.log(response.text);
-        },
-        404 : function(response) {
-            console.log('The requested resource was not found.');
-        },
-        "error" : function(response) {
-            console.log('There was an unknown error.');
-        }
-    }
-});
-```
-
-In the above example, we perform a GET request to the `test.txt` URL and we set a callback
-function to set the `#response` element's contents to the text content from the response.
-We also set a specific 404 status callback should the URL not be found, as well a generic
-error callback in case something unknown goes wrong.
-
-##### POST request with a form object
-
-```js
-jax.post('./process/form.php', {
-    "status" : {
-        200 : function(response) {
-            console.log(response.text);
-        },
-        "error" : function(response) {
-            console.log('There was an unknown error.');
-        }
-    },
-    "data" : jQuery('#user-form')[0]
-});
-```
-
-In the above example, we are sending a POST request and directly attaching a form element
-that is in the DOM. You can also attach an array or an object of data as well. It will
-auto-detect and correctly build the query to be sent over. 
-
-##### Content-type detection
- 
-Jax will make an attempt to auto-detect and parse any response content that comes back
-over from the request. This makes is very convenient to access the data:
-
-###### JSON
-
-```js
-var json = jax.ajax('file.json');
-console.log(json.user_name);
-```
-
-###### CSV
-
-```js
-var csv = jax.ajax('file.csv');
-console.log(csv[0].user_name);
-```
-
-###### XML
-
-```js
-var xml = jax.ajax('file.xml');
-console.log(xml.test.nodes[0].user.user_name);
-```
+Please visit the [documentation](http://docs.jaxjs.org/en/latest/) for
+more detailed information on the Jax Javascript Library.

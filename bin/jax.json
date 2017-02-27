@@ -1,16 +1,12 @@
 {
-    "version" : "5.0.0",
+    "version" : "5.5.0",
     "include" : [
         "core.js",
-        "core",
         "ajax.js",
         "ajax",
         "browser.js",
         "cookie.js",
         "json.js",
-        "load",
-        "storage.js",
-        "string.js",
-        "string"
+        "storage.js"
     ]
 }
