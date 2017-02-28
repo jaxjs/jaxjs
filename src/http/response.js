@@ -44,10 +44,6 @@
             }
         }
 
-        if (type == null) {
-            throw 'Error: The content type was either not passed or could not be auto-detected.';
-        }
-
         switch (type) {
             // Parse TXT response
             case 'txt':

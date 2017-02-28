@@ -26,6 +26,7 @@
             var data     = ((opts != undefined) && (opts.data != undefined))     ? window.jax.http.buildQuery(opts.data) : null;
             var type     = ((opts != undefined) && (opts.type != undefined))     ? opts.type : null;
             var status   = ((opts != undefined) && (opts.status != undefined))   ? opts.status : null;
+            var progress = ((opts != undefined) && (opts.progress != undefined)) ? opts.progress : null;
             var trace    = ((opts != undefined) && (opts.trace != undefined))    ? opts.trace : null;
             var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
 
@@ -45,11 +46,15 @@
                     }
                 }
 
-                // Open request
-                if ((username != null) && (password != null)) {
-                    window.jax.http.requests[window.jax.http.current].open('GET', url, async, username, password);
-                } else {
-                    window.jax.http.requests[window.jax.http.current].open('GET', url, async);
+                // Add progress
+                if (progress != null) {
+                    if (((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) &&
+                        (window.jax.http.requests[window.jax.http.current].onprogress != undefined)) {
+                        window.jax.http.requests[window.jax.http.current].onprogress = progress;
+                    } else if (((method == 'POST') || (method == 'PUT') || (method == 'DELETE')) &&
+                        (window.jax.http.requests[window.jax.http.current].upload != undefined)) {
+                        window.jax.http.requests[window.jax.http.current].upload.addEventListener('progress', progress, false);
+                    }
                 }
 
                 // If additional headers are set, send them
@@ -63,7 +68,9 @@
                 if (status != null) {
                     window.jax.http.requests[window.jax.http.current].onreadystatechange = function() {
                         if (window.jax.http.requests[window.jax.http.current].readyState == 4) {
-                            var response = window.jax.http.processResponse(window.jax.http.current);
+                            var response = (window.jax.http.responses[window.jax.http.current] == undefined) ?
+                                window.jax.http.processResponse(window.jax.http.current) : window.jax.http.responses[window.jax.http.current];
+
                             if (status[response.status] != undefined) {
                                 if (typeof status[response.status] == 'function') {
                                     status[response.status](response);
@@ -90,11 +97,22 @@
                             trace.apply(undefined, [response]);
                         }
                     };
-                // Else, rely on the built in response parser
-                } else {
-                    window.jax.http.requests[window.jax.http.current].send(data);
-                    return window.jax.http.parseResponse(window.jax.http.processResponse(window.jax.http.current), type, async, trace, fields);
                 }
+
+                // Open request
+                if ((username != null) && (password != null)) {
+                    window.jax.http.requests[window.jax.http.current].open(method, url, async, username, password);
+                } else {
+                    window.jax.http.requests[window.jax.http.current].open(method, url, async);
+                }
+
+                // Send the request
+                window.jax.http.requests[window.jax.http.current].send(data);
+
+                var response = (window.jax.http.responses[window.jax.http.current] == undefined) ?
+                    window.jax.http.processResponse(window.jax.http.current) : window.jax.http.responses[window.jax.http.current];
+
+                return window.jax.http.parseResponse(response, type, async, trace, fields);
             } else {
                 throw (!window.jax.http.requests[window.jax.http.current]) ?
                     'Error: Could not create a request object.' :
