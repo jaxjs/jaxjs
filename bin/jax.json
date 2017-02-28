@@ -2,8 +2,8 @@
     "version" : "5.5.0",
     "include" : [
         "core.js",
-        "ajax.js",
-        "ajax",
+        "http.js",
+        "http",
         "browser.js",
         "cookie.js",
         "json.js",

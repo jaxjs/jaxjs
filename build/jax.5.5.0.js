@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2016 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    5.5.0
- * @build      Feb 27, 2017 16:15:44
+ * @build      Feb 27, 2017 21:56:20
  */
 (function(window){
     window.jax = {
@@ -67,10 +67,244 @@
         }
     };
 
+    /** Function to return the target identifier of the document's URI */
+    window.jax.target = function(u) {
+        var url = (u != null) ? u : location.href;
+        var target = null;
+        if (url.indexOf('#') != -1) {
+            target = url.substring(url.indexOf('#') + 1);
+        }
+        return target;
+    };
+
+    /** Function to fire before window is unloaded */
+    window.jax.beforeunload = function(func) {
+        // Get old beforeunload function(s), if they exist.
+        var oldBeforeUnLoad = window.onbeforeunload;
+
+        if (typeof window.onbeforeunload != 'function') {
+            window.onbeforeunload = func;
+        } else {
+            window.onbeforeunload = function() {
+                if (oldBeforeUnLoad) {
+                    oldBeforeUnLoad();
+                }
+                func();
+            };
+        }
+    };
+})(window);
+
+/**
+ * http.js
+ */
+(function(window){
+    window.jax.http = {
+        current   : 0,
+        requests  : [],
+        responses : [],
+        response  : null,
+        methods   : [
+            'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'DELETE'
+        ],
+
+        /** Function to send AJAX requests */
+        send : function(url, opts) {
+            // Create a new request object.
+            window.jax.http.current = window.jax.random(100000, 999999);
+            window.jax.http.requests[window.jax.http.current] = (window.XMLHttpRequest) ? new XMLHttpRequest() : false;
+
+            // Get options
+            var method   = ((opts != undefined) && (opts.method != undefined))   ? opts.method.toUpperCase() : 'GET';
+            var headers  = ((opts != undefined) && (opts.headers != undefined))  ? opts.headers : null;
+            var username = ((opts != undefined) && (opts.username != undefined)) ? opts.username : null;
+            var password = ((opts != undefined) && (opts.password != undefined)) ? opts.password : null;
+            var async    = ((opts != undefined) && (opts.async != undefined))    ? opts.async : false;
+            var data     = ((opts != undefined) && (opts.data != undefined))     ? window.jax.http.buildQuery(opts.data) : null;
+            var type     = ((opts != undefined) && (opts.type != undefined))     ? opts.type : null;
+            var status   = ((opts != undefined) && (opts.status != undefined))   ? opts.status : null;
+            var trace    = ((opts != undefined) && (opts.trace != undefined))    ? opts.trace : null;
+            var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
+
+            if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[window.jax.http.current])) {
+                if (data != null) {
+                    if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
+                        url += '?' + data;
+                        data = null;
+                    } else if ((method == 'POST') || (method == 'PUT') || (method == 'DELETE')) {
+                        if (data.constructor != FormData) {
+                            window.jax.http.requests[window.jax.http.current].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                            if (data.length != undefined) {
+                                window.jax.http.requests[window.jax.http.current].setRequestHeader('Content-Length', data.length.toString());
+                            }
+                            window.jax.http.requests[window.jax.http.current].setRequestHeader('Connection', 'close');
+                        }
+                    }
+                }
+
+                // Open request
+                if ((username != null) && (password != null)) {
+                    window.jax.http.requests[window.jax.http.current].open('GET', url, async, username, password);
+                } else {
+                    window.jax.http.requests[window.jax.http.current].open('GET', url, async);
+                }
+
+                // If additional headers are set, send them
+                if (headers != null) {
+                    for (var header in headers) {
+                        window.jax.http.requests[window.jax.http.current].setRequestHeader(header, headers[header]);
+                    }
+                }
+
+                // If status function handlers have been set, the set the onreadystatechange
+                if (status != null) {
+                    window.jax.http.requests[window.jax.http.current].onreadystatechange = function() {
+                        if (window.jax.http.requests[window.jax.http.current].readyState == 4) {
+                            var response = window.jax.http.processResponse(window.jax.http.current);
+                            if (status[response.status] != undefined) {
+                                if (typeof status[response.status] == 'function') {
+                                    status[response.status](response);
+                                } else if (status[response.status].constructor == Array) {
+                                    for (var i = 0; i < status[response.status].length; i++) {
+                                        if (typeof status[response.status][i] == 'function') {
+                                            status[response.status][i](response);
+                                        }
+                                    }
+                                }
+                            } else if (status['error']) {
+                                if (typeof status['error'] == 'function') {
+                                    status['error'](response);
+                                } else if (status['error'].constructor == Array) {
+                                    for (var i = 0; i < status['error'].length; i++) {
+                                        if (typeof status['error'][i] == 'function') {
+                                            status['error'][i](response);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        if (trace != null) {
+                            trace.apply(undefined, [response]);
+                        }
+                    };
+                // Else, rely on the built in response parser
+                } else {
+                    window.jax.http.requests[window.jax.http.current].send(data);
+                    return window.jax.http.parseResponse(window.jax.http.processResponse(window.jax.http.current), type, async, trace, fields);
+                }
+            } else {
+                throw (!window.jax.http.requests[window.jax.http.current]) ?
+                    'Error: Could not create a request object.' :
+                    'Error: That request method was not allowed.';
+            }
+        },
+
+        /** Alias function to send a GET AJAX request */
+        get : function(url, opts) {
+            if (opts == undefined) {
+                opts = {"method" : 'GET'};
+            } else {
+                opts.method = 'GET';
+            }
+            return window.jax.http.send(url, opts);
+        },
+
+        /** Alias function to send a HEAD AJAX request */
+        head : function(url, opts) {
+            if (opts == undefined) {
+                opts = {"method" : 'HEAD'};
+            } else {
+                opts.method = 'HEAD';
+            }
+            return window.jax.http.send(url, opts);
+        },
+
+        /** Alias function to send a OPTIONS AJAX request */
+        options : function(url, opts) {
+            if (opts == undefined) {
+                opts = {"method" : 'OPTIONS'};
+            } else {
+                opts.method = 'OPTIONS';
+            }
+            return window.jax.http.send(url, opts);
+        },
+
+        /** Alias function to send a POST AJAX request */
+        post : function(url, opts) {
+            if (opts == undefined) {
+                opts = {"method" : 'POST'};
+            } else {
+                opts.method = 'POST';
+            }
+            return window.jax.http.send(url, opts);
+        },
+
+        /** Alias function to send a PUT AJAX request */
+        put : function(url, opts) {
+            if (opts == undefined) {
+                opts = {"method" : 'PUT'};
+            } else {
+                opts.method = 'PUT';
+            }
+            return window.jax.http.send(url, opts);
+        },
+
+        /** Alias function to send a DELETE AJAX request */
+        delete : function(url, opts) {
+            if (opts == undefined) {
+                opts = {"method" : 'DELETE'};
+            } else {
+                opts.method = 'DELETE';
+            }
+            return window.jax.http.send(url, opts);
+        },
+
+        /** Function to get the HTTP request status of a URL */
+        status : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            return http.status;
+        },
+
+        /** Function to determine if the HTTP request is successful */
+        isSuccess : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 3) || (type == 2) || (type == 1));
+        },
+
+        /** Function to determine if the HTTP request is a redirect */
+        isRedirect : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return (type == 3);
+        },
+
+        /** Function to determine if the HTTP request is an error */
+        isError : function(url) {
+            var http = new XMLHttpRequest();
+            http.open('HEAD', url, false);
+            http.send();
+            var type = Math.floor(http.status / 100);
+            return ((type == 5) || (type == 4));
+        }
+    };
+})(window);
+
+/**
+ * http/response.js
+ */
+(function(window){
     /** Function to build a query */
-    window.jax.buildQuery = function(data) {
+    window.jax.http.buildQuery = function(data) {
         if (data.constructor != FormData) {
-            var query = '';
+            var query    = '';
+            var values   = '';
             var chkCount = [];
 
             // Loop through the elements to assemble the query string.
@@ -124,7 +358,7 @@
                         }
                     }
                 }
-                // If it's an object
+            // If it's an object
             } else if (data.constructor == Object) {
                 var i = 0;
                 for (var name in data) {
@@ -132,34 +366,34 @@
                         query += '&';
                     }
                     if (data[name].constructor == Array) {
-                        var aryVals = '';
+                        values = '';
                         for (var j = 0; j < data[name].length; j++) {
                             if (j != 0) {
-                                aryVals += '&';
+                                values += '&';
                             }
-                            aryVals += encodeURIComponent(name + '[' + j + ']') + '=' + encodeURIComponent(data[name][j]);
+                            values += encodeURIComponent(name + '[' + j + ']') + '=' + encodeURIComponent(data[name][j]);
                         }
-                        query += aryVals;
+                        query += values;
                     } else {
                         query += encodeURIComponent(name) + '=' + encodeURIComponent(data[name]);
                     }
                     i++;
                 }
-                // If it's a basic array with a set of arrays with name/value pairs
+            // If it's a basic array with a set of arrays with name/value pairs
             } else if (data.constructor == Array) {
                 for (var i = 0; i < data.length; i++) {
                     if (i != 0) {
                         query += '&';
                     }
                     if (data[i][1].constructor == Array) {
-                        var aryVals = '';
+                        values = '';
                         for (var j = 0; j < data[i][1].length; j++) {
                             if (j != 0) {
-                                aryVals += '&';
+                                values += '&';
                             }
-                            aryVals += encodeURIComponent(data[i][0] + '[' + j + ']') + '=' + encodeURIComponent(data[i][1][j]);
+                            values += encodeURIComponent(data[i][0] + '[' + j + ']') + '=' + encodeURIComponent(data[i][1][j]);
                         }
-                        query += aryVals;
+                        query += values;
                     } else {
                         query += encodeURIComponent(data[i][0]) + '=' + encodeURIComponent(data[i][1]);
                     }
@@ -171,138 +405,16 @@
 
         return query;
     };
-
-    /** Function to return the target identifier of the document's URI */
-    window.jax.target = function(u) {
-        var url = (u != null) ? u : location.href;
-        var target = null;
-        if (url.indexOf('#') != -1) {
-            target = url.substring(url.indexOf('#') + 1);
-        }
-        return target;
-    };
-
-    /** Function to fire before window is unloaded */
-    window.jax.beforeunload = function(func) {
-        // Get old beforeunload function(s), if they exist.
-        var oldBeforeUnLoad = window.onbeforeunload;
-
-        if (typeof window.onbeforeunload != 'function') {
-            window.onbeforeunload = func;
-        } else {
-            window.onbeforeunload = function() {
-                if (oldBeforeUnLoad) {
-                    oldBeforeUnLoad();
-                }
-                func();
-            };
-        }
-    };
 })(window);
 
 /**
- * ajax.js
- */
-(function(window){
-    window.jax.requests = [];
-
-    /** Function to perform AJAX requests */
-    window.jax.ajax = function(url, opts) {
-        // Create a new request object.
-        var index = window.jax.random(100000, 999999);
-        window.jax.requests[index] = (window.XMLHttpRequest) ? new XMLHttpRequest() : false;
-
-        // Get options
-        var method  = ((opts != undefined) && (opts.method != undefined))  ? opts.method.toLowerCase() : 'get';
-        var async   = ((opts != undefined) && (opts.async != undefined))   ? opts.async : false;
-        var fields  = ((opts != undefined) && (opts.fields != undefined))  ? opts.fields : true;
-        var data    = ((opts != undefined) && (opts.data != undefined))    ? window.jax.buildQuery(opts.data) : null;
-        var type    = ((opts != undefined) && (opts.type != undefined))    ? opts.type : null;
-        var delim   = ((opts != undefined) && (opts.delim != undefined))   ? opts.delim : null;
-        var headers = ((opts != undefined) && (opts.headers != undefined)) ? opts.headers : null;
-        var status  = ((opts != undefined) && (opts.status != undefined))  ? opts.status : null;
-        var trace   = ((opts != undefined) && (opts.trace != undefined))   ? opts.trace : null;
-
-        // If method is GET
-        if (method == 'get') {
-            if (data != null) {
-                url += '?' + data;
-            }
-            window.jax.requests[index].open('GET', url, async);
-            // Else, if method is POST
-        } else if (method == 'post') {
-            // Set and send the request, setting the function to execute on the return of a response.
-            window.jax.requests[index].open('POST', url, async);
-            if (data != null) {
-                if (data.constructor != FormData) {
-                    window.jax.requests[index].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                    if (data.length != undefined) {
-                        window.jax.requests[index].setRequestHeader('Content-Length', data.length.toString());
-                    }
-                    window.jax.requests[index].setRequestHeader('Connection', 'close');
-                }
-            }
-        }
-
-        // If additional headers are set, send them
-        if (headers != null) {
-            for (var header in headers) {
-                window.jax.requests[index].setRequestHeader(header, headers[header]);
-            }
-        }
-
-        // If status function handlers have been set, the set the onreadystatechange
-        if (status != null) {
-            window.jax.requests[index].onreadystatechange = function() {
-                if (window.jax.requests[index].readyState == 4) {
-                    var response = window.jax.getResponse(index);
-                    // If they exist, execute normal status return function handlers
-
-                    if (status[window.jax.requests[index].status]) {
-                        if (typeof status[window.jax.requests[index].status] == 'function') {
-                            status[window.jax.requests[index].status](response);
-                        } else if (status[window.jax.requests[index].status].constructor == Array) {
-                            for (var i = 0; i < status[window.jax.requests[index].status].length; i++) {
-                                if (typeof status[window.jax.requests[index].status][i] == 'function') {
-                                    status[window.jax.requests[index].status][i](response);
-                                }
-                            }
-                        }
-                        // Else, if generic error handler(s) exist, execute error handler(s)
-                    } else if (status['error']) {
-                        if (typeof status['error'] == 'function') {
-                            status['error'](response);
-                        } else if (status['error'].constructor == Array) {
-                            for (var i = 0; i < status['error'].length; i++) {
-                                if (typeof status['error'][i] == 'function') {
-                                    status['error'][i](response);
-                                }
-                            }
-                        }
-                    }
-                    if (trace != null) {
-                        trace.apply(undefined, [response]);
-                    }
-                }
-            };
-
-            window.jax.requests[index].send(data);
-            return this;
-            // Else, rely on the built in response parser
-        } else {
-            window.jax.requests[index].send(data);
-            return window.jax.parseResponse(window.jax.getResponse(index), fields, type, delim, async, trace);
-        }
-    };
-})(window);
-
-/**
- * ajax/response.js
+ * http/response.js
  */
 (function(window){
     /** Function to parse a response */
-    window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
+    window.jax.http.parseResponse = function(response, type, async, trace, fields) {
         var obj;
+        var delim;
 
         // Detect application type
         if (type == null) {
@@ -316,14 +428,10 @@
                     type = 'xml';
                 } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
                     type = 'csv';
-                    if (delim == null) {
-                        delim = ',';
-                    }
+                    delim = ',';
                 } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
-                    type = 'csv';
-                    if (delim == null) {
-                        delim = "\t";
-                    }
+                    type = 'tsv';
+                    delim = "\t";
                 }
             // Else, if string, try to detect from string
             } else if (typeof response == 'string') {
@@ -336,14 +444,10 @@
                     var validTsv = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*(?:\t\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*)*$/;
                     if (validCsv.test(response)) {
                         type = 'csv';
-                        if (delim == null) {
-                            delim = ',';
-                        }
+                        delim = ',';
                     } else if (validTsv.test(response)) {
-                        type = 'csv';
-                        if (delim == null) {
-                            delim = "\t";
-                        }
+                        type = 'tsv';
+                        delim = "\t";
                     }
                 }
             }
@@ -380,7 +484,7 @@
                         var parser = new DOMParser();
                         var xDoc = parser.parseFromString(str, 'text/xml');
                     }
-                    // Else, get XML doc
+                // Else, get XML doc
                 } else {
                     var xDoc = response.xml;
                 }
@@ -462,9 +566,7 @@
 
             // Parse CSV or TSV response
             case 'csv':
-                if (delim == null) {
-                    throw 'Error: The content delimiter was either not passed or could not be auto-detected.';
-                }
+            case 'tsv':
                 var start = 0;
                 var csvDoc = (response.text != undefined) ? response.text : response.toString();
                 var csvObj = 'var csv = ';
@@ -541,110 +643,43 @@
         return obj;
     };
 
-    /** Function to get a response */
-    window.jax.getResponse = function(index) {
-        var response = {};
+    /** Function to process a response */
+    window.jax.http.processResponse = function(index) {
+        window.jax.http.responses[index] = {};
 
-        if (window.jax.requests[index] != undefined) {
-            var response = {
-                request    : window.jax.requests[index],
+        if (window.jax.http.requests[index] != undefined) {
+            window.jax.http.responses[index] = {
                 headers    : {},
+                url        : '',
                 status     : 0,
                 statusText : '',
+                timeout    : 0,
                 body       : '',
                 text       : '',
                 xml        : ''
             };
-            var h = window.jax.requests[index].getAllResponseHeaders();
+            var h = window.jax.http.requests[index].getAllResponseHeaders();
             if ((h != null) && (h != '')) {
                 h = h.split("\n");
                 for (var i = 0; i < h.length; i++) {
                     var head = h[i].substring(0, h[i].indexOf(':')).trim();
                     var val  = h[i].substring(h[i].indexOf(':') + 1).trim();
                     if (head != '') {
-                        response.headers[head] = val;
+                        window.jax.http.responses[index].headers[head] = val;
                     }
                 }
             }
-            response.status     = window.jax.requests[index].status;
-            response.statusText = window.jax.requests[index].statusText;
-            response.body       = (typeof window.jax.requests[index].response != 'undefined')     ? window.jax.requests[index].response : '';
-            response.text       = (typeof window.jax.requests[index].responseText != 'undefined') ? window.jax.requests[index].responseText : '';
-            response.xml        = (typeof window.jax.requests[index].responseXML != 'undefined')  ? window.jax.requests[index].responseXML : '';
+            window.jax.http.responses[index].url        = (typeof window.jax.http.requests[index].responseURL != 'undefined')  ? window.jax.http.requests[index].responseURL : '';
+            window.jax.http.responses[index].status     = window.jax.http.requests[index].status;
+            window.jax.http.responses[index].statusText = window.jax.http.requests[index].statusText;
+            window.jax.http.responses[index].timeout    = window.jax.http.requests[index].timeout;
+            window.jax.http.responses[index].body       = (typeof window.jax.http.requests[index].response != 'undefined')     ? window.jax.http.requests[index].response : '';
+            window.jax.http.responses[index].text       = (typeof window.jax.http.requests[index].responseText != 'undefined') ? window.jax.http.requests[index].responseText : '';
+            window.jax.http.responses[index].xml        = (typeof window.jax.http.requests[index].responseXML != 'undefined')  ? window.jax.http.requests[index].responseXML : '';
         }
 
-        return response;
-    };
-})(window);
-
-/**
- * ajax/http.js
- */
-(function(window){
-    window.jax.http = {
-        /** Function to get the HTTP request status of a URL */
-        getStatus : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            return http.status;
-        },
-
-        /** Function to determine if the HTTP request is successful */
-        isSuccess : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 3) || (type == 2) || (type == 1));
-        },
-
-        /** Function to determine if the HTTP request is a redirect */
-        isRedirect : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return (type == 3);
-        },
-
-        /** Function to determine if the HTTP request is an error */
-        isError : function(url) {
-            var http = new XMLHttpRequest();
-            http.open('HEAD', url, false);
-            http.send();
-            var type = Math.floor(http.status / 100);
-            return ((type == 5) || (type == 4));
-        }
-    };
-})(window);
-
-/**
- * ajax/get.js
- */
-(function(window){
-    /** Alias function to perform a POST AJAX request */
-    window.jax.post = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'post'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'post'))) {
-            opts.method = 'post';
-        }
-        return window.jax.ajax(url, opts);
-    };
-})(window);
-/**
- * ajax/get.js
- */
-(function(window){
-    /** Alias function to perform a GET AJAX request */
-    window.jax.get = function(url, opts) {
-        if (opts == undefined) {
-            opts = {method : 'get'};
-        } else if ((opts.method == undefined) || ((opts.method != undefined) && (opts.method.toLowerCase() != 'get'))) {
-            opts.method = 'get';
-        }
-        return window.jax.ajax(url, opts);
+        window.jax.http.response = window.jax.http.responses[index];
+        return window.jax.http.response;
     };
 })(window);
 

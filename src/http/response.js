@@ -1,10 +1,11 @@
 /**
- * ajax/response.js
+ * http/response.js
  */
 (function(window){
     /** Function to parse a response */
-    window.jax.parseResponse = function(response, fields, type, delim, async, trace) {
+    window.jax.http.parseResponse = function(response, type, async, trace, fields) {
         var obj;
+        var delim;
 
         // Detect application type
         if (type == null) {
@@ -18,14 +19,10 @@
                     type = 'xml';
                 } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
                     type = 'csv';
-                    if (delim == null) {
-                        delim = ',';
-                    }
+                    delim = ',';
                 } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
-                    type = 'csv';
-                    if (delim == null) {
-                        delim = "\t";
-                    }
+                    type = 'tsv';
+                    delim = "\t";
                 }
             // Else, if string, try to detect from string
             } else if (typeof response == 'string') {
@@ -38,14 +35,10 @@
                     var validTsv = /^\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*(?:\t\s*(?:'[^'\\]*(?:\\[\S\s][^'\\]*)*'|"[^"\\]*(?:\\[\S\s][^"\\]*)*"|[^\t'"\s\\]*(?:\s+[^\t'"\s\\]+)*)\s*)*$/;
                     if (validCsv.test(response)) {
                         type = 'csv';
-                        if (delim == null) {
-                            delim = ',';
-                        }
+                        delim = ',';
                     } else if (validTsv.test(response)) {
-                        type = 'csv';
-                        if (delim == null) {
-                            delim = "\t";
-                        }
+                        type = 'tsv';
+                        delim = "\t";
                     }
                 }
             }
@@ -82,7 +75,7 @@
                         var parser = new DOMParser();
                         var xDoc = parser.parseFromString(str, 'text/xml');
                     }
-                    // Else, get XML doc
+                // Else, get XML doc
                 } else {
                     var xDoc = response.xml;
                 }
@@ -164,9 +157,7 @@
 
             // Parse CSV or TSV response
             case 'csv':
-                if (delim == null) {
-                    throw 'Error: The content delimiter was either not passed or could not be auto-detected.';
-                }
+            case 'tsv':
                 var start = 0;
                 var csvDoc = (response.text != undefined) ? response.text : response.toString();
                 var csvObj = 'var csv = ';
@@ -243,38 +234,42 @@
         return obj;
     };
 
-    /** Function to get a response */
-    window.jax.getResponse = function(index) {
-        var response = {};
+    /** Function to process a response */
+    window.jax.http.processResponse = function(index) {
+        window.jax.http.responses[index] = {};
 
-        if (window.jax.requests[index] != undefined) {
-            var response = {
-                request    : window.jax.requests[index],
+        if (window.jax.http.requests[index] != undefined) {
+            window.jax.http.responses[index] = {
                 headers    : {},
+                url        : '',
                 status     : 0,
                 statusText : '',
+                timeout    : 0,
                 body       : '',
                 text       : '',
                 xml        : ''
             };
-            var h = window.jax.requests[index].getAllResponseHeaders();
+            var h = window.jax.http.requests[index].getAllResponseHeaders();
             if ((h != null) && (h != '')) {
                 h = h.split("\n");
                 for (var i = 0; i < h.length; i++) {
                     var head = h[i].substring(0, h[i].indexOf(':')).trim();
                     var val  = h[i].substring(h[i].indexOf(':') + 1).trim();
                     if (head != '') {
-                        response.headers[head] = val;
+                        window.jax.http.responses[index].headers[head] = val;
                     }
                 }
             }
-            response.status     = window.jax.requests[index].status;
-            response.statusText = window.jax.requests[index].statusText;
-            response.body       = (typeof window.jax.requests[index].response != 'undefined')     ? window.jax.requests[index].response : '';
-            response.text       = (typeof window.jax.requests[index].responseText != 'undefined') ? window.jax.requests[index].responseText : '';
-            response.xml        = (typeof window.jax.requests[index].responseXML != 'undefined')  ? window.jax.requests[index].responseXML : '';
+            window.jax.http.responses[index].url        = (typeof window.jax.http.requests[index].responseURL != 'undefined')  ? window.jax.http.requests[index].responseURL : '';
+            window.jax.http.responses[index].status     = window.jax.http.requests[index].status;
+            window.jax.http.responses[index].statusText = window.jax.http.requests[index].statusText;
+            window.jax.http.responses[index].timeout    = window.jax.http.requests[index].timeout;
+            window.jax.http.responses[index].body       = (typeof window.jax.http.requests[index].response != 'undefined')     ? window.jax.http.requests[index].response : '';
+            window.jax.http.responses[index].text       = (typeof window.jax.http.requests[index].responseText != 'undefined') ? window.jax.http.requests[index].responseText : '';
+            window.jax.http.responses[index].xml        = (typeof window.jax.http.requests[index].responseXML != 'undefined')  ? window.jax.http.requests[index].responseXML : '';
         }
 
-        return response;
+        window.jax.http.response = window.jax.http.responses[index];
+        return window.jax.http.response;
     };
 })(window);
