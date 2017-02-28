@@ -5,21 +5,20 @@ Jax JavaScript Library
 
 RELEASE INFORMATION
 -------------------
-Jax JavaScript Library 5.5.0  
+Jax JavaScript HTTP Library 5.5.0  
 Released February 27, 2017
 
 OVERVIEW
 --------
-Jax JavaScript Library is a lightweight, robust JavaScript library
-that follows a set of standards and practices set and adhered to by
-other similar JavaScript libraries. It can be installed next to
-and work alongside other JavaScript librarires, such as jQuery.
+Jax JavaScript Library is a lightweight, robust JavaScript HTTP library.
+It can be installed next to and work alongside other JavaScript libraries,
+such as jQuery.
 
 Built-in features include:
 
-* Simplified AJAX Requests
-* Accessing Browser Data
-* Handling Cookies
+* Simplified HTTP Requests & Responses
+* Accessing Browser Information & Data
+* Cookies
 * Storage
 
 INSTALL
