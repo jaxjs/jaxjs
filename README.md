@@ -1,5 +1,5 @@
-Jax JavaScript Library
-=================================
+Jax JavaScript HTTP Library
+===========================
 
 <img src="http://www.jaxjs.org/img/jax-javascript-logo.png" width="180" height="180" />
 
