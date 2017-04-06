@@ -31,6 +31,13 @@
             var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
 
             if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[window.jax.http.current])) {
+                // Open request
+                if ((username != null) && (password != null)) {
+                    window.jax.http.requests[window.jax.http.current].open(method, url, async, username, password);
+                } else {
+                    window.jax.http.requests[window.jax.http.current].open(method, url, async);
+                }
+
                 if (data != null) {
                     if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
                         url += '?' + data;
@@ -97,13 +104,6 @@
                             trace.apply(undefined, [response]);
                         }
                     };
-                }
-
-                // Open request
-                if ((username != null) && (password != null)) {
-                    window.jax.http.requests[window.jax.http.current].open(method, url, async, username, password);
-                } else {
-                    window.jax.http.requests[window.jax.http.current].open(method, url, async);
                 }
 
                 // Send the request

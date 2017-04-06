@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2017 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    5.5.0
- * @build      Feb 28, 2017 10:39:27
+ * @build      Apr 6, 2017 10:03:00
  */
 (function(window){
     window.jax = {
@@ -128,6 +128,13 @@
             var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
 
             if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[window.jax.http.current])) {
+                // Open request
+                if ((username != null) && (password != null)) {
+                    window.jax.http.requests[window.jax.http.current].open(method, url, async, username, password);
+                } else {
+                    window.jax.http.requests[window.jax.http.current].open(method, url, async);
+                }
+
                 if (data != null) {
                     if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
                         url += '?' + data;
@@ -194,13 +201,6 @@
                             trace.apply(undefined, [response]);
                         }
                     };
-                }
-
-                // Open request
-                if ((username != null) && (password != null)) {
-                    window.jax.http.requests[window.jax.http.current].open(method, url, async, username, password);
-                } else {
-                    window.jax.http.requests[window.jax.http.current].open(method, url, async);
                 }
 
                 // Send the request
