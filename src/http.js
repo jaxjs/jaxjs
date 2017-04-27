@@ -3,19 +3,16 @@
  */
 (function(window){
     window.jax.http = {
-        current   : 0,
         requests  : [],
         responses : [],
         response  : null,
-        methods   : [
-            'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'DELETE'
-        ],
+        methods   : ['GET', 'HEAD', 'OPTIONS', 'POST', 'PUT', 'PATCH', 'DELETE'],
 
         /** Function to send AJAX requests */
         send : function(url, opts) {
             // Create a new request object.
-            window.jax.http.current = window.jax.random(100000, 999999);
-            window.jax.http.requests[window.jax.http.current] = (window.XMLHttpRequest) ? new XMLHttpRequest() : false;
+            var currentIndex = window.jax.random(100000, 999999);
+            window.jax.http.requests[currentIndex] = (window.XMLHttpRequest) ? new XMLHttpRequest() : false;
 
             // Get options
             var method   = ((opts != undefined) && (opts.method != undefined))   ? opts.method.toUpperCase() : 'GET';
@@ -30,53 +27,52 @@
             var trace    = ((opts != undefined) && (opts.trace != undefined))    ? opts.trace : null;
             var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
 
-            if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[window.jax.http.current])) {
-                // Open request
-                if ((username != null) && (password != null)) {
-                    window.jax.http.requests[window.jax.http.current].open(method, url, async, username, password);
-                } else {
-                    window.jax.http.requests[window.jax.http.current].open(method, url, async);
+            if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[currentIndex])) {
+                if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
+                    url += '?' + data;
+                    data = null;
                 }
 
-                if (data != null) {
-                    if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
-                        url += '?' + data;
-                        data = null;
-                    } else if ((method == 'POST') || (method == 'PUT') || (method == 'DELETE')) {
-                        if (data.constructor != FormData) {
-                            window.jax.http.requests[window.jax.http.current].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                            if (data.length != undefined) {
-                                window.jax.http.requests[window.jax.http.current].setRequestHeader('Content-Length', data.length.toString());
-                            }
-                            window.jax.http.requests[window.jax.http.current].setRequestHeader('Connection', 'close');
+                // Open request
+                if ((username != null) && (password != null)) {
+                    window.jax.http.requests[currentIndex].open(method, url, async, username, password);
+                } else {
+                    window.jax.http.requests[currentIndex].open(method, url, async);
+                }
+
+                if ((data != null) && ((method == 'POST') || (method == 'PUT') || (method == 'PATCH') || (method == 'DELETE'))) {
+                    if (data.constructor != FormData) {
+                        window.jax.http.requests[currentIndex].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+                        if (data.length != undefined) {
+                            window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
                         }
+                        window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
                     }
                 }
 
                 // Add progress
                 if (progress != null) {
                     if (((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) &&
-                        (window.jax.http.requests[window.jax.http.current].onprogress != undefined)) {
-                        window.jax.http.requests[window.jax.http.current].onprogress = progress;
-                    } else if (((method == 'POST') || (method == 'PUT') || (method == 'DELETE')) &&
-                        (window.jax.http.requests[window.jax.http.current].upload != undefined)) {
-                        window.jax.http.requests[window.jax.http.current].upload.addEventListener('progress', progress, false);
+                        (window.jax.http.requests[currentIndex].onprogress != undefined)) {
+                        window.jax.http.requests[currentIndex].onprogress = progress;
+                    } else if (((method == 'POST') || (method == 'PUT') || (method == 'PATCH') || (method == 'DELETE')) &&
+                        (window.jax.http.requests[currentIndex].upload != undefined)) {
+                        window.jax.http.requests[currentIndex].upload.addEventListener('progress', progress, false);
                     }
                 }
 
                 // If additional headers are set, send them
                 if (headers != null) {
                     for (var header in headers) {
-                        window.jax.http.requests[window.jax.http.current].setRequestHeader(header, headers[header]);
+                        window.jax.http.requests[currentIndex].setRequestHeader(header, headers[header]);
                     }
                 }
 
                 // If status function handlers have been set, the set the onreadystatechange
                 if (status != null) {
-                    window.jax.http.requests[window.jax.http.current].onreadystatechange = function() {
-                        if (window.jax.http.requests[window.jax.http.current].readyState == 4) {
-                            var response = (window.jax.http.responses[window.jax.http.current] == undefined) ?
-                                window.jax.http.processResponse(window.jax.http.current) : window.jax.http.responses[window.jax.http.current];
+                    window.jax.http.requests[currentIndex].onreadystatechange = function() {
+                        if (window.jax.http.requests[currentIndex].readyState == 4) {
+                            var response = window.jax.http.processResponse(currentIndex);
 
                             if (status[response.status] != undefined) {
                                 if (typeof status[response.status] == 'function') {
@@ -107,14 +103,14 @@
                 }
 
                 // Send the request
-                window.jax.http.requests[window.jax.http.current].send(data);
+                window.jax.http.requests[currentIndex].send(data);
 
-                var response = (window.jax.http.responses[window.jax.http.current] == undefined) ?
-                    window.jax.http.processResponse(window.jax.http.current) : window.jax.http.responses[window.jax.http.current];
+                var response = (window.jax.http.responses[currentIndex] == undefined) ?
+                    window.jax.http.processResponse(currentIndex) : window.jax.http.responses[currentIndex];
 
                 return window.jax.http.parseResponse(response, type, async, trace, fields);
             } else {
-                throw (!window.jax.http.requests[window.jax.http.current]) ?
+                throw (!window.jax.http.requests[currentIndex]) ?
                     'Error: Could not create a request object.' :
                     'Error: That request method was not allowed.';
             }

@@ -232,10 +232,10 @@
 
     /** Function to process a response */
     window.jax.http.processResponse = function(index) {
-        window.jax.http.responses[index] = {};
+        var response = {};
 
         if (window.jax.http.requests[index] != undefined) {
-            window.jax.http.responses[index] = {
+            response = {
                 headers    : {},
                 url        : '',
                 status     : 0,
@@ -252,20 +252,20 @@
                     var head = h[i].substring(0, h[i].indexOf(':')).trim();
                     var val  = h[i].substring(h[i].indexOf(':') + 1).trim();
                     if (head != '') {
-                        window.jax.http.responses[index].headers[head] = val;
+                        response.headers[head] = val;
                     }
                 }
             }
-            window.jax.http.responses[index].url        = (typeof window.jax.http.requests[index].responseURL != 'undefined')  ? window.jax.http.requests[index].responseURL : '';
-            window.jax.http.responses[index].status     = window.jax.http.requests[index].status;
-            window.jax.http.responses[index].statusText = window.jax.http.requests[index].statusText;
-            window.jax.http.responses[index].timeout    = window.jax.http.requests[index].timeout;
-            window.jax.http.responses[index].body       = (typeof window.jax.http.requests[index].response != 'undefined')     ? window.jax.http.requests[index].response : '';
-            window.jax.http.responses[index].text       = (typeof window.jax.http.requests[index].responseText != 'undefined') ? window.jax.http.requests[index].responseText : '';
-            window.jax.http.responses[index].xml        = (typeof window.jax.http.requests[index].responseXML != 'undefined')  ? window.jax.http.requests[index].responseXML : '';
+            response.url        = (typeof window.jax.http.requests[index].responseURL != 'undefined')  ? window.jax.http.requests[index].responseURL : '';
+            response.status     = window.jax.http.requests[index].status;
+            response.statusText = window.jax.http.requests[index].statusText;
+            response.timeout    = window.jax.http.requests[index].timeout;
+            response.body       = (typeof window.jax.http.requests[index].response != 'undefined')     ? window.jax.http.requests[index].response : '';
+            response.text       = (typeof window.jax.http.requests[index].responseText != 'undefined') ? window.jax.http.requests[index].responseText : '';
+            response.xml        = (typeof window.jax.http.requests[index].responseXML != 'undefined')  ? window.jax.http.requests[index].responseXML : '';
         }
 
-        window.jax.http.response = window.jax.http.responses[index];
+        window.jax.http.response = response;
         return window.jax.http.response;
     };
 })(window);
