@@ -43,10 +43,10 @@
                 if ((data != null) && ((method == 'POST') || (method == 'PUT') || (method == 'PATCH') || (method == 'DELETE'))) {
                     if (data.constructor != FormData) {
                         window.jax.http.requests[currentIndex].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                        if (data.length != undefined) {
-                            window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
-                        }
-                        window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
+                        //if (data.length != undefined) {
+                        //    window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
+                        //}
+                        //window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
                     }
                 }
 

@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2017 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    5.5.0
- * @build      Apr 27, 2017 12:13:57
+ * @build      May 22, 2017 16:03:41
  */
 (function(window){
     window.jax = {
@@ -140,10 +140,10 @@
                 if ((data != null) && ((method == 'POST') || (method == 'PUT') || (method == 'PATCH') || (method == 'DELETE'))) {
                     if (data.constructor != FormData) {
                         window.jax.http.requests[currentIndex].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                        if (data.length != undefined) {
-                            window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
-                        }
-                        window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
+                        //if (data.length != undefined) {
+                        //    window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
+                        //}
+                        //window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
                     }
                 }
 
