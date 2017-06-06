@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2017 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    5.5.0
- * @build      May 22, 2017 16:03:41
+ * @build      Jun 6, 2017 11:08:55
  */
 (function(window){
     window.jax = {
@@ -125,7 +125,7 @@
             var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
 
             if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[currentIndex])) {
-                if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
+                if ((data != null) && ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS'))) {
                     url += '?' + data;
                     data = null;
                 }
@@ -140,10 +140,6 @@
                 if ((data != null) && ((method == 'POST') || (method == 'PUT') || (method == 'PATCH') || (method == 'DELETE'))) {
                     if (data.constructor != FormData) {
                         window.jax.http.requests[currentIndex].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                        //if (data.length != undefined) {
-                        //    window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
-                        //}
-                        //window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
                     }
                 }
 

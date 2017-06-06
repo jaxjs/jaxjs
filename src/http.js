@@ -28,7 +28,7 @@
             var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
 
             if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[currentIndex])) {
-                if ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS')) {
+                if ((data != null) && ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS'))) {
                     url += '?' + data;
                     data = null;
                 }
@@ -43,10 +43,6 @@
                 if ((data != null) && ((method == 'POST') || (method == 'PUT') || (method == 'PATCH') || (method == 'DELETE'))) {
                     if (data.constructor != FormData) {
                         window.jax.http.requests[currentIndex].setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-                        //if (data.length != undefined) {
-                        //    window.jax.http.requests[currentIndex].setRequestHeader('Content-Length', data.length.toString());
-                        //}
-                        //window.jax.http.requests[currentIndex].setRequestHeader('Connection', 'close');
                     }
                 }
 
