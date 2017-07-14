@@ -15,17 +15,19 @@
             window.jax.http.requests[currentIndex] = (window.XMLHttpRequest) ? new XMLHttpRequest() : false;
 
             // Get options
-            var method   = ((opts != undefined) && (opts.method != undefined))   ? opts.method.toUpperCase() : 'GET';
-            var headers  = ((opts != undefined) && (opts.headers != undefined))  ? opts.headers : null;
-            var username = ((opts != undefined) && (opts.username != undefined)) ? opts.username : null;
-            var password = ((opts != undefined) && (opts.password != undefined)) ? opts.password : null;
-            var async    = ((opts != undefined) && (opts.async != undefined))    ? opts.async : false;
-            var data     = ((opts != undefined) && (opts.data != undefined))     ? window.jax.http.buildQuery(opts.data) : null;
-            var type     = ((opts != undefined) && (opts.type != undefined))     ? opts.type : null;
-            var status   = ((opts != undefined) && (opts.status != undefined))   ? opts.status : null;
-            var progress = ((opts != undefined) && (opts.progress != undefined)) ? opts.progress : null;
-            var trace    = ((opts != undefined) && (opts.trace != undefined))    ? opts.trace : null;
-            var fields   = ((opts != undefined) && (opts.fields != undefined))   ? opts.fields : false;
+            var method    = ((opts != undefined) && (opts.method != undefined))    ? opts.method.toUpperCase() : 'GET';
+            var headers   = ((opts != undefined) && (opts.headers != undefined))   ? opts.headers : null;
+            var username  = ((opts != undefined) && (opts.username != undefined))  ? opts.username : null;
+            var password  = ((opts != undefined) && (opts.password != undefined))  ? opts.password : null;
+            var async     = ((opts != undefined) && (opts.async != undefined))     ? opts.async : false;
+            var data      = ((opts != undefined) && (opts.data != undefined))      ? window.jax.http.buildQuery(opts.data) : null;
+            var type      = ((opts != undefined) && (opts.type != undefined))      ? opts.type : null;
+            var status    = ((opts != undefined) && (opts.status != undefined))    ? opts.status : null;
+            var progress  = ((opts != undefined) && (opts.progress != undefined))  ? opts.progress : null;
+            var trace     = ((opts != undefined) && (opts.trace != undefined))     ? opts.trace : null;
+            var fields    = ((opts != undefined) && (opts.fields != undefined))    ? opts.fields : false;
+            var timeout   = ((opts != undefined) && (opts.timeout != undefined))   ? opts.timeout : null;
+            var ontimeout = ((opts != undefined) && (opts.ontimeout != undefined)) ? opts.ontimeout : null;
 
             if ((window.jax.http.methods.indexOf(method) != -1) && (window.jax.http.requests[currentIndex])) {
                 if ((data != null) && ((method == 'GET') || (method == 'HEAD') || (method == 'OPTIONS'))) {
@@ -96,6 +98,13 @@
                             trace.apply(undefined, [response]);
                         }
                     };
+                }
+
+                if (timeout != null) {
+                    window.jax.http.requests[currentIndex].timeout = timeout;
+                    if (ontimeout != null) {
+                        window.jax.http.requests[currentIndex].ontimeout = ontimeout;
+                    }
                 }
 
                 // Send the request
