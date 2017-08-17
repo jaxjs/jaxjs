@@ -7,7 +7,7 @@
  * @copyright  Copyright (c) 2009-2017 NOLA Interactive, LLC. (http://www.nolainteractive.com)
  * @license    http://www.jaxjs.org/license     New BSD License
  * @version    5.5.0
- * @build      Jul 14, 2017 11:29:58
+ * @build      Aug 17, 2017 14:33:24
  */
 (function(window){
     window.jax = {
@@ -327,19 +327,29 @@
         // Detect application type
         if (type == null) {
             // Try from response object content type header
-            if ((response.headers != undefined) && (response.headers['Content-Type'] != undefined)) {
-                if (response.headers['Content-Type'].toLowerCase().indexOf('text/plain') != -1) {
-                    type = 'txt';
-                } else if (response.headers['Content-Type'].toLowerCase().indexOf('json') != -1) {
-                    type = 'json';
-                } else if (response.headers['Content-Type'].toLowerCase().indexOf('xml') != -1) {
-                    type = 'xml';
-                } else if (response.headers['Content-Type'].toLowerCase().indexOf('csv') != -1) {
-                    type = 'csv';
-                    delim = ',';
-                } else if (response.headers['Content-Type'].toLowerCase().indexOf('tsv') != -1) {
-                    type = 'tsv';
-                    delim = "\t";
+            if (response.headers != undefined) {
+                var contentType = null;
+                if (response.headers['Content-Type'] != undefined) {
+                    contentType = response.headers['Content-Type'];
+                } else if (response.headers['Content-type'] != undefined) {
+                    contentType = response.headers['Content-type'];
+                } else if (response.headers['content-type'] != undefined) {
+                    contentType = response.headers['content-type'];
+                }
+                if (null !== contentType) {
+                    if (contentType.toLowerCase().indexOf('text/plain') != -1) {
+                        type = 'txt';
+                    } else if (contentType.toLowerCase().indexOf('json') != -1) {
+                        type = 'json';
+                    } else if (contentType.toLowerCase().indexOf('xml') != -1) {
+                        type = 'xml';
+                    } else if (contentType.toLowerCase().indexOf('csv') != -1) {
+                        type = 'csv';
+                        delim = ',';
+                    } else if (contentType.toLowerCase().indexOf('tsv') != -1) {
+                        type = 'tsv';
+                        delim = "\t";
+                    }
                 }
             // Else, if string, try to detect from string
             } else if (typeof response == 'string') {
