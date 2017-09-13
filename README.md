@@ -1,8 +1,6 @@
 Jax JavaScript HTTP Library
 ===========================
 
-<img src="http://www.jaxjs.org/img/jax-javascript-logo.png" width="180" height="180" />
-
 RELEASE INFORMATION
 -------------------
 Jax JavaScript HTTP Library 5.5.0  
